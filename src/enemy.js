@@ -3,7 +3,7 @@ class Enemy {
     x = 200,
     y = 200,
     health = 10,
-    speed = 1.0,
+    speed = 1.35,
     type = Game.EnemyTypes,
     followPlayer = true,
     player,
@@ -47,7 +47,7 @@ class Enemy {
       dy /= distance;
       let spd = this.speed;
       if (this.type == Game.EnemyTypes.SPRINTER) {
-        spd *= 4.0;
+        spd *= 3.0;
       }
       this.x += dx * spd;
       this.y += dy * spd;
@@ -106,10 +106,10 @@ class Enemy {
     }
     return 80.0 + this.health * 5.0;
   }
-  hit(hitX = 0, hitY = 0) {
+  hit(hitX = 0, hitY = 0, hitpoint = 1) {
     // if (!this.hasSpawned) return;
 
-    this.health--;
+    this.health -= hitpoint;
     this.knockback(hitX, hitY);
   }
   knockback(hitX, hitY) {

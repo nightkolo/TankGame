@@ -10,6 +10,7 @@ class Bullet {
     this.size = size;
     this.lifetime = 3.0;
     this.alive = true;
+    this.hasBeenReflected = false;
 
     this.spawned();
   }
@@ -19,11 +20,11 @@ class Bullet {
       this.alive = false;
     }, this.lifetime * 1000.0);
   }
-  changeDir(px = 0, py = 0){ // Experimental
-    this.dir = {
-      x: px,
-      y: py
-    }
+  reflect(){ // Experimental
+    this.hasBeenReflected = true;
+
+    this.dirX *= -1;
+    this.dirY *= -1
   }
 
   update(){

@@ -8,9 +8,40 @@ class Player {
     this.enemies = [];
     
     this.lives = 5;
+    this.newLives = 0;
     this.alive = true;
     this.invincinble = false;
     this.iframeTime = 1.0;
+
+    // Items
+    this.two_axis_shooting = false;
+  }
+  getItem(item, itemCooldown = 20.0){
+    switch (item) {
+      case Game.Items.EXTRA_HP:
+        if (this.lives > 1) {
+          this.lives++;
+          this.newLives++;
+        } else {
+          this.lives += 2;
+          this.newLives += 2;
+        }
+        break;
+      case Game.Items.TWO_AXIS_SHOOTING:
+        this.two_axis_shooting = true;
+        break;
+    }
+
+    setTimeout(() => {
+      this.stopItemEffect(item)
+    }, itemCooldown * 1000.0);
+  }
+  stopItemEffect(item){
+    switch (item) {
+      case Game.Items.TWO_AXIS_SHOOTING:
+        this.two_axis_shooting = false;
+        break;
+    }
   }
   hit(){
     if (this.invincinble) return;
