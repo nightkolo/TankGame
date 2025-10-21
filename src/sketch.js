@@ -7,8 +7,8 @@ const canSize = { x: 900, y: 720 }; // 5:4
 // Objects
 let p;
 let e1;
-let playerBullets = [];
-let enemyBullets = [];
+let playerBullets = []; // playerSpikes
+let enemyBullets = []; // enemySpikes
 let enemies = [];
 let items = [];
 let isShooting = false;
@@ -21,7 +21,7 @@ let gameOver = false;
 
 // Debug
 let noShoot = false;
-let curBulletDir = {
+let curBulletDir = { //curSpikeDir
   x: 0,
   y: -1, // default: up
 };
@@ -29,7 +29,7 @@ let curBulletDir = {
 let lastSpawnTime = 0.0;
 let shootingSpdFactor = 0.045;
 
-function handleEnemyBullet(b) {
+function handleEnemyBullet(b) { // handleCactiSpikes
   if (!b.alive) {
     removeObject(playerBullets, b);
   }

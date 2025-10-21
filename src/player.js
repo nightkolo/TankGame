@@ -1,6 +1,4 @@
-// Under construction
-
-class Player {
+class Player { // Tank
   constructor(){
     this.x = 0.0;
     this.y = 0.0;

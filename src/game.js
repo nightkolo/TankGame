@@ -1,13 +1,13 @@
 class Game {
-  static EnemyTypes = {
-    NORMAL: 0,
-    SHOOTER: 1,
-    EXPLODER: 2,
-    SPRINTER: 3,
-    REFLECTOR: 4,
-    SPLITTER: 5
+  static EnemyTypes = { // CactiTypes
+    NORMAL: 0, // Rogo Cactus
+    SHOOTER: 1, // Shoto Cactus
+    EXPLODER: 2, // Exo Cactus
+    SPRINTER: 3, // Sprint Cactus
+    REFLECTOR: 4, // 
+    SPLITTER: 5 // Splitter Cactus
   };
-  static Items = {
+  static Items = { // RockItems
     EXTRA_HP: 0,
     TWO_AXIS_SHOOTING: 1
   }

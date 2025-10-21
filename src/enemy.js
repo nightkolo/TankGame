@@ -1,4 +1,4 @@
-class Enemy {
+class Enemy { // Cacti
   constructor({
     x = 200,
     y = 200,
@@ -53,7 +53,7 @@ class Enemy {
       this.y += dy * spd;
     }
   }
-  spawnBullets() {
+  spawnBullets() { // spawnSpikes
     if (!this.canShoot && this.type != Game.EnemyTypes.SHOOTER) return false;
 
     if (millis() - this.lastShotTime > this.shootingSpdFactor * 1000) {

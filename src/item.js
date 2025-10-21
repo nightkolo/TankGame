@@ -1,4 +1,4 @@
-class Item {
+class Item { // Rock
   constructor(x, y, item, player){
     this.x = x;
     this.y = y;
@@ -27,7 +27,7 @@ class Item {
       this.opened = true;
     }
   }
-  grantItem(){
+  grantItem(){ // 
     if (this.collected) return;
 
     this.collected = true;

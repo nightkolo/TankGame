@@ -1,4 +1,4 @@
-class Bullet {
+class Bullet { // Spike
   constructor(px, py, dirX = 0, dirY = -1, spd = 10.0, size = 25.0){
     this.dirX = dirX;
     this.dirY = dirY;
