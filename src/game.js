@@ -2,10 +2,11 @@ class Game {
   static EnemyTypes = { // CactiTypes
     NORMAL: 0, // Rogo Cactus
     SHOOTER: 1, // Shoto Cactus
-    EXPLODER: 2, // Exo Cactus
-    SPRINTER: 3, // Sprint Cactus
-    REFLECTOR: 4, // 
-    SPLITTER: 5 // Splitter Cactus
+    BOUNCER: 2,
+    REFLECTOR: 3,
+    SPLITTER: 4,
+    EXPLODER: 5, // Exo Cactus
+    SPRINTER: 6, // Sprint Cactus
   };
   static Items = { // RockItems
     EXTRA_HP: 0,
@@ -16,7 +17,26 @@ class Game {
   // hp: Random health point around interval
 
 
-  // TODO: Needs refactor
+  // TODO: Make wave more randomized to add some unpredictability and engagement
+  // Make EnemyEncounters
+
+  // TODO pick a random type to include from the 1st set of enemies for each wave
+  static enemyEncounter = [
+    [ // 1st Encounter
+      this.EnemyTypes.NORMAL,
+      this.EnemyTypes.SHOOTER,
+      this.EnemyTypes.BOUNCER
+    ],
+    [ // 2nd Encounter
+      this.EnemyTypes.REFLECTOR,
+      this.EnemyTypes.SPLITTER
+    ],
+    [ // 3rd Encounter
+      this.EnemyTypes.EXPLODER,
+      this.EnemyTypes.SPRINTER
+    ],
+  ]
+
   static waves = [ // Experimental: Pre-defined Waves
     [
       // 1
@@ -90,4 +110,34 @@ class Game {
       { type: this.EnemyTypes.REFLECTOR, count: [3, 5], hp: [15, 25] }
     ],
   ];
+
+  static pickRandomEncounter(encounterSet){
+
+  }
+
+  static pickRandomIndex(from, to, set) {
+    // Stop when all items have been chosen
+    let setEntered = set;
+    let lengthToCheck = 0;
+
+    while (setEntered >= 0){
+      lengthToCheck += from[setEntered].length;
+      setEntered--;
+    }
+
+    if (to.length == lengthToCheck) {
+      console.log("All items already chosen!");
+      return null;
+    }
+
+    let item;
+    do {
+      const randomIndex = Math.floor(Math.random() * from[set].length);
+      item = from[set][randomIndex];
+    } while (to.includes(item)); // keep picking until unique
+
+    console.log(item);
+    console.log("Randomly selected");
+    return item;
+  }
 }

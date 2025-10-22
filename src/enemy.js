@@ -76,6 +76,9 @@ class Enemy { // Cacti
       case Game.EnemyTypes.NORMAL:
         fill(255);
         break;
+      case Game.EnemyTypes.BOUNCER:
+        fill(0, 255, 0);
+        break;
       case Game.EnemyTypes.SHOOTER:
         fill(255, 0, 0);
         break;
@@ -91,6 +94,7 @@ class Enemy { // Cacti
     }
 
     circle(this.x, this.y, this.size);
+    // image("bruh.png", this.x, this.y);
 
     fill(255);
     strokeWeight(5);

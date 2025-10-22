@@ -163,7 +163,67 @@ function spawnWaveEnemies(onWave = waves) {
   }
 }
 
+let currentEnemyTypes = [Game.EnemyTypes.NORMAL];
+
+function spawnRandomWaveEnemies(onWave = waves) {
+  // const waveEnemies = Game.waves[onWave - 1];
+  const curWave = onWave;
+  let encounterSet = 0;
+  // 1st encounters, 1 - 4
+  // 2nd encounters, 5 - 9
+  // 3rd encounters, 10 - 15
+
+  if (curWave > 0 && curWave <= 4){
+    encounterSet = 0;
+  } else if (curWave > 4 && curWave <= 9){
+    encounterSet = 1;
+  } else {
+    encounterSet = 2;
+  }
+
+  const randomType = Game.pickRandomIndex(Game.enemyEncounter, currentEnemyTypes, encounterSet)
+
+  if (randomType != null){
+    currentEnemyTypes.push(randomType);
+  }
+
+  print(currentEnemyTypes);
+
+  // TODO make increase with waves
+  let healthMin = 3; // TODO variable
+  let healthFactor = 20.0; // TODO variable
+  let enemySpawnsMin = 3; // TODO variable
+  let enemySpawnsFactor = 3; // TODO variable
+
+  let noOfEnemies = enemySpawnsMin + floor(random() * enemySpawnsFactor);
+
+  for (let i = 0; i < noOfEnemies; i++) {
+    let spawnX = random() * width; // TODO clamp between threshold
+    let spawnY = random() * height;
+    let health = healthMin + floor(random() * healthFactor);
+
+    // TODO detect new enemy being added
+    
+    const randomType = currentEnemyTypes[
+      floor( random() * currentEnemyTypes.length )
+    ];
+
+    let newEnemy = new Enemy({
+      x: spawnX,
+      y: spawnY,
+      health: health,
+      player: p,
+      bulletDir: curBulletDir,
+      type: randomType,
+    });
+
+    enemies.push(newEnemy);
+  }
+}
+
 function spawnRandomEnemies() {
+  // const waveEnemies = Game.waves[onWave - 1];
+
   let healthMin = 3;
   let healthFactor = 20.0;
   let enemySpawnsMin = 3;
@@ -290,7 +350,8 @@ function gotoNextWave() {
   if (random() < 1/4){
     spawnItem();
   }
-  spawnRandomEnemies();
+  // spawnRandomEnemies();
+  spawnRandomWaveEnemies();
   // spawnWaveEnemies();
 }
 
