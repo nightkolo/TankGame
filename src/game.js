@@ -7,6 +7,7 @@ class Game {
     SPLITTER: 4,
     EXPLODER: 5, // Exo Cactus
     SPRINTER: 6, // Sprint Cactus
+    SPLITTED: 99
   };
   static Items = { // RockItems
     EXTRA_HP: 0,

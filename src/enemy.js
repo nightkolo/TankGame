@@ -14,6 +14,7 @@ class Enemy { // Cacti
     this.size = this.getSize();
     this.speed = speed;
     this.health = health;
+    this.initialHealth = health;
     this.points = round(health / 4.0);
     this.player = player;
 
@@ -30,6 +31,11 @@ class Enemy { // Cacti
     this.spawned();
   }
   spawned() {
+    if (this.type == Game.EnemyTypes.SPLITTED){
+      this.hasSpawned = true;
+      return;
+    }
+
     setTimeout(() => {
       this.hasSpawned = true;
       this.canShoot = this.type == Game.EnemyTypes.SHOOTER;
@@ -76,8 +82,11 @@ class Enemy { // Cacti
       case Game.EnemyTypes.NORMAL:
         fill(255);
         break;
-      case Game.EnemyTypes.BOUNCER:
+      case Game.EnemyTypes.SPLITTER:
         fill(0, 255, 0);
+        break;
+      case Game.EnemyTypes.SPLITTED:
+        fill(255/4, 255/4, 255/4);
         break;
       case Game.EnemyTypes.SHOOTER:
         fill(255, 0, 0);
@@ -94,7 +103,6 @@ class Enemy { // Cacti
     }
 
     circle(this.x, this.y, this.size);
-    // image("bruh.png", this.x, this.y);
 
     fill(255);
     strokeWeight(5);

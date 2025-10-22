@@ -5,7 +5,7 @@ class Bullet { // Spike
     this.x = px;
     this.y = py;
     this.spd = spd;
-    this.health = 1;
+    // this.health = 1;
 
     this.size = size;
     this.lifetime = 3.0;
