@@ -11,6 +11,8 @@ class Enemy {
   } = {}) {
     this.x = x;
     this.y = y;
+    // this.displaceX = 0.0;
+    // this.displaceY = 0.0;
 
     // Stats
     this.size = this.getSize();
@@ -29,11 +31,15 @@ class Enemy {
     this.dirX = Math.sign(random() - 0.5);
     this.h = y / 2.0;
 
+    // Item
+    this.slow = false;
+
     // Misc.
     this.followPlayer = followPlayer;
     this.lastShotTime = 0;
     this.canShoot = false;
     this.shootingSpdFactor = 1.25;
+    this.slowShootingSpdFactor = this.shootingSpdFactor * 4.0;
     this.hasSpawned = false;
 
     this.spawned();
@@ -60,13 +66,39 @@ class Enemy {
       this.dirX *= -1;
     }
 
-    this.x += this.dirX * this.speed;
+    let spd = this.speed;
+    let fallFactor = 1.0 / 64.0;
+
+    if (this.slow){
+      spd /= 8.0;
+      fallFactor /= 8.0;
+    }
+
+    this.x += this.dirX * spd;
 
     this.accel += 9.8;
-    this.y += this.accel * (1.0 / 64.0);
+    this.y += this.accel * fallFactor;
 
     if (this.y > height - this.size / 2) {
       this.accel -= this.accel * 2.0;
+    }
+  }
+  moveAwayItemCollected(x, y){
+    if (this.type == Game.EnemyTypes.BOUNCER) return;
+    print("Push away");
+
+    let dx = x - this.x;
+    let dy = y - this.y;
+    let distance = sqrt(dx * dx + dy * dy);
+
+    if (distance > 0){
+      dx /= distance;
+      dy /= distance;
+
+      let spd = 80.0;
+
+      this.x -= dx * spd;
+      this.y -= dy * spd;
     }
   }
   moveTowardPlayer() {
@@ -88,6 +120,9 @@ class Enemy {
       if (this.type == Game.EnemyTypes.SPRINTER) {
         spd *= 3.0;
       }
+      if (this.slow){
+        spd /= 4.0;
+      }
       this.x += dx * spd;
       this.y += dy * spd;
     }
@@ -96,7 +131,14 @@ class Enemy {
     // spawnSpikes
     if (!this.canShoot && this.type != Game.EnemyTypes.SHOOTER) return false;
 
-    if (millis() - this.lastShotTime > this.shootingSpdFactor * 1000) {
+    let factor = 0.0;
+    if (this.slow){
+      factor = this.slowShootingSpdFactor;
+    } else {
+      factor = this.shootingSpdFactor;
+    }
+
+    if (millis() - this.lastShotTime > factor * 1000) {
       this.lastShotTime = millis();
       return true; // ready to fire
     }
@@ -144,7 +186,6 @@ class Enemy {
     circle(this.x, this.y, this.size);
 
     fill(255);
-    // strokeWeight(5);
     stroke(0);
     textSize(40.0);
     textAlign(CENTER);
@@ -163,6 +204,7 @@ class Enemy {
     this.health -= hitpoint;
     this.knockback(hitX, hitY);
   }
+  
   knockback(hitX, hitY) {
     if (this.type == Game.EnemyTypes.BOUNCER) return;
 

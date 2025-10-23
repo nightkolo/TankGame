@@ -5,6 +5,7 @@ class Player {
     this.y = 0.0;
     this.size = 50.0;
     this.enemies = [];
+    this.powerups = [];
 
     this.lives = 5;
     this.newLives = 0;
@@ -14,23 +15,28 @@ class Player {
 
     // Items
     this.two_axis_shooting = false;
+    this.variable_shooting = false;
+    this.slowness = false;
   }
-  getItem(item, itemCooldown = 20.0) {
+  gainLives(lives = 1){
+    this.lives += lives;
+    this.newLives += lives;
+  }
+  getItem(item, itemCooldown = 5.0) {
     switch (item) {
-      case Game.Items.EXTRA_HP:
-        if (this.lives > 1) {
-          this.lives++;
-          this.newLives++;
-        } else {
-          this.lives += 2;
-          this.newLives += 2;
-        }
+      case Game.Items.VARIABLE_SHOOTING:
+        this.variable_shooting = true;
         break;
       case Game.Items.TWO_AXIS_SHOOTING:
         this.two_axis_shooting = true;
         break;
+      case Game.Items.SLOWNESS:
+        this.slowness = true;
+        break;
     }
+    this.powerups.push(item);
 
+    // TODO improve cooldown system
     setTimeout(() => {
       this.stopItemEffect(item);
     }, itemCooldown * 1000.0);
@@ -40,6 +46,18 @@ class Player {
       case Game.Items.TWO_AXIS_SHOOTING:
         this.two_axis_shooting = false;
         break;
+      case Game.Items.VARIABLE_SHOOTING:
+        this.variable_shooting = false;
+        break;
+      case Game.Items.SLOWNESS:
+        this.slowness = false;
+        break;
+    }
+
+    print(this.powerups);
+    const index = this.powerups.indexOf(item);
+    if (index > -1) {
+      this.powerups.splice(index, 1);
     }
   }
   hit() {

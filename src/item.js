@@ -5,6 +5,7 @@ class Item {
     this.y = y;
     this.item = item;
     this.player = player;
+    this.enemies = [];
 
     this.hitsToOpen = 15;
     this.size = 50.0;
@@ -32,8 +33,15 @@ class Item {
     //
     if (this.collected) return;
 
+    print("Push away");
+
     this.collected = true;
+    this.player.gainLives();
     this.player.getItem(this.item);
+    this.enemies.forEach((e) => {
+      print("Push away");
+      e.moveAwayItemCollected(this.x, this.y);
+    })
   }
   update() {
     if (!this.opened) {
@@ -58,5 +66,11 @@ class Item {
   }
   show() {
     circle(this.x, this.y, this.size);
+    stroke(0);
+    textSize(20.0);
+    textAlign(CENTER);
+
+    fill(255);
+    text(`${this.hitsToOpen}`, this.x, this.y);
   }
 }

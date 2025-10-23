@@ -1,7 +1,5 @@
 const canSize = { x: 900, y: 720 }; // 5:4
 
-// Game: Tank is Dry
-
 // TODO use modules for multiple js files
 
 // Objects
@@ -12,12 +10,16 @@ let enemyBullets = []; // enemySpikes
 let enemies = [];
 let items = [];
 let isShooting = false;
+let enemySpikesSpeed = 4.0;
 
 // Game Loop
 let waves = 0;
 let score = 0;
 let difficulty = 0;
 let gameOver = false;
+
+// Items
+let slow = false;
 
 // Debug
 let noShoot = false;
@@ -35,6 +37,12 @@ function handleEnemyBullet(b) {
   // handleCactiSpikes
   if (!b.alive) {
     removeObject(playerBullets, b);
+  }
+
+  if (slow){
+    b.spd = enemySpikesSpeed / 4.0;
+  } else {
+    b.spd = enemySpikesSpeed;
   }
 
   if (
@@ -149,8 +157,10 @@ function handlePlayerBullet(b) {
 
 function handleEnemies() {
   enemies.forEach((e) => {
+    e.slow = slow;
+
     if (e.spawnBullets() && e.canShoot) {
-      let spd = 4.0;
+      let spd = enemySpikesSpeed;
       let size = 75.0;
 
       enemyBullets.push(new Bullet(e.x, e.y, 0, -1, spd, size));
@@ -242,33 +252,20 @@ function spawnRandomWaveEnemies(onWave = waves) {
   }
 }
 
-function spawnRandomEnemies() {
-  let healthMin = 3;
-  let healthFactor = 20.0;
-  let enemySpawnsMin = 3;
-  let enemySpawnsFactor = 3;
+function spawnItem() {
+  print("Rock spawn");
 
-  let noOfEnemies = enemySpawnsMin + floor(random() * enemySpawnsFactor);
+  let randomItem = 0;
+      
+  const types = Object.values(Game.Items);
+  randomItem = random(types);
 
-  for (let i = 0; i < noOfEnemies; i++) {
-    let spawnX = random() * width;
-    let spawnY = random() * height;
-    let health = healthMin + floor(random() * healthFactor);
+  let spawnX = TankMath.randomFloat(200.0, width - 200);
+  let spawnY = TankMath.randomFloat(200.0, height - 200);
 
-    const types = Object.values(Game.EnemyTypes);
-    const randomType = random(types);
+  let i = new Item(spawnX, spawnY, randomItem, p);
 
-    let newEnemy = new Enemy({
-      x: spawnX,
-      y: spawnY,
-      health: health,
-      player: p,
-      bulletDir: curBulletDir,
-      type: randomType,
-    });
-
-    enemies.push(newEnemy);
-  }
+  items.push(i);
 }
 
 // let idrop;
@@ -318,13 +315,17 @@ function draw() {
   frameRate(60);
   rectMode(CENTER);
 
+  fill(GRAY);
   items = items.filter((i) => {
+    i.enemies = enemies;
+
     i.update();
     i.show();
     return !i.collected && !TankMath.offScreen(i.x, i.y, canSize.x, canSize.y);
   });
+  fill(255);
 
-  if (enemiesDefeated()) {
+  if (enemies.length == 0 && !gameOver) {
     gotoNextWave();
   }
 
@@ -333,12 +334,20 @@ function draw() {
     if (millis() - lastSpawnTime > shootingSpdFactor * 1000.0) {
       let size = 12.5;
 
+      let extraX = 0.0;
+      let extraY = 0.0;
+
+      if (p.variable_shooting){
+        extraX = (random() * 0.5) - 0.25;
+        extraY = (random() * 0.5) - 0.25;
+      }
+
       playerBullets.push(
-        new Bullet(p.x, p.y, curBulletDir.x, curBulletDir.y, size)
+        new Bullet(p.x, p.y, curBulletDir.x + extraX, curBulletDir.y + extraY, size)
       );
       if (p.two_axis_shooting) {
         playerBullets.push(
-          new Bullet(p.x, p.y, -curBulletDir.x, -curBulletDir.y, size)
+          new Bullet(p.x, p.y, -curBulletDir.x + extraX, -curBulletDir.y + extraY, size)
         );
       }
       lastSpawnTime = millis();
@@ -367,12 +376,15 @@ function draw() {
   // Handle enemyBullets
   enemyBullets.forEach(handleEnemyBullet);
 
+
+  // frameRate(20);
   handleEnemies();
 
   // TODO player death incomplete
   if (p.alive) {
     p.enemies = enemies;
     noShoot = p.insideAnEnemy(false);
+    slow = p.slowness;
 
     if (p.insideAnEnemy()) {
       // TODO add better feedback for player getting hit
@@ -394,20 +406,11 @@ function removeObject(objs, obj) {
     objs.splice(index, 1);
   }
 }
-
-function enemiesDefeated() {
-  return enemies.length == 0 && !gameOver;
-}
-
-function spawnItem() {
-  // experimental
-}
-
 function gotoNextWave() {
   waves++;
   print(waves);
 
-  if (random() < 1 / 4) {
+  if (random() < 1 / 1) {
     spawnItem();
   }
   let value = Game.EnemyTypes.SPLITTER;
@@ -423,9 +426,6 @@ function displayText() {
   textSize(45);
   strokeWeight(7);
   text(`Wave ${waves}`, 0, 0);
-
-  // text(`Wave: ${waves} / ${Game.waves.length}`, 100, height - 100);
-  // text(`Your Score: ${score}`, 100, height - 150);
 }
 
 function mousePressed() {
@@ -460,45 +460,74 @@ function keyPressed(event) {
   }
 }
 
-function spawnWaveEnemies(onWave = waves) {
-  // experimental
-  const waveEnemies = Game.waves[onWave - 1];
+// function spawnWaveEnemies(onWave = waves) {
+//   // experimental
+//   const waveEnemies = Game.waves[onWave - 1];
 
-  if (waveEnemies == undefined) {
-    gameOver = true;
-    return;
-  }
+//   if (waveEnemies == undefined) {
+//     gameOver = true;
+//     return;
+//   }
 
-  for (let i = 0; i < waveEnemies.length; i++) {
-    let healthRange = waveEnemies[i].hp[1] - waveEnemies[i].hp[0];
-    let enemySpawns =
-      waveEnemies[i].count[0] +
-      floor(random() * (waveEnemies[i].count[1] - waveEnemies[i].count[0]));
+//   for (let i = 0; i < waveEnemies.length; i++) {
+//     let healthRange = waveEnemies[i].hp[1] - waveEnemies[i].hp[0];
+//     let enemySpawns =
+//       waveEnemies[i].count[0] +
+//       floor(random() * (waveEnemies[i].count[1] - waveEnemies[i].count[0]));
 
-    let enemyType;
+//     let enemyType;
 
-    if (typeof waveEnemies[i].type == "object") {
-      enemyType =
-        waveEnemies[i].type[floor(waveEnemies[i].type.length * random())];
-    } else {
-      enemyType = waveEnemies[i].type;
-    }
+//     if (typeof waveEnemies[i].type == "object") {
+//       enemyType =
+//         waveEnemies[i].type[floor(waveEnemies[i].type.length * random())];
+//     } else {
+//       enemyType = waveEnemies[i].type;
+//     }
 
-    for (let j = 0; j < enemySpawns; j++) {
-      let spawnX = random() * width;
-      let spawnY = random() * height;
+//     for (let j = 0; j < enemySpawns; j++) {
+//       let spawnX = random() * width;
+//       let spawnY = random() * height;
 
-      let randomHealth = waveEnemies[i].hp[0] + floor(random() * healthRange);
+//       let randomHealth = waveEnemies[i].hp[0] + floor(random() * healthRange);
 
-      let newEnemy = new Enemy({
-        x: spawnX,
-        y: spawnY,
-        health: randomHealth,
-        player: p,
-        type: enemyType,
-      });
+//       let newEnemy = new Enemy({
+//         x: spawnX,
+//         y: spawnY,
+//         health: randomHealth,
+//         player: p,
+//         type: enemyType,
+//       });
 
-      enemies.push(newEnemy);
-    }
-  }
-}
+//       enemies.push(newEnemy);
+//     }
+//   }
+// }
+
+// function spawnRandomEnemies() {
+//   let healthMin = 3;
+//   let healthFactor = 20.0;
+//   let enemySpawnsMin = 3;
+//   let enemySpawnsFactor = 3;
+
+//   let noOfEnemies = enemySpawnsMin + floor(random() * enemySpawnsFactor);
+
+//   for (let i = 0; i < noOfEnemies; i++) {
+//     let spawnX = random() * width;
+//     let spawnY = random() * height;
+//     let health = healthMin + floor(random() * healthFactor);
+
+//     const types = Object.values(Game.EnemyTypes);
+//     const randomType = random(types);
+
+//     let newEnemy = new Enemy({
+//       x: spawnX,
+//       y: spawnY,
+//       health: health,
+//       player: p,
+//       bulletDir: curBulletDir,
+//       type: randomType,
+//     });
+
+//     enemies.push(newEnemy);
+//   }
+// }

@@ -10,8 +10,11 @@ class Game {
     SPLITTED: 99
   };
   static Items = { // RockItems
-    EXTRA_HP: 0,
-    TWO_AXIS_SHOOTING: 1
+    TWO_AXIS_SHOOTING: 0,
+    VARIABLE_SHOOTING: 1,
+    SLOWNESS: 2
+    // SCAREDY_CIRCLES: 3 // not programmed
+
   }
   // type: Enemy Type (can be randomized encounter)
   // count: quantity of the Enemy
@@ -111,10 +114,6 @@ class Game {
       { type: this.EnemyTypes.REFLECTOR, count: [3, 5], hp: [15, 25] }
     ],
   ];
-
-  static pickRandomEncounter(encounterSet){
-
-  }
 
   static pickRandomIndex(from, to, set) {
     // Stop when all items have been chosen
