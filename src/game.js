@@ -16,6 +16,44 @@ class Game {
     // SCAREDY_CIRCLES: 3 // not programmed
 
   }
+
+  static getEnemySpikesSpeed(isSlow){
+    if (isSlow){
+      return 4.0 / 4.0;
+    } else {
+      return 4.0;
+    }
+  }
+
+  static removeObject(objs, obj) {
+    const index = objs.indexOf(obj);
+    if (index > -1) {
+      objs.splice(index, 1);
+    }
+  }
+
+  static pickRandomIndex(from, to, set) {
+    // Stop when all items have been chosen
+    let setEntered = set;
+    let lengthToCheck = 0;
+
+    while (setEntered >= 0){
+      lengthToCheck += from[setEntered].length;
+      setEntered--;
+    }
+
+    if (to.length == lengthToCheck) {
+      return null;
+    }
+
+    let item;
+    do {
+      const randomIndex = Math.floor(Math.random() * from[set].length);
+      item = from[set][randomIndex];
+    } while (to.includes(item)); // keep picking until unique
+    return item;
+  }
+  
   // type: Enemy Type (can be randomized encounter)
   // count: quantity of the Enemy
   // hp: Random health point around interval
@@ -115,25 +153,5 @@ class Game {
     ],
   ];
 
-  static pickRandomIndex(from, to, set) {
-    // Stop when all items have been chosen
-    let setEntered = set;
-    let lengthToCheck = 0;
-
-    while (setEntered >= 0){
-      lengthToCheck += from[setEntered].length;
-      setEntered--;
-    }
-
-    if (to.length == lengthToCheck) {
-      return null;
-    }
-
-    let item;
-    do {
-      const randomIndex = Math.floor(Math.random() * from[set].length);
-      item = from[set][randomIndex];
-    } while (to.includes(item)); // keep picking until unique
-    return item;
-  }
+  
 }

@@ -10,7 +10,6 @@ let enemyBullets = []; // enemySpikes
 let enemies = [];
 let items = [];
 let isShooting = false;
-let enemySpikesSpeed = 4.0;
 
 // Game Loop
 let waves = 0;
@@ -36,14 +35,10 @@ let shootingSpdFactor = 0.045;
 function handleEnemyBullet(b) {
   // handleCactiSpikes
   if (!b.alive) {
-    removeObject(playerBullets, b);
+    Game.removeObject(playerBullets, b);
   }
 
-  if (slow){
-    b.spd = enemySpikesSpeed / 4.0;
-  } else {
-    b.spd = enemySpikesSpeed;
-  }
+  b.spd = Game.getEnemySpikesSpeed(slow);
 
   if (
     TankMath.circleCollision(b.x, b.y, b.size / 2.0, p.x, p.y, p.size / 2.0)
@@ -51,7 +46,7 @@ function handleEnemyBullet(b) {
     // TODO if player is invincinble, make bullets not splice
 
     p.hit();
-    removeObject(playerBullets, b);
+    Game.removeObject(playerBullets, b);
   }
 
   b.update();
@@ -78,8 +73,6 @@ function handlePlayerBullet(b) {
 
         switch (e.type) {
           case Game.EnemyTypes.EXPLODER:
-            print("Explode");
-
             let spd = 4.0;
             let size = 75.0;
 
@@ -94,8 +87,6 @@ function handlePlayerBullet(b) {
             break;
 
           case Game.EnemyTypes.SPLITTER:
-            print("Split");
-
             let lastX = e.x;
             let lastY = e.y;
             let h = ceil(e.initialHealth / 3.0);
@@ -120,7 +111,7 @@ function handlePlayerBullet(b) {
             break;
         }
 
-        removeObject(enemies, e);
+        Game.removeObject(enemies, e);
         score += scoreGained;
       }
 
@@ -160,7 +151,7 @@ function handleEnemies() {
     e.slow = slow;
 
     if (e.spawnBullets() && e.canShoot) {
-      let spd = enemySpikesSpeed;
+      let spd = Game.getEnemySpikesSpeed(slow);
       let size = 75.0;
 
       enemyBullets.push(new Bullet(e.x, e.y, 0, -1, spd, size));
@@ -172,28 +163,6 @@ function handleEnemies() {
     e.update();
     e.show();
   });
-}
-
-function spawnEnemy(type) {
-  // Debug
-  let healthMin = 3;
-  let healthFactor = 20.0;
-
-  let thres = 250.0;
-  let spawnX = TankMath.randomFloat(200.0, width - 200);
-  let spawnY = TankMath.randomFloat(200.0, height - 200);
-  let health = healthMin + floor(random() * healthFactor);
-
-  let newEnemy = new Enemy({
-    x: spawnX,
-    y: spawnY,
-    health: health,
-    player: p,
-    bulletDir: curBulletDir,
-    type: type,
-  });
-
-  enemies.push(newEnemy);
 }
 
 let currentEnemyTypes = [Game.EnemyTypes.NORMAL];
@@ -237,7 +206,7 @@ function spawnRandomWaveEnemies(onWave = waves) {
     const randomType =
       currentEnemyTypes[floor(random() * currentEnemyTypes.length)];
 
-    // TODO make the newly added enemy type appear in the wave it is added
+    // TODO make the newly added enemy type appear in the wave it is added in
 
     let newEnemy = new Enemy({
       x: spawnX,
@@ -253,12 +222,10 @@ function spawnRandomWaveEnemies(onWave = waves) {
 }
 
 function spawnItem() {
-  print("Rock spawn");
-
-  let randomItem = 0;
+  print("Item spawn");
       
   const types = Object.values(Game.Items);
-  randomItem = random(types);
+  const randomItem = random(types);
 
   let spawnX = TankMath.randomFloat(200.0, width - 200);
   let spawnY = TankMath.randomFloat(200.0, height - 200);
@@ -267,9 +234,6 @@ function spawnItem() {
 
   items.push(i);
 }
-
-// let idrop;
-
 let bgIMG;
 
 function preload() {
@@ -283,10 +247,6 @@ function setup() {
   textStyle(BOLD);
 
   p = new Player();
-
-  // idrop = new Item(width/2, height/2, Game.Items.TWO_AXIS_SHOOTING, p);
-
-  // items.push(idrop);
 
   e1 = new Enemy({
     x: width / 2,
@@ -325,6 +285,7 @@ function draw() {
   });
   fill(255);
 
+  // Enemies defeated
   if (enemies.length == 0 && !gameOver) {
     gotoNextWave();
   }
@@ -373,11 +334,10 @@ function draw() {
   // Handle playerBullets
   strokeWeight(5);
   playerBullets = playerBullets.filter(handlePlayerBullet);
+
   // Handle enemyBullets
   enemyBullets.forEach(handleEnemyBullet);
 
-
-  // frameRate(20);
   handleEnemies();
 
   // TODO player death incomplete
@@ -394,31 +354,18 @@ function draw() {
     p.update();
     p.show();
   }
-
-  // translate(width/2, height/1.1);
-  // rotate(0.1 * QUARTER_PI * sin(millis() / 1.0/512.0));
-  // displayText();
-}
-
-function removeObject(objs, obj) {
-  const index = objs.indexOf(obj);
-  if (index > -1) {
-    objs.splice(index, 1);
-  }
 }
 function gotoNextWave() {
   waves++;
   print(waves);
 
-  if (random() < 1 / 1) {
+  if (random() < 1 / 4) {
     spawnItem();
   }
-  let value = Game.EnemyTypes.SPLITTER;
+  // let value = Game.EnemyTypes.SPLITTER;
 
   // spawnEnemy(value);
-  // spawnRandomEnemies();
   spawnRandomWaveEnemies();
-  // spawnWaveEnemies();
 }
 
 function displayText() {
@@ -433,7 +380,7 @@ function mousePressed() {
 }
 
 function keyPressed(event) {
-  if (event.key === "ArrowUp" || event.key === "w" || event.key === "W") {
+  if (event.key === "ArrowUp" || event.key === "w" || event.key === "W") { 
     curBulletDir.x = 0;
     curBulletDir.y = -1;
   } else if (
@@ -458,6 +405,28 @@ function keyPressed(event) {
     curBulletDir.x = 1;
     curBulletDir.y = 0;
   }
+}
+
+// Debug
+function spawnEnemy(type) {
+  let healthMin = 3;
+  let healthFactor = 20.0;
+
+  let thres = 250.0;
+  let spawnX = TankMath.randomFloat(200.0, width - 200);
+  let spawnY = TankMath.randomFloat(200.0, height - 200);
+  let health = healthMin + floor(random() * healthFactor);
+
+  let newEnemy = new Enemy({
+    x: spawnX,
+    y: spawnY,
+    health: health,
+    player: p,
+    bulletDir: curBulletDir,
+    type: type,
+  });
+
+  enemies.push(newEnemy);
 }
 
 // function spawnWaveEnemies(onWave = waves) {

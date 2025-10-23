@@ -11,15 +11,13 @@ class Enemy {
   } = {}) {
     this.x = x;
     this.y = y;
-    // this.displaceX = 0.0;
-    // this.displaceY = 0.0;
 
     // Stats
     this.size = this.getSize();
     this.speed = speed;
     this.health = health;
     this.initialHealth = health;
-    this.points = round(health / 4.0);
+    this.points = round(health / 4.0); // deprecated
     this.player = player;
 
     // Type
@@ -75,11 +73,11 @@ class Enemy {
     }
 
     this.x += this.dirX * spd;
-
     this.accel += 9.8;
     this.y += this.accel * fallFactor;
 
     if (this.y > height - this.size / 2) {
+      // TODO issue when exiting slowness item
       this.accel -= this.accel * 2.0;
     }
   }

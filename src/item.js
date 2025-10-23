@@ -37,7 +37,7 @@ class Item {
 
     this.collected = true;
     this.player.gainLives();
-    this.player.getItem(this.item);
+    this.player.gainItem(this.item);
     this.enemies.forEach((e) => {
       print("Push away");
       e.moveAwayItemCollected(this.x, this.y);
