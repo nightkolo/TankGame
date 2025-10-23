@@ -1,4 +1,5 @@
-class Enemy { // Cacti
+class Enemy {
+  // Cacti
   constructor({
     x = 200,
     y = 200,
@@ -10,6 +11,7 @@ class Enemy { // Cacti
   } = {}) {
     this.x = x;
     this.y = y;
+
     // Stats
     this.size = this.getSize();
     this.speed = speed;
@@ -21,6 +23,12 @@ class Enemy { // Cacti
     // Type
     this.type = type;
 
+    // Bouncer
+    this.accel = 0.0;
+    this.grav = 9.8;
+    this.dirX = Math.sign(random() - 0.5);
+    this.h = y / 2.0;
+
     // Misc.
     this.followPlayer = followPlayer;
     this.lastShotTime = 0;
@@ -31,9 +39,13 @@ class Enemy { // Cacti
     this.spawned();
   }
   spawned() {
-    if (this.type == Game.EnemyTypes.SPLITTED){
+    if (this.type == Game.EnemyTypes.SPLITTED) {
       this.hasSpawned = true;
       return;
+    }
+
+    if (this.type == Game.EnemyTypes.BOUNCER) {
+      this.y /= 2.0;
     }
 
     setTimeout(() => {
@@ -41,8 +53,29 @@ class Enemy { // Cacti
       this.canShoot = this.type == Game.EnemyTypes.SHOOTER;
     }, 1000.0);
   }
+  bounce() {
+    if (this.type != Game.EnemyTypes.BOUNCER) return;
+
+    if (this.x > width - this.size / 2.0 || this.x < this.size / 2) {
+      this.dirX *= -1;
+    }
+
+    this.x += this.dirX * this.speed;
+
+    this.accel += 9.8;
+    this.y += this.accel * (1.0 / 64.0);
+
+    if (this.y > height - this.size / 2) {
+      this.accel -= this.accel * 2.0;
+    }
+  }
   moveTowardPlayer() {
-    if (this.player == null || !this.followPlayer) return;
+    if (
+      this.player == null ||
+      !this.followPlayer ||
+      this.type == Game.EnemyTypes.BOUNCER
+    )
+      return;
 
     let dx = this.player.x - this.x;
     let dy = this.player.y - this.y;
@@ -59,7 +92,8 @@ class Enemy { // Cacti
       this.y += dy * spd;
     }
   }
-  spawnBullets() { // spawnSpikes
+  spawnBullets() {
+    // spawnSpikes
     if (!this.canShoot && this.type != Game.EnemyTypes.SHOOTER) return false;
 
     if (millis() - this.lastShotTime > this.shootingSpdFactor * 1000) {
@@ -73,6 +107,7 @@ class Enemy { // Cacti
 
     if (!this.hasSpawned) return;
 
+    this.bounce();
     this.moveTowardPlayer();
   }
   show() {
@@ -86,15 +121,19 @@ class Enemy { // Cacti
         fill(0, 255, 0);
         break;
       case Game.EnemyTypes.SPLITTED:
-        fill(255/4, 255/4, 255/4);
+        fill(255 / 4, 255 / 4, 255 / 4);
         break;
       case Game.EnemyTypes.SHOOTER:
         fill(255, 0, 0);
         break;
       case Game.EnemyTypes.EXPLODER:
-        fill(255, 255, 0);
+        fill(
+          255 * (this.initialHealth / this.health),
+          255 * (this.initialHealth / this.health),
+          0
+        );
         break;
-      case Game.EnemyTypes.SPRINTER:
+      case Game.EnemyTypes.BOUNCER:
         fill(0, 0, 255);
         break;
       case Game.EnemyTypes.REFLECTOR:
@@ -105,7 +144,7 @@ class Enemy { // Cacti
     circle(this.x, this.y, this.size);
 
     fill(255);
-    strokeWeight(5);
+    // strokeWeight(5);
     stroke(0);
     textSize(40.0);
     textAlign(CENTER);
@@ -125,6 +164,8 @@ class Enemy { // Cacti
     this.knockback(hitX, hitY);
   }
   knockback(hitX, hitY) {
+    if (this.type == Game.EnemyTypes.BOUNCER) return;
+
     let strength = 6.0;
 
     this.x += strength * hitX;

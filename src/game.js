@@ -29,11 +29,11 @@ class Game {
       this.EnemyTypes.BOUNCER
     ],
     [ // 2nd Encounter
-      this.EnemyTypes.REFLECTOR,
-      this.EnemyTypes.SPLITTER
+      this.EnemyTypes.EXPLODER,
+      this.EnemyTypes.REFLECTOR
     ],
     [ // 3rd Encounter
-      this.EnemyTypes.EXPLODER,
+      this.EnemyTypes.SPLITTER,
       this.EnemyTypes.SPRINTER
     ],
   ]
@@ -127,7 +127,6 @@ class Game {
     }
 
     if (to.length == lengthToCheck) {
-      console.log("All items already chosen!");
       return null;
     }
 
@@ -136,9 +135,6 @@ class Game {
       const randomIndex = Math.floor(Math.random() * from[set].length);
       item = from[set][randomIndex];
     } while (to.includes(item)); // keep picking until unique
-
-    console.log(item);
-    console.log("Randomly selected");
     return item;
   }
 }

@@ -15,7 +15,6 @@ class Bullet { // Spike
     this.spawned();
   }
   spawned(){
-    // setTimeout(this.lifetimeEnded.bind(this), this.lifetime * 1000.0);
     setTimeout(() => {
       this.alive = false;
     }, this.lifetime * 1000.0);

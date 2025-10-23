@@ -1,10 +1,11 @@
-class Player { // Tank
-  constructor(){
+class Player {
+  // Tank
+  constructor() {
     this.x = 0.0;
     this.y = 0.0;
-    this.size = 50.0
+    this.size = 50.0;
     this.enemies = [];
-    
+
     this.lives = 5;
     this.newLives = 0;
     this.alive = true;
@@ -14,7 +15,7 @@ class Player { // Tank
     // Items
     this.two_axis_shooting = false;
   }
-  getItem(item, itemCooldown = 20.0){
+  getItem(item, itemCooldown = 20.0) {
     switch (item) {
       case Game.Items.EXTRA_HP:
         if (this.lives > 1) {
@@ -31,43 +32,43 @@ class Player { // Tank
     }
 
     setTimeout(() => {
-      this.stopItemEffect(item)
+      this.stopItemEffect(item);
     }, itemCooldown * 1000.0);
   }
-  stopItemEffect(item){
+  stopItemEffect(item) {
     switch (item) {
       case Game.Items.TWO_AXIS_SHOOTING:
         this.two_axis_shooting = false;
         break;
     }
   }
-  hit(){
+  hit() {
     if (this.invincinble) return;
 
     print("Ouch!");
-  
+
     this.lives--;
-    
+
     if (this.lives < 1) {
       this.die();
     }
-  
+
     this.invincinble = true;
     setTimeout(() => {
       this.invincinble = false;
-    }, this.iframeTime * 1000.0)
+    }, this.iframeTime * 1000.0);
   }
-  die(){
+  die() {
     // TODO Player death incomplete
     this.alive = false;
-    print("Game over!")
+    print("Game over!");
   }
-  insideAnEnemy(checkForSpawn = true){
+  insideAnEnemy(checkForSpawn = true) {
     if (this.enemies.length == 0) return false;
 
     if (!this.enemies[0].hasSpawned && checkForSpawn) return false;
 
-    return this.enemies.some((e) => 
+    return this.enemies.some((e) =>
       TankMath.circleCollision(
         this.x,
         this.y,
@@ -78,23 +79,23 @@ class Player { // Tank
       )
     );
   }
-  update(){
+  update() {
     this.x = mouseX;
     this.y = mouseY;
   }
-  show(){
-    if (this.invincinble){
-      fill(255/2, 255/2, 200/2);
+  show() {
+    if (this.invincinble) {
+      fill(255 / 2, 255 / 2, 200 / 2);
     } else {
       fill(255, 255, 200);
     }
 
     // TODO make into square
     circle(this.x, this.y, this.size);
+    square(this.x, this.y, this.size);
 
     fill(255);
-    strokeWeight(3);
-    stroke(0)
+    stroke(0);
     textSize(25.0);
     textAlign(CENTER);
 
