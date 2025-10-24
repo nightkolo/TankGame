@@ -14,9 +14,10 @@ let items = [];
 let isShooting = false;
 
 // Game Loop
-let waves = 0;
+let wave = 0;
 let score = 0;
 let gameOver = false;
+let currentEnemyTypes = [Game.EnemyTypes.NORMAL];
 const enemySetEncounters = [0, 5, 13];
 
 // Items
@@ -34,37 +35,68 @@ const GRAV = 9.8;
 let lastSpawnTime = 0.0;
 let shootingSpdFactor = 0.045;
 
-function handleEnemyBullet(b) {
+function handleEnemyBullet(spike) {
   // handleCactiSpikes
 
-  if (!b.alive) {
-    Game.removeObject(enemyBullets, b);
+  if (!spike.alive) {
+    Game.removeObject(enemyBullets, spike);
   }
 
-  b.spd = Game.getEnemySpikesSpeed(slowMode);
+  spike.spd = Game.getEnemySpikesSpeed(slowMode);
 
   if (
-    TankMath.circleCollision(b.x, b.y, b.size / 2.0, p.x, p.y, p.size / 2.0)
+    TankMath.circleCollision(spike.x, spike.y, spike.size / 2.0, p.x, p.y, p.size / 2.0)
   ) {
     // TODO if player is invincinble, make bullets not splice
-    // huh?
 
     p.hit();
-    Game.removeObject(enemyBullets, b);
+    Game.removeObject(enemyBullets, spike);
   }
 
-  b.update();
-  b.show();
+  spike.update();
+  spike.show();
 }
 
-function hitEnemy(bullet, targetEnemy){ // let's name variable to not get lost
+function handlePlayerBullet(spike) {
   let removeBullet = false;
 
-  if (bullet.hasBeenReflected) {
+  // Enemy detection
+  enemies.forEach((e) => {
+    if (
+      TankMath.circleCollision(e.x, e.y, e.size / 2.0, spike.x, spike.y, spike.size / 2.0)
+    ) {
+      removeBullet = hitEnemy(spike, e);
+    }
+  });
+
+  items.forEach((item) => {
+    if (!item.opened && TankMath.circleCollision(
+        item.x,
+        item.y,
+        item.size / 2.0,
+        spike.x,
+        spike.y,
+        spike.size / 2.0)
+    ) {
+      item.hit();
+      removeBullet = true;
+    }
+  });
+
+  spike.update();
+  spike.show();
+
+  return !removeBullet && !TankMath.offScreen(spike.x, spike.y, canSize.x, canSize.y);
+}
+
+function hitEnemy(spike, targetEnemy){
+  let removeBullet = false;
+
+  if (spike.hasBeenReflected) {
     // TODO test
-    targetEnemy.hit(bullet.dirX, bullet.dirY, 2);
+    targetEnemy.hit(spike.dirX, spike.dirY, 2);
   } else {
-    targetEnemy.hit(bullet.dirX, bullet.dirY);
+    targetEnemy.hit(spike.dirX, spike.dirY);
   }
 
   if (targetEnemy.hasDied()) {
@@ -86,7 +118,7 @@ function hitEnemy(bullet, targetEnemy){ // let's name variable to not get lost
         break;
 
       case Game.EnemyTypes.SPLITTER:
-      // TODO get bullet direction and set the splitted's pos
+      // TODO get spike direction and set the splitted's pos
 
         let lastX = targetEnemy.x;
         let lastY = targetEnemy.y;
@@ -112,12 +144,12 @@ function hitEnemy(bullet, targetEnemy){ // let's name variable to not get lost
         break;
     }
 
-    Game.removeObject(enemies, targetEnemy); // if only this was java....
+    Game.removeObject(enemies, targetEnemy);
     score += scoreGained;
   }
 
   if (targetEnemy.type == Game.EnemyTypes.REFLECTOR) {
-    bullet.reflect();
+    spike.reflect();
   } else {
     removeBullet = true;
   }
@@ -125,87 +157,60 @@ function hitEnemy(bullet, targetEnemy){ // let's name variable to not get lost
   return removeBullet;
 }
 
-function handlePlayerBullet(b) {
-  let removeBullet = false;
+function handleSprinklers(sprnk){
+    if (sprnk.spawnSpikes()) {
+      let spd = 10.0;
 
-  // Enemy detection
-  enemies.forEach((e) => {
-    if (
-      TankMath.circleCollision(e.x, e.y, e.size / 2.0, b.x, b.y, b.size / 2.0)
-    ) {
-      removeBullet = hitEnemy(b, e);
+      sprinklerSpikes.push(new Bullet(sprnk.x, sprnk.y, 0, -1, spd));
+      sprinklerSpikes.push(new Bullet(sprnk.x, sprnk.y, 0, 1, spd));
+      sprinklerSpikes.push(new Bullet(sprnk.x, sprnk.y, -1, 0, spd));
+      sprinklerSpikes.push(new Bullet(sprnk.x, sprnk.y, 1, 0, spd));
     }
-  });
 
-  items.forEach((item) => {
-    if (
-      !item.opened &&
-      TankMath.circleCollision(
-        item.x,
-        item.y,
-        item.size / 2.0,
-        b.x,
-        b.y,
-        b.size / 2.0)
-    ) {
-      item.hit();
-      removeBullet = true;
-    }
-  });
+    sprnk.update();
+    sprnk.show();
 
-  b.update();
-  b.show();
-
-  return !removeBullet && !TankMath.offScreen(b.x, b.y, canSize.x, canSize.y);
+    return sprnk.alive;
 }
 
-function handleEnemies() {
-  enemies.forEach((e) => {
-    e.slow = slowMode;
+function spawnItem(item = -1) {
+  let itemToSpawn = 0;
 
-    if (e.spawnBullets() && e.canShoot) {
-      let spd = Game.getEnemySpikesSpeed(slowMode);
-      let size = 75.0;
+  if (item == -1){
+    const types = Object.values(Game.Items);
+    itemToSpawn = random(types);
+  } else {
+    itemToSpawn = item;
+  }
 
-      enemyBullets.push(new Bullet(e.x, e.y, 0, -1, spd, size));
-      enemyBullets.push(new Bullet(e.x, e.y, 0, 1, spd, size));
-      enemyBullets.push(new Bullet(e.x, e.y, -1, 0, spd, size));
-      enemyBullets.push(new Bullet(e.x, e.y, 1, 0, spd, size));
-    }
+  let spawnX = TankMath.randomFloat(200.0, width - 200);
+  let spawnY = TankMath.randomFloat(200.0, height - 200);
 
-    e.update();
-    e.show();
-  });
+  let i = new Item(spawnX, spawnY, itemToSpawn, p);
+
+  items.push(i);
 }
 
-let currentEnemyTypes = [Game.EnemyTypes.NORMAL];
-
-function spawnRandomWaveEnemies(onWave = waves) {
-  // experimental
-  const curWave = onWave;
+function spawnRandomWaveEnemies(onWave = wave) {
   let encounterSet = 0;
 
-  if (curWave > enemySetEncounters[0] && curWave <= enemySetEncounters[1]) {
+  if (onWave > enemySetEncounters[0] && onWave <= enemySetEncounters[1]) {
     encounterSet = 0;
-  } else if (curWave > enemySetEncounters[1] && curWave <= enemySetEncounters[2]) {
+  } else if (onWave > enemySetEncounters[1] && onWave <= enemySetEncounters[2]) {
     encounterSet = 1;
   } else {
     encounterSet = 2;
   }
 
-  const randomType = Game.pickRandomIndex(
-    Game.enemyEncounter,
-    currentEnemyTypes,
-    encounterSet
-  );
+  const randomType = Game.pickRandomIndex(Game.enemyEncounter, currentEnemyTypes, encounterSet);
 
   if (randomType != null) {
     currentEnemyTypes.push(randomType);
   }
 
-  let healthMin = 3 + floor(waves / 5.0);
-  let enemySpawnsMin = 3 + floor(waves / 7.0);
-  let enemySpawnsFactor = 3 + floor(waves / 7.0);
+  let healthMin = 3 + floor(wave / 5.0);
+  let enemySpawnsMin = 3 + floor(wave / 7.0);
+  let enemySpawnsFactor = 3 + floor(wave / 7.0);
 
   let noOfEnemies = enemySpawnsMin + floor(random() * enemySpawnsFactor);
 
@@ -231,25 +236,26 @@ function spawnRandomWaveEnemies(onWave = waves) {
   }
 }
 
-function spawnItem(item = -1) {
-  print("Item spawn");
-    
-  let itemToSpawn = 0;
+function gotoNextWave() {
+  wave++;
+  print(wave);
 
-  if (item == -1){
-    const types = Object.values(Game.Items);
-    itemToSpawn = random(types);
-  } else {
-    itemToSpawn = item;
+  if (random() < 1 / 1) {
+    spawnItem(Game.Items.SPIKE_SPRINKER);
   }
+  // let value = Game.EnemyTypes.SPLITTER;
 
-  let spawnX = TankMath.randomFloat(200.0, width - 200);
-  let spawnY = TankMath.randomFloat(200.0, height - 200);
-
-  let i = new Item(spawnX, spawnY, itemToSpawn, p);
-
-  items.push(i);
+  // spawnEnemy(value);
+  spawnRandomWaveEnemies();
 }
+
+function displayText() {
+  textAlign(CENTER);
+  textSize(45);
+  strokeWeight(7);
+  text(`Wave ${wave}`, 0, 0);
+}
+
 let bgIMG;
 
 function preload() {
@@ -278,8 +284,8 @@ function setup() {
 
 function draw() {
   background("#d1d166ff");
-  // bgIMG.filter(GRAY);
 
+  // Handle BG
   push();
   translate(width / 2, height / 2);
   rotate(millis() * (1 / 18000));
@@ -287,20 +293,11 @@ function draw() {
   tint(255, 255, 155);
   image(bgIMG, 0, 0);
   pop();
+  // 
 
   noCursor();
   frameRate(60);
   rectMode(CENTER);
-
-  fill(GRAY);
-  items = items.filter((i) => {
-    i.enemies = enemies;
-
-    i.update();
-    i.show();
-    return !i.collected && !TankMath.offScreen(i.x, i.y, canSize.x, canSize.y);
-  });
-  fill(255);
 
   // Enemies defeated
   if (enemies.length == 0 && !gameOver) {
@@ -332,66 +329,40 @@ function draw() {
     }
   }
 
-  let a = 0.1 * QUARTER_PI * sin(millis() / 1.0 / 512.0);
-
+  // Handle Text
   push();
   translate(width / 2, height / 1.1);
   stroke(50);
-  rotate(a);
+  rotate(0.1 * QUARTER_PI * sin(millis() / 1.0 / 512.0));
   displayText();
   pop();
 
-  if (waves == 0) {
+  if (wave === 0) {
     strokeWeight(3);
     textSize(30);
     text("A game by Night Kolo", width / 2, 100);
     text("I love making a buggy mess :D", width / 2, 140);
   }
+  //
 
-  // Handle playerBullets
   strokeWeight(5);
-
+  
+  // Handle playerBullets
   playerBullets = playerBullets.filter(handlePlayerBullet);
-
+  
   // Handle enemyBullets
   enemyBullets.forEach(handleEnemyBullet);
 
   // Handle sprinklerSpikes
-  sprinklers = sprinklers.filter((s) => {
-    if (s.spawnSpikes()) {
-      let spd = 10.0;
-
-      sprinklerSpikes.push(new Bullet(s.x, s.y, 0, -1, spd));
-      sprinklerSpikes.push(new Bullet(s.x, s.y, 0, 1, spd));
-      sprinklerSpikes.push(new Bullet(s.x, s.y, -1, 0, spd));
-      sprinklerSpikes.push(new Bullet(s.x, s.y, 1, 0, spd));
-    }
-
-    s.update();
-    s.show();
-
-    return s.alive;
-  });
-
-  handleEnemies();
-
-
-  print(sprinklerSpikes);
   sprinklerSpikes = sprinklerSpikes.filter((b) => {
     let removeBullet = false;
 
-    // if (!b.alive){
-    //   Game.removeObject(sprinklerSpikes, b);
-    // }
-
     enemies.forEach((e) => {
-      if (
-      TankMath.circleCollision(b.x, b.y, b.size / 2.0, e.x, e.y, e.size / 2.0)
-    ) {
+      if (TankMath.circleCollision(b.x, b.y, b.size / 2.0, e.x, e.y, e.size / 2.0)) {
         removeBullet = hitEnemy(b, e);
 
         Game.removeObject(enemyBullets, b);
-    }
+      }
     })
 
     b.update();
@@ -399,7 +370,41 @@ function draw() {
 
     return !removeBullet && !TankMath.offScreen(b.x, b.y, canSize.x, canSize.y);
   })
+
+  // Handle Enemies
+  enemies.forEach((e) => {
+    e.slow = slowMode;
+
+    if (e.spawnBullets() && e.canShoot) {
+      let spd = Game.getEnemySpikesSpeed(slowMode);
+      let size = 75.0;
+
+      enemyBullets.push(new Bullet(e.x, e.y, 0, -1, spd, size));
+      enemyBullets.push(new Bullet(e.x, e.y, 0, 1, spd, size));
+      enemyBullets.push(new Bullet(e.x, e.y, -1, 0, spd, size));
+      enemyBullets.push(new Bullet(e.x, e.y, 1, 0, spd, size));
+    }
+
+    e.update();
+    e.show();
+  });
+
+  // Handle Sprinklers
+  sprinklers = sprinklers.filter(handleSprinklers);
   
+  // Handle Items
+  fill(GRAY);
+  items = items.filter((i) => {
+    i.enemies = enemies;
+
+    i.update();
+    i.show();
+    return !i.collected && !TankMath.offScreen(i.x, i.y, canSize.x, canSize.y);
+  });
+  fill(255);
+  //
+
+  // Handle Player
   if (p.alive) {
     p.enemies = enemies;
     noShoot = p.insideAnEnemy(false);
@@ -416,29 +421,9 @@ function draw() {
     gameOver = true;
   }
 }
-function gotoNextWave() {
-  waves++;
-  print(waves);
-
-  if (random() < 1 / 1) {
-    spawnItem(Game.Items.SPIKE_SPRINKER);
-  }
-  // let value = Game.EnemyTypes.SPLITTER;
-
-  // spawnEnemy(value);
-  spawnRandomWaveEnemies();
-}
-
-function displayText() {
-  textAlign(CENTER);
-  textSize(45);
-  strokeWeight(7);
-  text(`Wave ${waves}`, 0, 0);
-}
 
 function mousePressed() {
   if (p.powerups.includes(Game.Items.SPIKE_SPRINKER)){
-    print("Sanity check")
     let s = new Sprinker(p.x, p.y, shootingSpdFactor * 8.0);
     sprinklers.push(s);
 
@@ -450,30 +435,14 @@ function mousePressed() {
 }
 
 function keyPressed(event) {
-  if (event.key === "ArrowUp" || event.key === "w" || event.key === "W") { 
-    curBulletDir.x = 0;
-    curBulletDir.y = -1;
-  } else if (
-    event.key === "ArrowDown" ||
-    event.key === "s" ||
-    event.key === "S"
-  ) {
-    curBulletDir.x = 0;
-    curBulletDir.y = 1;
-  } else if (
-    event.key === "ArrowLeft" ||
-    event.key === "a" ||
-    event.key === "A"
-  ) {
-    curBulletDir.x = -1;
-    curBulletDir.y = 0;
-  } else if (
-    event.key === "ArrowRight" ||
-    event.key === "d" ||
-    event.key === "D"
-  ) {
-    curBulletDir.x = 1;
-    curBulletDir.y = 0;
+  if (event.key === "ArrowUp"|| event.key.toLowerCase() == "w") {
+    curBulletDir.x = 0; curBulletDir.y = -1;
+  } else if ( event.key === "ArrowDown" || event.key.toLowerCase() == "s") {
+    curBulletDir.x = 0; curBulletDir.y = 1;
+  } else if ( event.key === "ArrowLeft" || event.key.toLowerCase() == "a") {
+    curBulletDir.x = -1; curBulletDir.y = 0;
+  } else if ( event.key === "ArrowRight" || event.key.toLowerCase() == "d") {
+    curBulletDir.x = 1; curBulletDir.y = 0;
   }
 }
 
@@ -498,75 +467,3 @@ function spawnEnemy(type) {
 
   enemies.push(newEnemy);
 }
-
-// function spawnWaveEnemies(onWave = waves) {
-//   // experimental
-//   const waveEnemies = Game.waves[onWave - 1];
-
-//   if (waveEnemies == undefined) {
-//     gameOver = true;
-//     return;
-//   }
-
-//   for (let i = 0; i < waveEnemies.length; i++) {
-//     let healthRange = waveEnemies[i].hp[1] - waveEnemies[i].hp[0];
-//     let enemySpawns =
-//       waveEnemies[i].count[0] +
-//       floor(random() * (waveEnemies[i].count[1] - waveEnemies[i].count[0]));
-
-//     let enemyType;
-
-//     if (typeof waveEnemies[i].type == "object") {
-//       enemyType =
-//         waveEnemies[i].type[floor(waveEnemies[i].type.length * random())];
-//     } else {
-//       enemyType = waveEnemies[i].type;
-//     }
-
-//     for (let j = 0; j < enemySpawns; j++) {
-//       let spawnX = random() * width;
-//       let spawnY = random() * height;
-
-//       let randomHealth = waveEnemies[i].hp[0] + floor(random() * healthRange);
-
-//       let newEnemy = new Enemy({
-//         x: spawnX,
-//         y: spawnY,
-//         health: randomHealth,
-//         player: p,
-//         type: enemyType,
-//       });
-
-//       enemies.push(newEnemy);
-//     }
-//   }
-// }
-
-// function spawnRandomEnemies() {
-//   let healthMin = 3;
-//   let healthFactor = 20.0;
-//   let enemySpawnsMin = 3;
-//   let enemySpawnsFactor = 3;
-
-//   let noOfEnemies = enemySpawnsMin + floor(random() * enemySpawnsFactor);
-
-//   for (let i = 0; i < noOfEnemies; i++) {
-//     let spawnX = random() * width;
-//     let spawnY = random() * height;
-//     let health = healthMin + floor(random() * healthFactor);
-
-//     const types = Object.values(Game.EnemyTypes);
-//     const randomType = random(types);
-
-//     let newEnemy = new Enemy({
-//       x: spawnX,
-//       y: spawnY,
-//       health: health,
-//       player: p,
-//       bulletDir: curBulletDir,
-//       type: randomType,
-//     });
-
-//     enemies.push(newEnemy);
-//   }
-// }

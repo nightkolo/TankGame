@@ -11,13 +11,12 @@ class Game {
     SPRINTER: 6, // Sprint Cactus
     SPLITTED: 99
   };
+
   static Items = { // RockItems
     TWO_AXIS_SHOOTING: 0,
     VARIABLE_SHOOTING: 1,
     SLOWNESS: 2,
     SPIKE_SPRINKER: 3
-    // SCAREDY_CIRCLES: 3 // not programmed
-
   }
 
   static getEnemySpikesSpeed(isSlow = false){
@@ -158,3 +157,76 @@ class Game {
 
   
 }
+
+// deprecated
+// function spawnWaveEnemies(onWave = wave) {
+//   // experimental
+//   const waveEnemies = Game.wave[onWave - 1];
+
+//   if (waveEnemies == undefined) {
+//     gameOver = true;
+//     return;
+//   }
+
+//   for (let i = 0; i < waveEnemies.length; i++) {
+//     let healthRange = waveEnemies[i].hp[1] - waveEnemies[i].hp[0];
+//     let enemySpawns =
+//       waveEnemies[i].count[0] +
+//       floor(random() * (waveEnemies[i].count[1] - waveEnemies[i].count[0]));
+
+//     let enemyType;
+
+//     if (typeof waveEnemies[i].type == "object") {
+//       enemyType =
+//         waveEnemies[i].type[floor(waveEnemies[i].type.length * random())];
+//     } else {
+//       enemyType = waveEnemies[i].type;
+//     }
+
+//     for (let j = 0; j < enemySpawns; j++) {
+//       let spawnX = random() * width;
+//       let spawnY = random() * height;
+
+//       let randomHealth = waveEnemies[i].hp[0] + floor(random() * healthRange);
+
+//       let newEnemy = new Enemy({
+//         x: spawnX,
+//         y: spawnY,
+//         health: randomHealth,
+//         player: p,
+//         type: enemyType,
+//       });
+
+//       enemies.push(newEnemy);
+//     }
+//   }
+// }
+
+// function spawnRandomEnemies() {
+//   let healthMin = 3;
+//   let healthFactor = 20.0;
+//   let enemySpawnsMin = 3;
+//   let enemySpawnsFactor = 3;
+
+//   let noOfEnemies = enemySpawnsMin + floor(random() * enemySpawnsFactor);
+
+//   for (let i = 0; i < noOfEnemies; i++) {
+//     let spawnX = random() * width;
+//     let spawnY = random() * height;
+//     let health = healthMin + floor(random() * healthFactor);
+
+//     const types = Object.values(Game.EnemyTypes);
+//     const randomType = random(types);
+
+//     let newEnemy = new Enemy({
+//       x: spawnX,
+//       y: spawnY,
+//       health: health,
+//       player: p,
+//       bulletDir: curBulletDir,
+//       type: randomType,
+//     });
+
+//     enemies.push(newEnemy);
+//   }
+// }
