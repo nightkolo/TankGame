@@ -1,11 +1,10 @@
-class Bullet { // Spike
+class Spike {
   constructor(px, py, dirX = 0, dirY = -1, spd = 10.0, size = 25.0){
     this.dirX = dirX;
     this.dirY = dirY;
     this.x = px;
     this.y = py;
     this.spd = spd;
-    // this.health = 1;
 
     this.size = size;
     this.lifetime = 3.0;
@@ -19,13 +18,12 @@ class Bullet { // Spike
       this.alive = false;
     }, this.lifetime * 1000.0);
   }
-  reflect(){ // Experimental
+  reflect(){
     this.hasBeenReflected = true;
 
     this.dirX *= -1;
     this.dirY *= -1
   }
-
   update(){
     this.x += this.dirX * this.spd;
     this.y += this.dirY * this.spd;

@@ -35,6 +35,9 @@ class Item {
     this.collected = true;
     this.player.gainLives();
     this.player.gainItem(this.item);
+
+    print(`Item gained: ${this.item}`);
+
     this.enemies.forEach((e) => {
       e.moveAwayItemCollected(this.x, this.y);
     })
@@ -47,7 +50,7 @@ class Item {
         this.y += this.spd * this.dir;
       }
     } else if (
-      TankMath.circleCollision(
+      GameMath.circleCollision(
         this.x,
         this.y,
         this.size / 2,

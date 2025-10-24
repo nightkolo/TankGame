@@ -19,7 +19,7 @@ class Sprinker{
     }, this.lifetime * 1000.0)
   }
   spawnSpikes() {
-    if (millis() - this.lastShotTime > shootingSpdFactor * 1000) {
+    if (millis() - this.lastShotTime > this.shootingSpdFactor * 1000) {
       this.lastShotTime = millis();
       return true; // ready to fire
     }

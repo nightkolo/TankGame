@@ -1,5 +1,4 @@
-class Player {
-  // Tank
+class Tank {
   constructor() {
     this.x = 0.0;
     this.y = 0.0;
@@ -10,65 +9,33 @@ class Player {
     this.lives = 5;
     this.newLives = 0;
     this.alive = true;
-    this.invincinble = false;
-    this.iframeTime = 1.0;
-
-    // Powerups
-    // this.two_axis_shooting = false;
-    // this.variable_shooting = false;
-    // this.slowness = false;
+    this.invincible = false;
+    this.invincibilityTime = 1.0;
   }
   gainLives(lives = 1){
     this.lives += lives;
     this.newLives += lives;
   }
   gainItem(item, itemCooldown = 5.0) {
-    // switch (item) {
-    //   case Game.Items.VARIABLE_SHOOTING:
-    //     // this.variable_shooting = true;
-    //     break;
-    //   case Game.Items.TWO_AXIS_SHOOTING:
-    //     // this.two_axis_shooting = true;
-    //     break;
-    //   case Game.Items.SLOWNESS:
-    //     // this.slowness = true;
-    //     break;
-    // }
-    
     print("Item added!");
-    this.powerups.push(item);
-    print(this.powerups);
 
-    // TODO improve cooldown system
-    setTimeout(() => {
+    this.powerups.push(item);
+    // print(this.powerups);
+
+    if (item != Game.Items.SPIKE_SPRINKER){
+      setTimeout(() => {
       this.stopItemEffect(item);
-    }, itemCooldown * 1000.0);
+      }, itemCooldown * 1000.0);
+    }
   }
   stopItemEffect(item) {
-    // switch (item) {
-    //   case Game.Items.TWO_AXIS_SHOOTING:
-    //     this.two_axis_shooting = false;
-    //     break;
-    //   case Game.Items.VARIABLE_SHOOTING:
-    //     this.variable_shooting = false;
-    //     break;
-    //   case Game.Items.SLOWNESS:
-    //     this.slowness = false;
-    //     break;
-    // }
-
     print("Item removed!");
-    print(this.powerups);
-
+    
     Game.removeObject(this.powerups, item);
-
-    // const index = this.powerups.indexOf(item);
-    // if (index > -1) {
-    //   this.powerups.splice(index, 1);
-    // }
+    // print(this.powerups);
   }
   hit() {
-    if (this.invincinble) return;
+    if (this.invincible) return;
 
     print("Ouch!");
 
@@ -78,13 +45,12 @@ class Player {
       this.die();
     }
 
-    this.invincinble = true;
+    this.invincible = true;
     setTimeout(() => {
-      this.invincinble = false;
-    }, this.iframeTime * 1000.0);
+      this.invincible = false;
+    }, this.invincibilityTime * 1000.0);
   }
   die() {
-    // TODO Player death incomplete
     this.alive = false;
     print("Game over!");
   }
@@ -94,7 +60,7 @@ class Player {
     if (!this.enemies[0].hasSpawned && checkForSpawn) return false;
 
     return this.enemies.some((e) =>
-      TankMath.circleRectCollision(
+      GameMath.circleRectCollision(
         e.x,
         e.y,
         e.size/2.6,
@@ -110,14 +76,12 @@ class Player {
     this.y = mouseY;
   }
   show() {
-    if (this.invincinble) {
+    if (this.invincible) {
       fill(255 / 2, 255 / 2, 200 / 2);
     } else {
       fill(255, 255, 200);
     }
 
-    // TODO make into square
-    // circle(this.x, this.y, this.size);
     square(this.x, this.y, this.size);
 
     fill(255);

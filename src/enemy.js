@@ -17,7 +17,7 @@ class Enemy {
     this.maxSpeed = maxSpeed;
     this.health = health;
     this.initialHealth = health;
-    this.points = round(health / 4.0); // deprecated
+    this.points = round(health / 4.0); // experimental
     this.player = player;
 
     // Type
@@ -27,7 +27,7 @@ class Enemy {
     this.accel = 0.0;
     this.grav = 9.8;
     this.dirX = Math.sign(random() - 0.5);
-    this.h = y / 2.0;
+    // this.h = y / 2.0;
 
     // Item
     this.slow = false;
@@ -45,10 +45,7 @@ class Enemy {
     this.spawned();
   }
   spawned() {
-    if (this.type == Game.EnemyTypes.SPLITTED) {
-      this.hasSpawned = true;
-      return;
-    }
+    // TODO of type SPITTER should continue moving
 
     if (this.type == Game.EnemyTypes.BOUNCER) {
       this.y /= 2.0;
@@ -80,7 +77,6 @@ class Enemy {
     this.y += this.accel * fallFactor;
 
     if (this.y > height - this.size / 2) {
-      // TODO issue when exiting slowness item
       this.accel -= this.accel * 2.0;
     }
   }
@@ -127,8 +123,7 @@ class Enemy {
       this.y += dy * spd;
     }
   }
-  spawnBullets() {
-    // spawnSpikes
+  spawnSpikes() {
     if (!this.canShoot && this.type != Game.EnemyTypes.SHOOTER) return false;
 
     let factor = 0.0;
@@ -214,6 +209,7 @@ class Enemy {
     let hitTime = 0.05;
     this.isHit = true;
     
+    // TODO store colors in a const to manipulate
     this.col[0] *= 0.65;
     this.col[1] *= 0.65;
     this.col[2] *= 0.65;
