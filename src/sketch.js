@@ -14,11 +14,11 @@ let isShooting = false;
 // Game Loop
 let waves = 0;
 let score = 0;
-let difficulty = 0;
 let gameOver = false;
+const enemySetEncounters = [0, 5, 13];
 
 // Items
-let slow = false;
+let slowMode = false;
 
 // Debug
 let noShoot = false;
@@ -38,7 +38,7 @@ function handleEnemyBullet(b) {
     Game.removeObject(playerBullets, b);
   }
 
-  b.spd = Game.getEnemySpikesSpeed(slow);
+  b.spd = Game.getEnemySpikesSpeed(slowMode);
 
   if (
     TankMath.circleCollision(b.x, b.y, b.size / 2.0, p.x, p.y, p.size / 2.0)
@@ -87,6 +87,8 @@ function handlePlayerBullet(b) {
             break;
 
           case Game.EnemyTypes.SPLITTER:
+          // TODO get bullet direction and set the splitted's pos
+
             let lastX = e.x;
             let lastY = e.y;
             let h = ceil(e.initialHealth / 3.0);
@@ -125,17 +127,16 @@ function handlePlayerBullet(b) {
 
   items.forEach((item) => {
     if (
+      !item.opened &&
       TankMath.circleCollision(
         item.x,
         item.y,
         item.size / 2.0,
         b.x,
         b.y,
-        b.size / 2.0
-      )
+        b.size / 2.0)
     ) {
       item.hit();
-
       removeBullet = true;
     }
   });
@@ -148,10 +149,10 @@ function handlePlayerBullet(b) {
 
 function handleEnemies() {
   enemies.forEach((e) => {
-    e.slow = slow;
+    e.slow = slowMode;
 
     if (e.spawnBullets() && e.canShoot) {
-      let spd = Game.getEnemySpikesSpeed(slow);
+      let spd = Game.getEnemySpikesSpeed(slowMode);
       let size = 75.0;
 
       enemyBullets.push(new Bullet(e.x, e.y, 0, -1, spd, size));
@@ -172,9 +173,9 @@ function spawnRandomWaveEnemies(onWave = waves) {
   const curWave = onWave;
   let encounterSet = 0;
 
-  if (curWave > 0 && curWave <= 4) {
+  if (curWave > enemySetEncounters[0] && curWave <= enemySetEncounters[1]) {
     encounterSet = 0;
-  } else if (curWave > 4 && curWave <= 9) {
+  } else if (curWave > enemySetEncounters[1] && curWave <= enemySetEncounters[2]) {
     encounterSet = 1;
   } else {
     encounterSet = 2;
@@ -190,21 +191,19 @@ function spawnRandomWaveEnemies(onWave = waves) {
     currentEnemyTypes.push(randomType);
   }
 
-  // TODO make increase with waves
-  let healthMin = 3;
-  let healthFactor = 20.0;
-  let enemySpawnsMin = 3;
-  let enemySpawnsFactor = 3;
+  let healthMin = 3 + floor(waves / 5.0);
+  // let healthFactor = Game.healthFactor;
+  let enemySpawnsMin = 3 + floor(waves / 7.0);
+  let enemySpawnsFactor = 3 + floor(waves / 7.0);
 
   let noOfEnemies = enemySpawnsMin + floor(random() * enemySpawnsFactor);
 
   for (let i = 0; i < noOfEnemies; i++) {
-    let spawnX = TankMath.randomFloat(200.0, width - 200);
-    let spawnY = TankMath.randomFloat(200.0, height - 200);
-    let health = healthMin + floor(random() * healthFactor);
+    let spawnX = TankMath.randomFloat(120.0, width - 120.0);
+    let spawnY = TankMath.randomFloat(120.0, height - 120.0);
+    let health = healthMin + floor(random() * Game.healthFactor);
 
-    const randomType =
-      currentEnemyTypes[floor(random() * currentEnemyTypes.length)];
+    const randomType = currentEnemyTypes[floor(random() * currentEnemyTypes.length)];
 
     // TODO make the newly added enemy type appear in the wave it is added in
 
@@ -221,16 +220,22 @@ function spawnRandomWaveEnemies(onWave = waves) {
   }
 }
 
-function spawnItem() {
+function spawnItem(item = -1) {
   print("Item spawn");
-      
-  const types = Object.values(Game.Items);
-  const randomItem = random(types);
+    
+  let itemToSpawn = 0;
+
+  if (item == -1){
+    const types = Object.values(Game.Items);
+    itemToSpawn = random(types);
+  } else {
+    itemToSpawn = item;
+  }
 
   let spawnX = TankMath.randomFloat(200.0, width - 200);
   let spawnY = TankMath.randomFloat(200.0, height - 200);
 
-  let i = new Item(spawnX, spawnY, randomItem, p);
+  let i = new Item(spawnX, spawnY, itemToSpawn, p);
 
   items.push(i);
 }
@@ -268,6 +273,7 @@ function draw() {
   translate(width / 2, height / 2);
   rotate(millis() * (1 / 18000));
   imageMode(CENTER);
+  tint(255, 255, 155);
   image(bgIMG, 0, 0);
   pop();
 
@@ -291,14 +297,14 @@ function draw() {
   }
 
   // Spawn playerBullets
-  if (isShooting && !noShoot) {
+  if (isShooting && !noShoot && !gameOver) {
     if (millis() - lastSpawnTime > shootingSpdFactor * 1000.0) {
       let size = 12.5;
 
       let extraX = 0.0;
       let extraY = 0.0;
 
-      if (p.variable_shooting){
+      if (p.powerups.includes(Game.Items.VARIABLE_SHOOTING)){
         extraX = (random() * 0.5) - 0.25;
         extraY = (random() * 0.5) - 0.25;
       }
@@ -306,7 +312,7 @@ function draw() {
       playerBullets.push(
         new Bullet(p.x, p.y, curBulletDir.x + extraX, curBulletDir.y + extraY, size)
       );
-      if (p.two_axis_shooting) {
+      if (p.powerups.includes(Game.Items.TWO_AXIS_SHOOTING)) {
         playerBullets.push(
           new Bullet(p.x, p.y, -curBulletDir.x + extraX, -curBulletDir.y + extraY, size)
         );
@@ -344,7 +350,7 @@ function draw() {
   if (p.alive) {
     p.enemies = enemies;
     noShoot = p.insideAnEnemy(false);
-    slow = p.slowness;
+    slowMode = p.powerups.includes(Game.Items.SLOWNESS);
 
     if (p.insideAnEnemy()) {
       // TODO add better feedback for player getting hit
@@ -353,13 +359,15 @@ function draw() {
 
     p.update();
     p.show();
+  } else {
+    gameOver = true;
   }
 }
 function gotoNextWave() {
   waves++;
   print(waves);
 
-  if (random() < 1 / 4) {
+  if (random() < 1 / 1) {
     spawnItem();
   }
   // let value = Game.EnemyTypes.SPLITTER;

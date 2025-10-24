@@ -39,7 +39,6 @@ class Item {
     this.player.gainLives();
     this.player.gainItem(this.item);
     this.enemies.forEach((e) => {
-      print("Push away");
       e.moveAwayItemCollected(this.x, this.y);
     })
   }

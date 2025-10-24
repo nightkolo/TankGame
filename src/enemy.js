@@ -4,7 +4,7 @@ class Enemy {
     x = 200,
     y = 200,
     health = 10,
-    speed = 1.35,
+    maxSpeed = 1.35,
     type = Game.EnemyTypes,
     followPlayer = true,
     player,
@@ -14,7 +14,7 @@ class Enemy {
 
     // Stats
     this.size = this.getSize();
-    this.speed = speed;
+    this.maxSpeed = maxSpeed;
     this.health = health;
     this.initialHealth = health;
     this.points = round(health / 4.0); // deprecated
@@ -33,9 +33,11 @@ class Enemy {
     this.slow = false;
 
     // Misc.
+    this.col = [0, 0, 0];
     this.followPlayer = followPlayer;
     this.lastShotTime = 0;
     this.canShoot = false;
+    this.isHit = false;
     this.shootingSpdFactor = 1.25;
     this.slowShootingSpdFactor = this.shootingSpdFactor * 4.0;
     this.hasSpawned = false;
@@ -64,9 +66,10 @@ class Enemy {
       this.dirX *= -1;
     }
 
-    let spd = this.speed;
+    let spd = this.maxSpeed;
     let fallFactor = 1.0 / 64.0;
 
+    // TODO issues with bouncer when exitting slowMode
     if (this.slow){
       spd /= 8.0;
       fallFactor /= 8.0;
@@ -81,10 +84,9 @@ class Enemy {
       this.accel -= this.accel * 2.0;
     }
   }
+  
   moveAwayItemCollected(x, y){
     if (this.type == Game.EnemyTypes.BOUNCER) return;
-    print("Push away");
-
     let dx = x - this.x;
     let dy = y - this.y;
     let distance = sqrt(dx * dx + dy * dy);
@@ -114,7 +116,7 @@ class Enemy {
     if (distance > 0) {
       dx /= distance;
       dy /= distance;
-      let spd = this.speed;
+      let spd = this.maxSpeed * (1.0 - (this.health / (Game.healthFactor + 10.0)));
       if (this.type == Game.EnemyTypes.SPRINTER) {
         spd *= 3.0;
       }
@@ -153,33 +155,43 @@ class Enemy {
   show() {
     rectMode(CENTER);
 
-    switch (this.type) {
-      case Game.EnemyTypes.NORMAL:
-        fill(255);
-        break;
-      case Game.EnemyTypes.SPLITTER:
-        fill(0, 255, 0);
-        break;
-      case Game.EnemyTypes.SPLITTED:
-        fill(255 / 4, 255 / 4, 255 / 4);
-        break;
-      case Game.EnemyTypes.SHOOTER:
-        fill(255, 0, 0);
-        break;
-      case Game.EnemyTypes.EXPLODER:
-        fill(
-          255 * (this.initialHealth / this.health),
-          255 * (this.initialHealth / this.health),
-          0
-        );
-        break;
-      case Game.EnemyTypes.BOUNCER:
-        fill(0, 0, 255);
-        break;
-      case Game.EnemyTypes.REFLECTOR:
-        fill(100, 255, 100);
-        break;
+    if (!this.isHit){
+      switch (this.type) {
+        case Game.EnemyTypes.NORMAL:
+          this.col = [255, 255, 255];
+          break;
+  
+        case Game.EnemyTypes.SPLITTER:
+          this.col = [0, 255, 0];
+          break;
+  
+        case Game.EnemyTypes.SPLITTED:
+          this.col = [255 / 4, 255 / 4, 255 / 4];
+          break;
+  
+        case Game.EnemyTypes.SHOOTER:
+          this.col = [255, 0, 0];
+          break;
+  
+        case Game.EnemyTypes.EXPLODER:
+          this.col = [
+            255 * (this.initialHealth / this.health),
+            255 * (this.initialHealth / this.health),
+            0
+          ];
+          break;
+  
+        case Game.EnemyTypes.BOUNCER:
+          this.col = [0, 0, 255];
+          break;
+  
+        case Game.EnemyTypes.REFLECTOR:
+          this.col = [100, 255, 100];
+          break;
+      }
     }
+
+    fill(...this.col);
 
     circle(this.x, this.y, this.size);
 
@@ -199,8 +211,19 @@ class Enemy {
   hit(hitX = 0, hitY = 0, hitpoint = 1) {
     // if (!this.hasSpawned) return;
 
+    let hitTime = 0.05;
+    this.isHit = true;
+    
+    this.col[0] *= 0.65;
+    this.col[1] *= 0.65;
+    this.col[2] *= 0.65;
+
     this.health -= hitpoint;
     this.knockback(hitX, hitY);
+
+    setTimeout(() => {
+      this.isHit = false;
+    }, hitTime * 1000.0);
   }
   
   knockback(hitX, hitY) {

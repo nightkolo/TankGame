@@ -1,4 +1,6 @@
 class Game {
+  static healthFactor = 20.0;
+
   static EnemyTypes = { // CactiTypes
     NORMAL: 0, // Rogo Cactus
     SHOOTER: 1, // Shoto Cactus
@@ -17,7 +19,7 @@ class Game {
 
   }
 
-  static getEnemySpikesSpeed(isSlow){
+  static getEnemySpikesSpeed(isSlow = false){
     if (isSlow){
       return 4.0 / 4.0;
     } else {
@@ -53,7 +55,7 @@ class Game {
     } while (to.includes(item)); // keep picking until unique
     return item;
   }
-  
+
   // type: Enemy Type (can be randomized encounter)
   // count: quantity of the Enemy
   // hp: Random health point around interval
@@ -70,11 +72,11 @@ class Game {
       this.EnemyTypes.BOUNCER
     ],
     [ // 2nd Encounter
-      this.EnemyTypes.EXPLODER,
+      this.EnemyTypes.SPLITTER,
       this.EnemyTypes.REFLECTOR
     ],
     [ // 3rd Encounter
-      this.EnemyTypes.SPLITTER,
+      this.EnemyTypes.EXPLODER,
       this.EnemyTypes.SPRINTER
     ],
   ]

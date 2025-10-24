@@ -13,28 +13,31 @@ class Player {
     this.invincinble = false;
     this.iframeTime = 1.0;
 
-    // Items
-    this.two_axis_shooting = false;
-    this.variable_shooting = false;
-    this.slowness = false;
+    // Powerups
+    // this.two_axis_shooting = false;
+    // this.variable_shooting = false;
+    // this.slowness = false;
   }
   gainLives(lives = 1){
     this.lives += lives;
     this.newLives += lives;
   }
-  getItem(item, itemCooldown = 5.0) {
-    switch (item) {
-      case Game.Items.VARIABLE_SHOOTING:
-        this.variable_shooting = true;
-        break;
-      case Game.Items.TWO_AXIS_SHOOTING:
-        this.two_axis_shooting = true;
-        break;
-      case Game.Items.SLOWNESS:
-        this.slowness = true;
-        break;
-    }
+  gainItem(item, itemCooldown = 5.0) {
+    // switch (item) {
+    //   case Game.Items.VARIABLE_SHOOTING:
+    //     // this.variable_shooting = true;
+    //     break;
+    //   case Game.Items.TWO_AXIS_SHOOTING:
+    //     // this.two_axis_shooting = true;
+    //     break;
+    //   case Game.Items.SLOWNESS:
+    //     // this.slowness = true;
+    //     break;
+    // }
+    
+    print("Item added!");
     this.powerups.push(item);
+    print(this.powerups);
 
     // TODO improve cooldown system
     setTimeout(() => {
@@ -42,18 +45,19 @@ class Player {
     }, itemCooldown * 1000.0);
   }
   stopItemEffect(item) {
-    switch (item) {
-      case Game.Items.TWO_AXIS_SHOOTING:
-        this.two_axis_shooting = false;
-        break;
-      case Game.Items.VARIABLE_SHOOTING:
-        this.variable_shooting = false;
-        break;
-      case Game.Items.SLOWNESS:
-        this.slowness = false;
-        break;
-    }
+    // switch (item) {
+    //   case Game.Items.TWO_AXIS_SHOOTING:
+    //     this.two_axis_shooting = false;
+    //     break;
+    //   case Game.Items.VARIABLE_SHOOTING:
+    //     this.variable_shooting = false;
+    //     break;
+    //   case Game.Items.SLOWNESS:
+    //     this.slowness = false;
+    //     break;
+    // }
 
+    print("Item removed!");
     print(this.powerups);
     const index = this.powerups.indexOf(item);
     if (index > -1) {
@@ -87,13 +91,14 @@ class Player {
     if (!this.enemies[0].hasSpawned && checkForSpawn) return false;
 
     return this.enemies.some((e) =>
-      TankMath.circleCollision(
-        this.x,
-        this.y,
-        this.size / 2.0,
+      TankMath.circleRectCollision(
         e.x,
         e.y,
-        e.getSize() / 2.0
+        e.size/2.6,
+        this.x,
+        this.y,
+        this.size,
+        this.size
       )
     );
   }
@@ -109,7 +114,7 @@ class Player {
     }
 
     // TODO make into square
-    circle(this.x, this.y, this.size);
+    // circle(this.x, this.y, this.size);
     square(this.x, this.y, this.size);
 
     fill(255);
