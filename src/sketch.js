@@ -7,6 +7,8 @@ let p;
 let e1;
 let playerBullets = []; // playerSpikes
 let enemyBullets = []; // enemySpikes
+let sprinklerSpikes = [];
+let sprinklers = [];
 let enemies = [];
 let items = [];
 let isShooting = false;
@@ -34,8 +36,9 @@ let shootingSpdFactor = 0.045;
 
 function handleEnemyBullet(b) {
   // handleCactiSpikes
+
   if (!b.alive) {
-    Game.removeObject(playerBullets, b);
+    Game.removeObject(enemyBullets, b);
   }
 
   b.spd = Game.getEnemySpikesSpeed(slowMode);
@@ -44,13 +47,82 @@ function handleEnemyBullet(b) {
     TankMath.circleCollision(b.x, b.y, b.size / 2.0, p.x, p.y, p.size / 2.0)
   ) {
     // TODO if player is invincinble, make bullets not splice
+    // huh?
 
     p.hit();
-    Game.removeObject(playerBullets, b);
+    Game.removeObject(enemyBullets, b);
   }
 
   b.update();
   b.show();
+}
+
+function hitEnemy(bullet, targetEnemy){ // let's name variable to not get lost
+  let removeBullet = false;
+
+  if (bullet.hasBeenReflected) {
+    // TODO test
+    targetEnemy.hit(bullet.dirX, bullet.dirY, 2);
+  } else {
+    targetEnemy.hit(bullet.dirX, bullet.dirY);
+  }
+
+  if (targetEnemy.hasDied()) {
+    let scoreGained = targetEnemy.points;
+
+    switch (targetEnemy.type) {
+      case Game.EnemyTypes.EXPLODER:
+        let spd = 4.0;
+        let size = 75.0;
+
+        enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 0, -1, spd, size));
+        enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 0, 1, spd, size));
+        enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, -1, 0, spd, size));
+        enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 1, 0, spd, size));
+        enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, -1, -1, spd, size));
+        enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 1, 1, spd, size));
+        enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, -1, 1, spd, size));
+        enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 1, -1, spd, size));
+        break;
+
+      case Game.EnemyTypes.SPLITTER:
+      // TODO get bullet direction and set the splitted's pos
+
+        let lastX = targetEnemy.x;
+        let lastY = targetEnemy.y;
+        let h = ceil(targetEnemy.initialHealth / 3.0);
+
+        let enemy1 = new Enemy({
+          x: lastX + 100,
+          y: lastY,
+          health: h,
+          type: Game.EnemyTypes.SPLITTED,
+          player: p,
+        });
+        let enemy2 = new Enemy({
+          x: lastX - 100,
+          y: lastY,
+          health: h,
+          type: Game.EnemyTypes.SPLITTED,
+          player: p,
+        });
+
+        enemies.push(enemy1);
+        enemies.push(enemy2);
+        break;
+    }
+
+    Game.removeObject(enemies, targetEnemy); // if only this was java....
+    score += scoreGained;
+  }
+
+  if (targetEnemy.type == Game.EnemyTypes.REFLECTOR) {
+    bullet.reflect();
+  } else {
+    removeBullet = true;
+  }
+
+  return removeBullet;
 }
 
 function handlePlayerBullet(b) {
@@ -61,67 +133,7 @@ function handlePlayerBullet(b) {
     if (
       TankMath.circleCollision(e.x, e.y, e.size / 2.0, b.x, b.y, b.size / 2.0)
     ) {
-      if (b.hasBeenReflected) {
-        // TODO test
-        e.hit(b.dirX, b.dirY, 2);
-      } else {
-        e.hit(b.dirX, b.dirY);
-      }
-
-      if (e.hasDied()) {
-        let scoreGained = e.points;
-
-        switch (e.type) {
-          case Game.EnemyTypes.EXPLODER:
-            let spd = 4.0;
-            let size = 75.0;
-
-            enemyBullets.push(new Bullet(e.x, e.y, 0, -1, spd, size));
-            enemyBullets.push(new Bullet(e.x, e.y, 0, 1, spd, size));
-            enemyBullets.push(new Bullet(e.x, e.y, -1, 0, spd, size));
-            enemyBullets.push(new Bullet(e.x, e.y, 1, 0, spd, size));
-            enemyBullets.push(new Bullet(e.x, e.y, -1, -1, spd, size));
-            enemyBullets.push(new Bullet(e.x, e.y, 1, 1, spd, size));
-            enemyBullets.push(new Bullet(e.x, e.y, -1, 1, spd, size));
-            enemyBullets.push(new Bullet(e.x, e.y, 1, -1, spd, size));
-            break;
-
-          case Game.EnemyTypes.SPLITTER:
-          // TODO get bullet direction and set the splitted's pos
-
-            let lastX = e.x;
-            let lastY = e.y;
-            let h = ceil(e.initialHealth / 3.0);
-
-            let enemy1 = new Enemy({
-              x: lastX + 100,
-              y: lastY,
-              health: h,
-              type: Game.EnemyTypes.SPLITTED,
-              player: p,
-            });
-            let enemy2 = new Enemy({
-              x: lastX - 100,
-              y: lastY,
-              health: h,
-              type: Game.EnemyTypes.SPLITTED,
-              player: p,
-            });
-
-            enemies.push(enemy1);
-            enemies.push(enemy2);
-            break;
-        }
-
-        Game.removeObject(enemies, e);
-        score += scoreGained;
-      }
-
-      if (e.type == Game.EnemyTypes.REFLECTOR) {
-        b.reflect();
-      } else {
-        removeBullet = true;
-      }
+      removeBullet = hitEnemy(b, e);
     }
   });
 
@@ -192,7 +204,6 @@ function spawnRandomWaveEnemies(onWave = waves) {
   }
 
   let healthMin = 3 + floor(waves / 5.0);
-  // let healthFactor = Game.healthFactor;
   let enemySpawnsMin = 3 + floor(waves / 7.0);
   let enemySpawnsFactor = 3 + floor(waves / 7.0);
 
@@ -339,14 +350,56 @@ function draw() {
 
   // Handle playerBullets
   strokeWeight(5);
+
   playerBullets = playerBullets.filter(handlePlayerBullet);
 
   // Handle enemyBullets
   enemyBullets.forEach(handleEnemyBullet);
 
+  // Handle sprinklerSpikes
+  sprinklers = sprinklers.filter((s) => {
+    if (s.spawnSpikes()) {
+      let spd = 10.0;
+
+      sprinklerSpikes.push(new Bullet(s.x, s.y, 0, -1, spd));
+      sprinklerSpikes.push(new Bullet(s.x, s.y, 0, 1, spd));
+      sprinklerSpikes.push(new Bullet(s.x, s.y, -1, 0, spd));
+      sprinklerSpikes.push(new Bullet(s.x, s.y, 1, 0, spd));
+    }
+
+    s.update();
+    s.show();
+
+    return s.alive;
+  });
+
   handleEnemies();
 
-  // TODO player death incomplete
+
+  print(sprinklerSpikes);
+  sprinklerSpikes = sprinklerSpikes.filter((b) => {
+    let removeBullet = false;
+
+    // if (!b.alive){
+    //   Game.removeObject(sprinklerSpikes, b);
+    // }
+
+    enemies.forEach((e) => {
+      if (
+      TankMath.circleCollision(b.x, b.y, b.size / 2.0, e.x, e.y, e.size / 2.0)
+    ) {
+        removeBullet = hitEnemy(b, e);
+
+        Game.removeObject(enemyBullets, b);
+    }
+    })
+
+    b.update();
+    b.show();
+
+    return !removeBullet && !TankMath.offScreen(b.x, b.y, canSize.x, canSize.y);
+  })
+  
   if (p.alive) {
     p.enemies = enemies;
     noShoot = p.insideAnEnemy(false);
@@ -368,7 +421,7 @@ function gotoNextWave() {
   print(waves);
 
   if (random() < 1 / 1) {
-    spawnItem();
+    spawnItem(Game.Items.SPIKE_SPRINKER);
   }
   // let value = Game.EnemyTypes.SPLITTER;
 
@@ -384,6 +437,15 @@ function displayText() {
 }
 
 function mousePressed() {
+  if (p.powerups.includes(Game.Items.SPIKE_SPRINKER)){
+    print("Sanity check")
+    let s = new Sprinker(p.x, p.y, shootingSpdFactor * 8.0);
+    sprinklers.push(s);
+
+    Game.removeObject(p.powerups, Game.Items.SPIKE_SPRINKER);
+
+    return;
+  }
   isShooting = !isShooting;
 }
 

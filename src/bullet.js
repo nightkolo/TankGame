@@ -35,6 +35,7 @@ class Bullet { // Spike
     circle(this.x, this.y, this.size);
   }
 
+  // TODO remove when bullet is offscreen
   offScreen(){
     return (this.x > canSize.x || this.x < 0.0 || this.y > canSize.y || this.y < 0.0);
   }

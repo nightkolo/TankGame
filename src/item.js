@@ -30,10 +30,7 @@ class Item {
     }
   }
   grantItem() {
-    //
     if (this.collected) return;
-
-    print("Push away");
 
     this.collected = true;
     this.player.gainLives();

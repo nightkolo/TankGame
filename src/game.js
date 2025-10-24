@@ -14,7 +14,8 @@ class Game {
   static Items = { // RockItems
     TWO_AXIS_SHOOTING: 0,
     VARIABLE_SHOOTING: 1,
-    SLOWNESS: 2
+    SLOWNESS: 2,
+    SPIKE_SPRINKER: 3
     // SCAREDY_CIRCLES: 3 // not programmed
 
   }

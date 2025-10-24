@@ -59,10 +59,13 @@ class Player {
 
     print("Item removed!");
     print(this.powerups);
-    const index = this.powerups.indexOf(item);
-    if (index > -1) {
-      this.powerups.splice(index, 1);
-    }
+
+    Game.removeObject(this.powerups, item);
+
+    // const index = this.powerups.indexOf(item);
+    // if (index > -1) {
+    //   this.powerups.splice(index, 1);
+    // }
   }
   hit() {
     if (this.invincinble) return;
