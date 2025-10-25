@@ -57,7 +57,7 @@ class Tank {
   insideAnEnemy(checkForSpawn = true) {
     if (this.enemies.length == 0) return false;
 
-    if (!this.enemies[0].hasSpawned && checkForSpawn) return false;
+    if (!this.enemies[0].canHurt && checkForSpawn) return false;
 
     return this.enemies.some((e) =>
       GameMath.circleRectCollision(

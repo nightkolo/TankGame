@@ -235,13 +235,13 @@ function gotoNextWave() {
   wave++;
   print(wave);
 
-  if (random() < 1 / 4) {
-    spawnItem();
+  if (random() < 1 / 1) {
+    spawnItem(Game.Items.SLOWNESS);
   }
-  // let value = Game.EnemyTypes.SPLITTER;
+  let value = Game.EnemyTypes.BOUNCER;
 
-  // spawnEnemy(value);
-  spawnRandomWaveEnemies();
+  spawnEnemy(value);
+  // spawnRandomWaveEnemies();
 }
 
 function displayText() {

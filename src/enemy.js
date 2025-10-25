@@ -1,4 +1,10 @@
 class Enemy {
+  #lastShotTime;
+  #initialY;
+  #initialHealth;
+  #player;
+  #slowState
+
   // Cacti
   constructor({
     x = 200,
@@ -11,15 +17,16 @@ class Enemy {
   } = {}) {
     this.x = x;
     this.y = y;
-
+    this.#initialY = y / 2.0;
+    
     // Stats
     this.size = this.getSize();
     this.maxSpeed = maxSpeed;
     this.health = health;
-    this.initialHealth = health;
     this.points = round(health / 4.0); // experimental
-    this.player = player;
-
+    this.#initialHealth = health;
+    this.#player = player;
+    
     // Type
     this.type = type;
 
@@ -27,34 +34,55 @@ class Enemy {
     this.accel = 0.0;
     this.grav = 9.8;
     this.dirX = Math.sign(random() - 0.5);
-    // this.h = y / 2.0;
 
     // Item
     this.slow = false;
 
+    // State
+    this.canMove = false;
+    this.canHurt = false;
+
     // Misc.
-    this.col = [0, 0, 0];
+    this.col = [0, 0, 0, 255];
     this.followPlayer = followPlayer;
-    this.lastShotTime = 0;
     this.canShoot = false;
     this.isHit = false;
     this.shootingSpdFactor = 1.25;
-    this.slowShootingSpdFactor = this.shootingSpdFactor * 4.0;
-    this.hasSpawned = false;
+    this.#lastShotTime = 0;
+    this.#slowState = false;
 
     this.spawned();
   }
   spawned() {
     // TODO of type SPITTER should continue moving
-
-    if (this.type == Game.EnemyTypes.BOUNCER) {
-      this.y /= 2.0;
+    switch (this.type){
+      case Game.Items.SPLITTED:
+        this.canMove = true;
+        break;
+      case Game.Items.BOUNCER:
+        this.y /= 2.0;
+        break;
     }
 
     setTimeout(() => {
-      this.hasSpawned = true;
+      this.canMove = true;
+      this.canHurt = true;
       this.canShoot = this.type == Game.EnemyTypes.SHOOTER;
     }, 1000.0);
+  }
+  returnBounce(){
+    if (this.type == Game.EnemyTypes.BOUNCER) {
+      this.y = this.#initialY;
+      this.accel = 0.0;
+      this.canMove = true;
+      this.canHurt = false;
+      // this.hasSpawned = false;
+
+      setTimeout(() => {
+        this.canHurt = true;
+        // this.hasSpawned = true;
+      }, 1000.0);
+    }
   }
   bounce() {
     if (this.type != Game.EnemyTypes.BOUNCER) return;
@@ -66,10 +94,14 @@ class Enemy {
     let spd = this.maxSpeed;
     let fallFactor = 1.0 / 64.0;
 
-    // TODO issues with bouncer when exitting slowMode
     if (this.slow){
       spd /= 8.0;
       fallFactor /= 8.0;
+      this.#slowState = true;
+    } else if (this.#slowState) {
+      this.returnBounce();
+      
+      this.#slowState = false;
     }
 
     this.x += this.dirX * spd;
@@ -80,7 +112,6 @@ class Enemy {
       this.accel -= this.accel * 2.0;
     }
   }
-  
   moveAwayItemCollected(x, y){
     if (this.type == Game.EnemyTypes.BOUNCER) return;
     let dx = x - this.x;
@@ -99,14 +130,14 @@ class Enemy {
   }
   moveTowardPlayer() {
     if (
-      this.player == null ||
+      this.#player == null ||
       !this.followPlayer ||
       this.type == Game.EnemyTypes.BOUNCER
     )
       return;
 
-    let dx = this.player.x - this.x;
-    let dy = this.player.y - this.y;
+    let dx = this.#player.x - this.x;
+    let dy = this.#player.y - this.y;
     let distance = sqrt(dx * dx + dy * dy);
 
     if (distance > 0) {
@@ -128,13 +159,13 @@ class Enemy {
 
     let factor = 0.0;
     if (this.slow){
-      factor = this.slowShootingSpdFactor;
+      factor = this.shootingSpdFactor * 4.0;
     } else {
       factor = this.shootingSpdFactor;
     }
 
-    if (millis() - this.lastShotTime > factor * 1000) {
-      this.lastShotTime = millis();
+    if (millis() - this.#lastShotTime > factor * 1000) {
+      this.#lastShotTime = millis();
       return true; // ready to fire
     }
     return false;
@@ -142,7 +173,7 @@ class Enemy {
   update() {
     this.size = this.getSize();
 
-    if (!this.hasSpawned) return;
+    if (!this.canMove) return;
 
     this.bounce();
     this.moveTowardPlayer();
@@ -150,38 +181,42 @@ class Enemy {
   show() {
     rectMode(CENTER);
 
+    let alpha = 255;
+    if (!this.canHurt){
+      alpha = 255/2;
+    }
+
     if (!this.isHit){
       switch (this.type) {
         case Game.EnemyTypes.NORMAL:
-          this.col = [255, 255, 255];
+          this.col = [255, 255, 255, alpha];
           break;
   
         case Game.EnemyTypes.SPLITTER:
-          this.col = [0, 255, 0];
+          this.col = [0, 255, 0, alpha];
           break;
   
         case Game.EnemyTypes.SPLITTED:
-          this.col = [255 / 4, 255 / 4, 255 / 4];
+          this.col = [255 / 4, 255 / 4, 255 / 4, alpha];
           break;
   
         case Game.EnemyTypes.SHOOTER:
-          this.col = [255, 0, 0];
+          this.col = [255, 0, 0, alpha];
           break;
   
         case Game.EnemyTypes.EXPLODER:
           this.col = [
-            255 * (this.initialHealth / this.health),
-            255 * (this.initialHealth / this.health),
-            0
-          ];
+            255 * (this.#initialHealth / this.health),
+            255 * (this.#initialHealth / this.health),
+            0, alpha];
           break;
   
         case Game.EnemyTypes.BOUNCER:
-          this.col = [0, 0, 255];
+          this.col = [0, 0, 255, alpha];
           break;
   
         case Game.EnemyTypes.REFLECTOR:
-          this.col = [100, 255, 100];
+          this.col = [100, 255, 100, alpha];
           break;
       }
     }
@@ -196,6 +231,9 @@ class Enemy {
     textAlign(CENTER);
 
     text(`${this.health}`, this.x, this.y);
+  }
+  getColor(){
+    
   }
   getSize() {
     if (this.type == Game.EnemyTypes.EXPLODER) {
@@ -232,8 +270,5 @@ class Enemy {
   }
   hasDied() {
     return this.health < 1;
-  }
-  toString() {
-    return `${this.health}, ${this.x}, ${this.y}`;
   }
 }
