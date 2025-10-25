@@ -1,7 +1,5 @@
 const canSize = { x: 900, y: 720 }; // 5:4
 
-// TODO use modules for multiple js files
-
 // Objects
 let p;
 let e1;
