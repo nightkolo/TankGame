@@ -7,7 +7,7 @@ class Spike {
     this.spd = spd;
 
     this.size = size;
-    this.lifetime = 3.0;
+    this.lifetime = 3.5;
     this.alive = true;
     this.hasBeenReflected = false;
 

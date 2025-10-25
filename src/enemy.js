@@ -47,19 +47,22 @@ class Enemy {
     this.followPlayer = followPlayer;
     this.canShoot = false;
     this.isHit = false;
-    this.shootingSpdFactor = 1.25;
+    this.shootingSpdFactor = 1.7;
     this.#lastShotTime = 0;
     this.#slowState = false;
 
     this.spawned();
   }
+  getInitialHealth(){
+    return this.#initialHealth;
+  }
   spawned() {
     // TODO of type SPITTER should continue moving
     switch (this.type){
-      case Game.Items.SPLITTED:
-        this.canMove = true;
-        break;
-      case Game.Items.BOUNCER:
+      // case Game.EnemyTypes.SPLITTED:
+      //   this.canMove = true;
+      //   break;
+      case Game.EnemyTypes.BOUNCER:
         this.y /= 2.0;
         break;
     }
@@ -270,5 +273,8 @@ class Enemy {
   }
   hasDied() {
     return this.health < 1;
+  }
+  toString(){
+    return `${round(this.x)}, ${round(this.y)}`
   }
 }

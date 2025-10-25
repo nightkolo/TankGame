@@ -117,7 +117,7 @@ function hitEnemy(spike, targetEnemy){
       case Game.EnemyTypes.SPLITTER:
         let lastX = targetEnemy.x;
         let lastY = targetEnemy.y;
-        let h = ceil(targetEnemy.initialHealth / 3.0);
+        let h = ceil(targetEnemy.getInitialHealth() / 3.0);
 
         let enemy1 = new Enemy({
           x: lastX + (100 * -spike.dirY),
@@ -136,6 +136,7 @@ function hitEnemy(spike, targetEnemy){
 
         enemies.push(enemy1);
         enemies.push(enemy2);
+
         break;
     }
 
@@ -203,9 +204,9 @@ function spawnRandomWaveEnemies(onWave = wave) {
     currentEnemyTypes.push(randomType);
   }
 
-  let healthMin = 3 + floor(wave / 5.0);
-  let enemySpawnsMin = 3 + floor(wave / 7.0);
-  let enemySpawnsFactor = 3 + floor(wave / 7.0);
+  let healthMin = 3 + floor(wave / 6.0);
+  let enemySpawnsMin = 2 + floor(wave / 8.0);
+  let enemySpawnsFactor = 3 + floor(wave / 8.0);
 
   let noOfEnemies = enemySpawnsMin + floor(random() * enemySpawnsFactor);
 
@@ -213,6 +214,8 @@ function spawnRandomWaveEnemies(onWave = wave) {
     let spawnX = GameMath.randomFloat(120.0, width - 120.0);
     let spawnY = GameMath.randomFloat(120.0, height - 120.0);
     let health = healthMin + floor(random() * Game.healthFactor);
+
+    print(`Enemy (${i + 1}): ${round(spawnX)}, ${round(spawnY)}, ${health}`);
 
     const randomType = currentEnemyTypes[floor(random() * currentEnemyTypes.length)];
 
@@ -235,13 +238,13 @@ function gotoNextWave() {
   wave++;
   print(wave);
 
-  if (random() < 1 / 1) {
-    spawnItem(Game.Items.SLOWNESS);
+  if (random() < 1 / 3) {
+    spawnItem();
   }
-  let value = Game.EnemyTypes.BOUNCER;
+  // let value = Game.EnemyTypes.SPLITTER;
 
-  spawnEnemy(value);
-  // spawnRandomWaveEnemies();
+  // spawnEnemy(value);
+  spawnRandomWaveEnemies();
 }
 
 function displayText() {
@@ -277,6 +280,8 @@ function setup() {
   enemies.push(e1);
 }
 
+let enemiesDefeated = false;
+
 function draw() {
   background("#d1d166ff");
 
@@ -295,8 +300,15 @@ function draw() {
   rectMode(CENTER);
 
   // Enemies defeated
-  if (enemies.length == 0 && !gameOver) {
+  if (enemies.length == 0 && !gameOver/* && !enemiesDefeated*/) {
     gotoNextWave();
+    // setTimeout(() => {
+    //   if (enemies.length == 0){
+    //     gotoNextWave();
+    //   }
+    //   enemiesDefeated = false;
+    // }, 1000.0);
+    // enemiesDefeated = true;
   }
 
   // Spawn playerSpikes

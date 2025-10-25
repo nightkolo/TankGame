@@ -36,7 +36,7 @@ class Item {
     this.player.gainLives();
     this.player.gainItem(this.item);
 
-    print(`Item gained: ${this.item}`);
+    print(`Item gained: ${Game.getItemName(this.item)}`);
 
     this.enemies.forEach((e) => {
       e.moveAwayItemCollected(this.x, this.y);

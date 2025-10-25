@@ -19,11 +19,15 @@ class Game {
     SPIKE_SPRINKER: 3
   }
 
+  static getItemName(value) {
+    return Object.keys(this.Items).find(key => this.Items[key] === value);
+  }
+
   static getEnemySpikesSpeed(isSlow = false){
     if (isSlow){
-      return 4.0 / 4.0;
+      return 2.6 / 4.0;
     } else {
-      return 4.0;
+      return 2.6;
     }
   }
 
