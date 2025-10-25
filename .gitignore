@@ -2,3 +2,4 @@
 .vscode/
 misc/
 **/misc/
+src/animation.js

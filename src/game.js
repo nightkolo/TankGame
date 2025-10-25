@@ -1,14 +1,14 @@
 class Game {
-  static healthFactor = 20.0;
+  static enemyHealthFactor = 20.0;
 
-  static EnemyTypes = { // CactiTypes
-    NORMAL: 0, // Rogo Cactus
-    SHOOTER: 1, // Shoto Cactus
+  static EnemyTypes = { 
+    NORMAL: 0, 
+    SHOOTER: 1, 
     BOUNCER: 2,
     REFLECTOR: 3,
     SPLITTER: 4,
-    EXPLODER: 5, // Exo Cactus
-    SPRINTER: 6, // Sprint Cactus
+    EXPLODER: 5, 
+    SPRINTER: 6, 
     SPLITTED: 99
   };
 
@@ -23,7 +23,7 @@ class Game {
     return Object.keys(this.Items).find(key => this.Items[key] === value);
   }
 
-  static getEnemySpikesSpeed(isSlow = false){
+  static getEnemyBulletsSpeed(isSlow = false){
     if (isSlow){
       return 2.6 / 4.0;
     } else {
@@ -208,7 +208,7 @@ class Game {
 
 // function spawnRandomEnemies() {
 //   let healthMin = 3;
-//   let healthFactor = 20.0;
+//   let enemyHealthFactor = 20.0;
 //   let enemySpawnsMin = 3;
 //   let enemySpawnsFactor = 3;
 
@@ -217,7 +217,7 @@ class Game {
 //   for (let i = 0; i < noOfEnemies; i++) {
 //     let spawnX = random() * width;
 //     let spawnY = random() * height;
-//     let health = healthMin + floor(random() * healthFactor);
+//     let health = healthMin + floor(random() * enemyHealthFactor);
 
 //     const types = Object.values(Game.EnemyTypes);
 //     const randomType = random(types);

@@ -5,7 +5,6 @@ class Enemy {
   #player;
   #slowState
 
-  // Cacti
   constructor({
     x = 200,
     y = 200,
@@ -146,9 +145,9 @@ class Enemy {
     if (distance > 0) {
       dx /= distance;
       dy /= distance;
-      let spd = this.maxSpeed * (1.0 - (this.health / (Game.healthFactor + 10.0)));
+      let spd = this.maxSpeed * (1.0 - (this.health / (Game.enemyHealthFactor + 10.0)));
       if (this.type == Game.EnemyTypes.SPRINTER) {
-        spd *= 3.0;
+        spd *= 3.33;
       }
       if (this.slow){
         spd /= 4.0;
@@ -157,7 +156,7 @@ class Enemy {
       this.y += dy * spd;
     }
   }
-  spawnSpikes() {
+  spawnBullets() {
     if (!this.canShoot && this.type != Game.EnemyTypes.SHOOTER) return false;
 
     let factor = 0.0;

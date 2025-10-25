@@ -1,4 +1,4 @@
-class Spike {
+class Bullet {
   constructor(px, py, dirX = 0, dirY = -1, spd = 10.0, size = 25.0){
     this.dirX = dirX;
     this.dirY = dirY;
@@ -7,7 +7,7 @@ class Spike {
     this.spd = spd;
 
     this.size = size;
-    this.lifetime = 3.5;
+    this.lifetime = 4.0;
     this.alive = true;
     this.hasBeenReflected = false;
 

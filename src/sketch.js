@@ -5,9 +5,9 @@ const canSize = { x: 900, y: 720 }; // 5:4
 // Objects
 let p;
 let e1;
-let playerSpikes = []; // playerSpikes
-let enemySpikes = []; // enemySpikes
-let sprinklerSpikes = [];
+let playerBullets = []; // playerBullets
+let enemyBullets = []; // enemyBullets
+let sprinklerBullets = [];
 let sprinklers = [];
 let enemies = [];
 let items = [];
@@ -25,7 +25,7 @@ let slowMode = false;
 
 // Debug
 let noShoot = false;
-let curSpikeDir = {
+let curBulletDir = {
   x: 0,
   y: -1,
 };
@@ -33,37 +33,37 @@ let curSpikeDir = {
 let lastSpawnTime = 0.0;
 let shootingSpdFactor = 0.045;
 
-function handleEnemySpikes(spike) {
-  // handleCactiSpikes
+function handleEnemyBullets(bullet) {
+  // handleCactiBullets
 
-  if (!spike.alive) {
-    Game.removeObject(enemySpikes, spike);
+  if (!bullet.alive) {
+    Game.removeObject(enemyBullets, bullet);
   }
 
-  spike.spd = Game.getEnemySpikesSpeed(slowMode);
+  bullet.spd = Game.getEnemyBulletsSpeed(slowMode);
 
   if (
-    GameMath.circleCollision(spike.x, spike.y, spike.size / 2.0, p.x, p.y, p.size / 2.0)
+    GameMath.circleCollision(bullet.x, bullet.y, bullet.size / 2.0, p.x, p.y, p.size / 2.0)
   ) {
     if (!p.invincible){
       p.hit();
-      Game.removeObject(enemySpikes, spike);
+      Game.removeObject(enemyBullets, bullet);
     }
   }
 
-  spike.update();
-  spike.show();
+  bullet.update();
+  bullet.show();
 }
 
-function handlePlayerSpikes(spike) {
-  let removeSpike = false;
+function handlePlayerBullets(bullet) {
+  let removeBullet = false;
 
   // Enemy detection
   enemies.forEach((e) => {
     if (
-      GameMath.circleCollision(e.x, e.y, e.size / 2.0, spike.x, spike.y, spike.size / 2.0)
+      GameMath.circleCollision(e.x, e.y, e.size / 2.0, bullet.x, bullet.y, bullet.size / 2.0)
     ) {
-      removeSpike = hitEnemy(spike, e);
+      removeBullet = hitEnemy(bullet, e);
     }
   });
 
@@ -72,28 +72,28 @@ function handlePlayerSpikes(spike) {
         item.x,
         item.y,
         item.size / 2.0,
-        spike.x,
-        spike.y,
-        spike.size / 2.0)
+        bullet.x,
+        bullet.y,
+        bullet.size / 2.0)
     ) {
       item.hit();
-      removeSpike = true;
+      removeBullet = true;
     }
   });
 
-  spike.update();
-  spike.show();
+  bullet.update();
+  bullet.show();
 
-  return !removeSpike && !GameMath.offScreen(spike.x, spike.y, canSize.x, canSize.y);
+  return !removeBullet && !GameMath.offScreen(bullet.x, bullet.y, canSize.x, canSize.y);
 }
 
-function hitEnemy(spike, targetEnemy){
-  let removeSpike = false;
+function hitEnemy(bullet, targetEnemy){
+  let removeBullet = false;
 
-  if (spike.hasBeenReflected) {
-    targetEnemy.hit(spike.dirX, spike.dirY, 2);
+  if (bullet.hasBeenReflected) {
+    targetEnemy.hit(bullet.dirX, bullet.dirY, 2);
   } else {
-    targetEnemy.hit(spike.dirX, spike.dirY);
+    targetEnemy.hit(bullet.dirX, bullet.dirY);
   }
 
   if (targetEnemy.hasDied()) {
@@ -101,17 +101,17 @@ function hitEnemy(spike, targetEnemy){
 
     switch (targetEnemy.type) {
       case Game.EnemyTypes.EXPLODER:
-        let spd = 4.0;
+        let spd = Game.getEnemyBulletsSpeed(slowMode);
         let size = 75.0;
 
-        enemySpikes.push(new Spike(targetEnemy.x, targetEnemy.y, 0, -1, spd, size));
-        enemySpikes.push(new Spike(targetEnemy.x, targetEnemy.y, 0, 1, spd, size));
-        enemySpikes.push(new Spike(targetEnemy.x, targetEnemy.y, -1, 0, spd, size));
-        enemySpikes.push(new Spike(targetEnemy.x, targetEnemy.y, 1, 0, spd, size));
-        enemySpikes.push(new Spike(targetEnemy.x, targetEnemy.y, -1, -1, spd, size));
-        enemySpikes.push(new Spike(targetEnemy.x, targetEnemy.y, 1, 1, spd, size));
-        enemySpikes.push(new Spike(targetEnemy.x, targetEnemy.y, -1, 1, spd, size));
-        enemySpikes.push(new Spike(targetEnemy.x, targetEnemy.y, 1, -1, spd, size));
+        enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 0, -1, spd, size));
+        enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 0, 1, spd, size));
+        enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, -1, 0, spd, size));
+        enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 1, 0, spd, size));
+        enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, -1, -1, spd, size));
+        enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 1, 1, spd, size));
+        enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, -1, 1, spd, size));
+        enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 1, -1, spd, size));
         break;
 
       case Game.EnemyTypes.SPLITTER:
@@ -120,15 +120,15 @@ function hitEnemy(spike, targetEnemy){
         let h = ceil(targetEnemy.getInitialHealth() / 3.0);
 
         let enemy1 = new Enemy({
-          x: lastX + (100 * -spike.dirY),
-          y: lastY + (100 * spike.dirX),
+          x: lastX + (100 * -bullet.dirY),
+          y: lastY + (100 * bullet.dirX),
           health: h,
           type: Game.EnemyTypes.SPLITTED,
           player: p,
         });
         let enemy2 = new Enemy({
-          x: lastX - (100 * -spike.dirY),
-          y: lastY - (100 * spike.dirX),
+          x: lastX - (100 * -bullet.dirY),
+          y: lastY - (100 * bullet.dirX),
           health: h,
           type: Game.EnemyTypes.SPLITTED,
           player: p,
@@ -145,22 +145,22 @@ function hitEnemy(spike, targetEnemy){
   }
 
   if (targetEnemy.type == Game.EnemyTypes.REFLECTOR) {
-    spike.reflect();
+    bullet.reflect();
   } else {
-    removeSpike = true;
+    removeBullet = true;
   }
 
-  return removeSpike;
+  return removeBullet;
 }
 
 function handleSprinklers(sprnk){
-    if (sprnk.spawnSpikes()) {
+    if (sprnk.spawnBullets()) {
       let spd = 10.0;
 
-      sprinklerSpikes.push(new Spike(sprnk.x, sprnk.y, 0, -1, spd));
-      sprinklerSpikes.push(new Spike(sprnk.x, sprnk.y, 0, 1, spd));
-      sprinklerSpikes.push(new Spike(sprnk.x, sprnk.y, -1, 0, spd));
-      sprinklerSpikes.push(new Spike(sprnk.x, sprnk.y, 1, 0, spd));
+      sprinklerBullets.push(new Bullet(sprnk.x, sprnk.y, 0, -1, spd));
+      sprinklerBullets.push(new Bullet(sprnk.x, sprnk.y, 0, 1, spd));
+      sprinklerBullets.push(new Bullet(sprnk.x, sprnk.y, -1, 0, spd));
+      sprinklerBullets.push(new Bullet(sprnk.x, sprnk.y, 1, 0, spd));
     }
 
     sprnk.update();
@@ -213,7 +213,7 @@ function spawnRandomWaveEnemies(onWave = wave) {
   for (let i = 0; i < noOfEnemies; i++) {
     let spawnX = GameMath.randomFloat(120.0, width - 120.0);
     let spawnY = GameMath.randomFloat(120.0, height - 120.0);
-    let health = healthMin + floor(random() * Game.healthFactor);
+    let health = healthMin + floor(random() * Game.enemyHealthFactor);
 
     print(`Enemy (${i + 1}): ${round(spawnX)}, ${round(spawnY)}, ${health}`);
 
@@ -226,7 +226,7 @@ function spawnRandomWaveEnemies(onWave = wave) {
       y: spawnY,
       health: health,
       player: p,
-      bulletDir: curSpikeDir,
+      bulletDir: curBulletDir,
       type: randomType,
     });
 
@@ -275,7 +275,7 @@ function setup() {
     player: p,
     type: Game.EnemyTypes.NORMAL,
     followPlayer: false,
-    bulletDir: curSpikeDir,
+    bulletDir: curBulletDir,
   });
   enemies.push(e1);
 }
@@ -311,7 +311,7 @@ function draw() {
     // enemiesDefeated = true;
   }
 
-  // Spawn playerSpikes
+  // Spawn playerBullets
   if (isShooting && !noShoot && !gameOver) {
     if (millis() - lastSpawnTime > shootingSpdFactor * 1000.0) {
       let size = 12.5;
@@ -326,12 +326,12 @@ function draw() {
         shootingSpdFactor = 0.045;
       }
 
-      playerSpikes.push(
-        new Spike(p.x, p.y, curSpikeDir.x + extraX, curSpikeDir.y + extraY, size)
+      playerBullets.push(
+        new Bullet(p.x, p.y, curBulletDir.x + extraX, curBulletDir.y + extraY, size)
       );
       if (p.powerups.includes(Game.Items.TWO_AXIS_SHOOTING)) {
-        playerSpikes.push(
-          new Spike(p.x, p.y, -curSpikeDir.x + extraX, -curSpikeDir.y + extraY, size)
+        playerBullets.push(
+          new Bullet(p.x, p.y, -curBulletDir.x + extraX, -curBulletDir.y + extraY, size)
         );
       }
       lastSpawnTime = millis();
@@ -356,42 +356,42 @@ function draw() {
 
   strokeWeight(5);
   
-  // Handle playerSpikes
-  playerSpikes = playerSpikes.filter(handlePlayerSpikes);
+  // Handle playerBullets
+  playerBullets = playerBullets.filter(handlePlayerBullets);
   
-  // Handle enemySpikes
-  enemySpikes.forEach(handleEnemySpikes);
+  // Handle enemyBullets
+  enemyBullets.forEach(handleEnemyBullets);
 
-  // Handle sprinklerSpikes
-  sprinklerSpikes = sprinklerSpikes.filter((b) => {
-    let removeSpike = false;
+  // Handle sprinklerBullets
+  sprinklerBullets = sprinklerBullets.filter((b) => {
+    let removeBullet = false;
 
     enemies.forEach((e) => {
       if (GameMath.circleCollision(b.x, b.y, b.size / 2.0, e.x, e.y, e.size / 2.0)) {
-        removeSpike = hitEnemy(b, e);
+        removeBullet = hitEnemy(b, e);
 
-        Game.removeObject(enemySpikes, b);
+        Game.removeObject(enemyBullets, b);
       }
     })
 
     b.update();
     b.show();
 
-    return !removeSpike && !GameMath.offScreen(b.x, b.y, canSize.x, canSize.y);
+    return !removeBullet && !GameMath.offScreen(b.x, b.y, canSize.x, canSize.y);
   })
 
   // Handle Enemies
   enemies.forEach((e) => {
     e.slow = slowMode;
 
-    if (e.spawnSpikes() && e.canShoot) {
-      let spd = Game.getEnemySpikesSpeed(slowMode);
+    if (e.spawnBullets() && e.canShoot) {
+      let spd = Game.getEnemyBulletsSpeed(slowMode);
       let size = 75.0;
 
-      enemySpikes.push(new Spike(e.x, e.y, 0, -1, spd, size));
-      enemySpikes.push(new Spike(e.x, e.y, 0, 1, spd, size));
-      enemySpikes.push(new Spike(e.x, e.y, -1, 0, spd, size));
-      enemySpikes.push(new Spike(e.x, e.y, 1, 0, spd, size));
+      enemyBullets.push(new Bullet(e.x, e.y, 0, -1, spd, size));
+      enemyBullets.push(new Bullet(e.x, e.y, 0, 1, spd, size));
+      enemyBullets.push(new Bullet(e.x, e.y, -1, 0, spd, size));
+      enemyBullets.push(new Bullet(e.x, e.y, 1, 0, spd, size));
     }
 
     e.update();
@@ -445,32 +445,32 @@ function mousePressed() {
 
 function keyPressed(event) {
   if (event.key === "ArrowUp"|| event.key.toLowerCase() == "w") {
-    curSpikeDir.x = 0; curSpikeDir.y = -1;
+    curBulletDir.x = 0; curBulletDir.y = -1;
   } else if ( event.key === "ArrowDown" || event.key.toLowerCase() == "s") {
-    curSpikeDir.x = 0; curSpikeDir.y = 1;
+    curBulletDir.x = 0; curBulletDir.y = 1;
   } else if ( event.key === "ArrowLeft" || event.key.toLowerCase() == "a") {
-    curSpikeDir.x = -1; curSpikeDir.y = 0;
+    curBulletDir.x = -1; curBulletDir.y = 0;
   } else if ( event.key === "ArrowRight" || event.key.toLowerCase() == "d") {
-    curSpikeDir.x = 1; curSpikeDir.y = 0;
+    curBulletDir.x = 1; curBulletDir.y = 0;
   }
 }
 
 // Debug
 function spawnEnemy(type) {
   let healthMin = 3;
-  let healthFactor = 20.0;
+  let enemyHealthFactor = 20.0;
 
   let thres = 250.0;
   let spawnX = GameMath.randomFloat(200.0, width - 200);
   let spawnY = GameMath.randomFloat(200.0, height - 200);
-  let health = healthMin + floor(random() * healthFactor);
+  let health = healthMin + floor(random() * enemyHealthFactor);
 
   let newEnemy = new Enemy({
     x: spawnX,
     y: spawnY,
     health: health,
     player: p,
-    bulletDir: curSpikeDir,
+    bulletDir: curBulletDir,
     type: type,
   });
 
