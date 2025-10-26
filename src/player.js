@@ -16,7 +16,7 @@ class Tank {
     this.lives += lives;
     this.newLives += lives;
   }
-  gainItem(item, itemCooldown = 5.0) {
+  gainItem(item, itemCooldown = 8.0) {
     print("Item added!");
 
     this.powerups.push(item);

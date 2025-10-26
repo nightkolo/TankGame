@@ -185,6 +185,28 @@ function spawnItem(item = -1) {
   items.push(i);
 }
 
+// Debug
+function spawnEnemy(type) {
+  let healthMin = 3;
+  let enemyHealthFactor = 20.0;
+
+  let thres = 250.0;
+  let spawnX = GameMath.randomFloat(200.0, width - 200);
+  let spawnY = GameMath.randomFloat(200.0, height - 200);
+  let health = healthMin + floor(random() * enemyHealthFactor);
+
+  let newEnemy = new Enemy({
+    x: spawnX,
+    y: spawnY,
+    health: health,
+    player: p,
+    bulletDir: curBulletDir,
+    type: type,
+  });
+
+  enemies.push(newEnemy);
+}
+
 function spawnRandomWaveEnemies(onWave = wave) {
   let encounterSet = 0;
 
@@ -245,13 +267,6 @@ function gotoNextWave() {
   spawnRandomWaveEnemies();
 }
 
-function displayText() {
-  textAlign(CENTER);
-  textSize(45);
-  strokeWeight(7);
-  text(`Wave ${wave}`, 0, 0);
-}
-
 let bgIMG;
 
 function preload() {
@@ -278,7 +293,7 @@ function setup() {
   enemies.push(e1);
 }
 
-let enemiesDefeated = false;
+// let enemiesDefeated = false;
 
 function draw() {
   background("#d1d166ff");
@@ -341,7 +356,12 @@ function draw() {
   translate(width / 2, height / 1.1);
   stroke(50);
   rotate((PI / 28.0) * sin(millis() / 360.0));
-  displayText();
+
+  textAlign(CENTER);
+  textSize(45);
+  strokeWeight(7);
+  text(`Wave ${wave}`, 0, 0);
+  
   pop();
 
   if (wave === 0) {
@@ -350,7 +370,12 @@ function draw() {
     text("A Demo by Night Kolo", width / 2, 100);
     text("Playtester", width / 2, 140);
   }
-  //
+  for (let i = 0; i < p.powerups.length; i++){
+    textAlign(RIGHT);
+
+    let itemHeld = Game.getItemName(p.powerups[i]);
+    text(`${itemHeld}`, width - 50.0, height - 30.0 - (50.0 * (i + 1)));
+  }
 
   strokeWeight(5);
   
@@ -411,7 +436,7 @@ function draw() {
   fill(255);
   //
 
-  // Handle Tank
+  // Handle Player
   if (p.alive) {
     p.enemies = enemies;
     noShoot = p.insideAnEnemy(false);
@@ -451,26 +476,4 @@ function keyPressed(event) {
   } else if ( event.key === "ArrowRight" || event.key.toLowerCase() == "d") {
     curBulletDir.x = 1; curBulletDir.y = 0;
   }
-}
-
-// Debug
-function spawnEnemy(type) {
-  let healthMin = 3;
-  let enemyHealthFactor = 20.0;
-
-  let thres = 250.0;
-  let spawnX = GameMath.randomFloat(200.0, width - 200);
-  let spawnY = GameMath.randomFloat(200.0, height - 200);
-  let health = healthMin + floor(random() * enemyHealthFactor);
-
-  let newEnemy = new Enemy({
-    x: spawnX,
-    y: spawnY,
-    health: health,
-    player: p,
-    bulletDir: curBulletDir,
-    type: type,
-  });
-
-  enemies.push(newEnemy);
 }
