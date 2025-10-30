@@ -1,4 +1,4 @@
-class Sprinker{
+class Sprinker{ // TankBuddy
   #start
    
   constructor(x, y, shootSpd /*, shootingDir*/){
@@ -33,7 +33,6 @@ class Sprinker{
     return Game.tankBuddyLifetime - ((millis() - this.#start) / 1000.0);
   }
   update(){
-    // square()
   }
   show(){
     square(this.x, this.y, this.size);

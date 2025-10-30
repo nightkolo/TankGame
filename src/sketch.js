@@ -259,7 +259,7 @@ function gotoNextWave() {
   print(wave);
 
   if (random() < 1 / 1) {
-    spawnItem(Game.Items.SPIKE_SPRINKER);
+    spawnItem();
   }
   // let value = Game.EnemyTypes.SPLITTER;
 
@@ -293,8 +293,6 @@ function setup() {
   enemies.push(e1);
 }
 
-// let enemiesDefeated = false;
-
 function draw() {
   background("#d1d166ff");
 
@@ -315,13 +313,6 @@ function draw() {
   // Enemies defeated
   if (enemies.length == 0 && !gameOver/* && !enemiesDefeated*/) {
     gotoNextWave();
-    // setTimeout(() => {
-    //   if (enemies.length == 0){
-    //     gotoNextWave();
-    //   }
-    //   enemiesDefeated = false;
-    // }, 1000.0);
-    // enemiesDefeated = true;
   }
 
   // Spawn playerBullets
@@ -372,25 +363,14 @@ function draw() {
     text("Playtester", width / 2, 140);
   }
 
+  // print(Game.itemTimes);
 
-  print(Game.activeItemTimes);
-  // for (let [type, data] of Game.activeItemTimers) {
-  //   text(`${Game.getItemName(type)}: ${data.remaining.toFixed(1)}s`, 100, 100);
-  //   // y += 20;
-  // }
-  // for (let i = 0; i < p.powerups.length; i++){
+  // for (let i = 0; i < Game.itemTimes.length; i++){
+  //   const time = Game.itemTimes[i];
 
-    
-  //   textAlign(RIGHT);
-
-  //   let itemHeld = Game.getItemName(p.items[i].itemType);
-  //   let timeRem = 0.0;
-
-  //   if (p.items[i].itemType != Game.Items.SPIKE_SPRINKER){
-  //     timeRem = p.items[i].getCooldownTimer()
+  //   if (time > 0.0){
+  //     print(time);
   //   }
-
-  //   text(`${itemHeld}, ${timeRem.toFixed(2)}`, width - 50.0, height - 30.0 - (50.0 * (i + 1)));
   // }
 
   strokeWeight(5);
@@ -475,10 +455,6 @@ function placeTankBuddy(){
     let s = new Sprinker(p.x, p.y, shootingSpdFactor * 2.0);
     sprinklers.push(s);
 
-    // TODO issue with handling spike sprinkler item
-    // const item = Game.getItemOfType(p.items, Game.Items.SPIKE_SPRINKER);
-
-    // Game.removeObject(p.items, item);
     Game.removeObject(p.powerups, Game.Items.SPIKE_SPRINKER);
 
     Game.startItemTimer(Game.Items.SPIKE_SPRINKER, Game.tankBuddyLifetime);

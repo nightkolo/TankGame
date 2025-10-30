@@ -1,6 +1,5 @@
 class Item {
-  // #cooldownTimer = 0.0; 
-  // static powerupTimes = [];
+  #openState;
 
   constructor(x, y, item, player, cooldown = 8.0) {
     this.x = x;
@@ -20,6 +19,8 @@ class Item {
 
     this.opened = false;
     this.collected = false;
+
+    this.#openState = false;
   }
   isOpen() {
     return this.hitsToOpen < 1;
@@ -50,23 +51,6 @@ class Item {
       e.moveAwayItemCollected(this.x, this.y);
     })
   }
-  // activateTimer(){
-  //   const start = millis();
-  //   const duration = this.cooldown * 1000.0;
-
-  //   const interval = setInterval(() => {
-  //     const timeElapsed = millis() - start;
-  //     const remaining = Math.max(0, (this.cooldown * 1000.0) - timeElapsed);
-
-  //     this.#cooldownTimer = remaining / 1000;
-
-  //     print(`Item ${Game.getItemName(this.item)} expires in ${(this.getCooldownTimer()).toFixed(1)}s`);
-  //     if (remaining <= 0) clearInterval(interval);
-  //   }, 100);
-  // }
-  // getCooldownTimer(){
-  //   return this.#cooldownTimer;
-  // }
   update() {
     if (!this.opened) {
       if (this.moveX) {
@@ -111,10 +95,19 @@ class Item {
     textAlign(CENTER);
 
     fill(255);
-    if (!this.opened){
+
+    if (!this.opened ){
       text(`${this.hitsToOpen}`, this.x, this.y);
     } else {
       text("! ! !", this.x, this.y);
+    }
+
+    if (this.opened && !this.#openState){
+      print("open!");
+      setTimeout(() => {
+        this.collected = true;
+      }, this.cooldown * 1000.0);
+      this.#openState = true;
     }
   }
 }

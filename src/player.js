@@ -19,11 +19,9 @@ class Tank {
   gainItem(item, itemCooldown = 8.0) { // Game.Items, float
     print("Item added!");
 
-    // this.items.push(item);
     this.powerups.push(item);
     
     print(this.powerups);
-    // print(this.items);
 
     if (item != Game.Items.SPIKE_SPRINKER){
       setTimeout(() => {
@@ -35,7 +33,6 @@ class Tank {
     print("Item removed!");
     
     Game.removeObject(this.powerups, item);
-    // Game.removeObject(this.items, item);
     print(this.powerups);
     // print(this.items);
 
