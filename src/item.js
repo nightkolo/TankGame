@@ -1,7 +1,7 @@
 class Item {
-  #cooldownTimer = 0.0; 
+  // #cooldownTimer = 0.0; 
+  // static powerupTimes = [];
 
-  // Rock
   constructor(x, y, item, player, cooldown = 8.0) {
     this.x = x;
     this.y = y;
@@ -38,35 +38,35 @@ class Item {
 
     this.collected = true;
     this.player.gainLives();
-    this.player.gainItem(this, this.cooldown);
+    this.player.gainItem(this.itemType, this.cooldown);
 
     // print(`Item gained: ${Game.getItemName(this.item)}`);
 
     if (this.itemType != Game.Items.SPIKE_SPRINKER){
-      this.activateTimer();
+      Game.startItemTimer(this.itemType, this.cooldown);
     }    
 
     this.enemies.forEach((e) => {
       e.moveAwayItemCollected(this.x, this.y);
     })
   }
-  activateTimer(){
-    const start = millis();
-    const duration = this.cooldown * 1000.0;
+  // activateTimer(){
+  //   const start = millis();
+  //   const duration = this.cooldown * 1000.0;
 
-    const interval = setInterval(() => {
-      const timeElapsed = millis() - start;
-      const remaining = Math.max(0, (this.cooldown * 1000.0) - timeElapsed);
+  //   const interval = setInterval(() => {
+  //     const timeElapsed = millis() - start;
+  //     const remaining = Math.max(0, (this.cooldown * 1000.0) - timeElapsed);
 
-      this.#cooldownTimer = remaining / 1000;
+  //     this.#cooldownTimer = remaining / 1000;
 
-      // print(`Item ${Game.getItemName(this.item)} expires in ${(this.getCooldownTimer()).toFixed(1)}s`);
-      if (remaining <= 0) clearInterval(interval);
-    }, 100);
-  }
-  getCooldownTimer(){
-    return this.#cooldownTimer;
-  }
+  //     print(`Item ${Game.getItemName(this.item)} expires in ${(this.getCooldownTimer()).toFixed(1)}s`);
+  //     if (remaining <= 0) clearInterval(interval);
+  //   }, 100);
+  // }
+  // getCooldownTimer(){
+  //   return this.#cooldownTimer;
+  // }
   update() {
     if (!this.opened) {
       if (this.moveX) {

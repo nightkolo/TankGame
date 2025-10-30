@@ -1,4 +1,6 @@
 class Sprinker{
+  #start
+   
   constructor(x, y, shootSpd /*, shootingDir*/){
     this.x = x;
     this.y = y;
@@ -6,13 +8,15 @@ class Sprinker{
 
     this.shootingSpdFactor = shootSpd;
     this.lastShotTime = 0.0;
-    this.lifetime = 5.0;
+    this.lifetime = Game.tankBuddyLifetime;
+    this.#start = 0.0;
     this.alive = true;
-    // this.shootingDir = shootingDir; // it 
 
     this.spawned(); 
   }
   spawned(){
+    this.#start = millis();
+
     setTimeout(() => {
       print("peace out")
       this.alive = false;
@@ -25,10 +29,22 @@ class Sprinker{
     }
     return false;
   }
+  getTimeLeft(){
+    return Game.tankBuddyLifetime - ((millis() - this.#start) / 1000.0);
+  }
   update(){
     // square()
   }
   show(){
     square(this.x, this.y, this.size);
+
+    fill(255);
+    stroke(0);
+    textSize(25.0);
+    textAlign(CENTER);
+
+    this.timeLeft = Game.tankBuddyLifetime - ((millis() - this.start) / 1000.0)
+
+    text(`${this.getTimeLeft().toFixed(1)}`, this.x, this.y + 8.0);
   }
 }

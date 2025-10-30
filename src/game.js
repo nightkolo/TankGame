@@ -1,5 +1,6 @@
 class Game {
   static enemyHealthFactor = 20.0;
+  static tankBuddyLifetime = 8.0;
 
   static EnemyTypes = { 
     NORMAL: 0, 
@@ -19,13 +20,55 @@ class Game {
     SPIKE_SPRINKER: 3
   }
 
-  static getItemOfType(arr, type){
-    arr.forEach((item) => {
-      if (item.itemType == type){
-        return item;
-      }
-    });
+  
+
+  // static itemTimes = []; // 2d array [ [item, time], [item, time], ]
+  // static activeItemTimers = new Map();
+  
+  static activeItemTimes = [
+    0.0, // TWO_AXIS_SHOOTING
+    0.0, // VARIABLE_SHOOTING
+    0.0, // SLOWNESS
+    0.0 // SPIKE_SPRINKER
+  ];
+
+  static startItemTimer(itemType, duration){
+    const start = millis();
+    const dur = duration * 1000.0;
+
+    // Create entry for this item if not exists
+    // if (!this.activeItemTimers.has(itemType)) {
+    //   this.activeItemTimers.set(itemType, { remaining: dur / 1000, interval: null });
+    // }
+    // if (activeItemTimer.includes(itemType)){
+    //   const index = objs.indexOf(obj);
+    // }
+
+    const interval = setInterval(() => {
+      const timeElapsed = millis() - start;
+      const remaining = Math.max(0, (dur - timeElapsed));
+
+      const cooldownTimer = remaining / 1000
+      
+      this.activeItemTimes[itemType] = cooldownTimer;
+
+      // print(`Item ${Game.getItemName(itemType)} expires in ${cooldownTimer.toFixed(1)}s`);
+
+      if (remaining <= 0.0) {
+        this.activeItemTimes[itemType] = 0.0;
+        clearInterval(interval)
+      };
+    }, 100);
+    // setInterval(callbackFunction, delayInMilliseconds)
+    // clearInterval(intervalID)
   }
+  // static getItemOfType(arr, type){
+  //   arr.forEach((item) => {
+  //     if (item.itemType == type){
+  //       return item;
+  //     }
+  //   });
+  // }
   static getItemName(value) {
     let name = "";
 

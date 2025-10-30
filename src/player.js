@@ -5,8 +5,6 @@ class Tank {
     this.size = 50.0;
     this.enemies = [];
     this.powerups = [];
-    this.powerupTimes = [];
-    this.items = [];
 
     this.lives = 5;
     this.newLives = 0;
@@ -18,35 +16,28 @@ class Tank {
     this.lives += lives;
     this.newLives += lives;
   }
-  gainItem(item, itemCooldown = 8.0) {
+  gainItem(item, itemCooldown = 8.0) { // Game.Items, float
     print("Item added!");
 
-    this.items.push(item);
-    this.powerups.push(item.itemType);
+    // this.items.push(item);
+    this.powerups.push(item);
     
     print(this.powerups);
-    print(this.items);
+    // print(this.items);
 
-    if (item.itemType != Game.Items.SPIKE_SPRINKER){
+    if (item != Game.Items.SPIKE_SPRINKER){
       setTimeout(() => {
-      this.stopItemEffect(item);
+      this.loseItem(item);
       }, itemCooldown * 1000.0);
     }
   }
-  tankBuddyDropped(cooldown = 8.0){
-    const i = Game.getItemOfType(this.items, Game.Items.SPIKE_SPRINKER);
-
-    setTimeout(() => {
-      this.stopItemEffect(i);
-      }, cooldown * 1000.0);
-  }
-  stopItemEffect(item) {
+  loseItem(item) {
     print("Item removed!");
     
-    Game.removeObject(this.powerups, item.itemType);
-    Game.removeObject(this.items, item);
+    Game.removeObject(this.powerups, item);
+    // Game.removeObject(this.items, item);
     print(this.powerups);
-    print(this.items);
+    // print(this.items);
 
   }
   hit() {

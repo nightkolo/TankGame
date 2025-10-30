@@ -259,7 +259,7 @@ function gotoNextWave() {
   print(wave);
 
   if (random() < 1 / 1) {
-    spawnItem();
+    spawnItem(Game.Items.SPIKE_SPRINKER);
   }
   // let value = Game.EnemyTypes.SPLITTER;
 
@@ -343,6 +343,7 @@ function draw() {
         new Bullet(p.x, p.y, curBulletDir.x + extraX, curBulletDir.y + extraY, size)
       );
       if (p.powerups.includes(Game.Items.TWO_AXIS_SHOOTING)) {
+        // TODO make other axis bullets a different fill
         playerBullets.push(
           new Bullet(p.x, p.y, -curBulletDir.x + extraX, -curBulletDir.y + extraY, size)
         );
@@ -370,7 +371,16 @@ function draw() {
     text("A Demo by Night Kolo", width / 2, 100);
     text("Playtester", width / 2, 140);
   }
+
+
+  print(Game.activeItemTimes);
+  // for (let [type, data] of Game.activeItemTimers) {
+  //   text(`${Game.getItemName(type)}: ${data.remaining.toFixed(1)}s`, 100, 100);
+  //   // y += 20;
+  // }
   // for (let i = 0; i < p.powerups.length; i++){
+
+    
   //   textAlign(RIGHT);
 
   //   let itemHeld = Game.getItemName(p.items[i].itemType);
@@ -460,22 +470,30 @@ function draw() {
   }
 }
 
-function mousePressed() {
+function placeTankBuddy(){
   if (p.powerups.includes(Game.Items.SPIKE_SPRINKER)){
     let s = new Sprinker(p.x, p.y, shootingSpdFactor * 2.0);
     sprinklers.push(s);
 
     // TODO issue with handling spike sprinkler item
-    const item = Game.getItemOfType(p.items, Game.Items.SPIKE_SPRINKER);
+    // const item = Game.getItemOfType(p.items, Game.Items.SPIKE_SPRINKER);
 
-    Game.removeObject(p.items, item);
+    // Game.removeObject(p.items, item);
     Game.removeObject(p.powerups, Game.Items.SPIKE_SPRINKER);
-    print(p.items);
+
+    Game.startItemTimer(Game.Items.SPIKE_SPRINKER, Game.tankBuddyLifetime);
+
+    // print(p.items);
     print(p.powerups);
 
     return;
   }
-  isShooting = !isShooting;
+}
+
+function mousePressed() {
+  placeTankBuddy();
+
+  isShooting = true;
 }
 
 function keyPressed(event) {
