@@ -1,14 +1,18 @@
 class Item {
+  #cooldownTimer = 0.0; 
+
   // Rock
-  constructor(x, y, item, player) {
+  constructor(x, y, item, player, cooldown = 8.0) {
     this.x = x;
     this.y = y;
-    this.item = item;
+    this.itemType = item;
     this.player = player;
     this.enemies = [];
+    this.col = [];
 
     this.hitsToOpen = 15;
     this.size = 50.0;
+    this.cooldown = cooldown;
 
     this.moveX = random() > 1 / 2;
     this.dir = Math.sign(random() - 0.5);
@@ -34,13 +38,34 @@ class Item {
 
     this.collected = true;
     this.player.gainLives();
-    this.player.gainItem(this.item);
+    this.player.gainItem(this, this.cooldown);
 
-    print(`Item gained: ${Game.getItemName(this.item)}`);
+    // print(`Item gained: ${Game.getItemName(this.item)}`);
+
+    if (this.itemType != Game.Items.SPIKE_SPRINKER){
+      this.activateTimer();
+    }    
 
     this.enemies.forEach((e) => {
       e.moveAwayItemCollected(this.x, this.y);
     })
+  }
+  activateTimer(){
+    const start = millis();
+    const duration = this.cooldown * 1000.0;
+
+    const interval = setInterval(() => {
+      const timeElapsed = millis() - start;
+      const remaining = Math.max(0, (this.cooldown * 1000.0) - timeElapsed);
+
+      this.#cooldownTimer = remaining / 1000;
+
+      // print(`Item ${Game.getItemName(this.item)} expires in ${(this.getCooldownTimer()).toFixed(1)}s`);
+      if (remaining <= 0) clearInterval(interval);
+    }, 100);
+  }
+  getCooldownTimer(){
+    return this.#cooldownTimer;
   }
   update() {
     if (!this.opened) {
@@ -64,12 +89,32 @@ class Item {
     }
   }
   show() {
+    switch (this.itemType){
+      case Game.Items.TWO_AXIS_SHOOTING:
+        this.col = [255,0,0];
+        break;
+      case Game.Items.VARIABLE_SHOOTING:
+        this.col = [0,255,0];
+        break;
+      case Game.Items.SPIKE_SPRINKER:
+        this.col = [255,0,255];
+        break;
+      case Game.Items.SLOWNESS:
+        this.col = [255,255,255];
+        break;
+    }
+
+    fill(this.col[0], this.col[1], this.col[2])
     circle(this.x, this.y, this.size);
     stroke(0);
     textSize(20.0);
     textAlign(CENTER);
 
     fill(255);
-    text(`${this.hitsToOpen}`, this.x, this.y);
+    if (!this.opened){
+      text(`${this.hitsToOpen}`, this.x, this.y);
+    } else {
+      text("! ! !", this.x, this.y);
+    }
   }
 }

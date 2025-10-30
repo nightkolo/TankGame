@@ -235,7 +235,7 @@ function spawnRandomWaveEnemies(onWave = wave) {
     let spawnY = GameMath.randomFloat(120.0, height - 120.0);
     let health = healthMin + floor(random() * Game.enemyHealthFactor);
 
-    print(`Enemy (${i + 1}): ${round(spawnX)}, ${round(spawnY)}, ${health}`);
+    // print(`Enemy (${i + 1}): ${round(spawnX)}, ${round(spawnY)}, ${health}`);
 
     const randomType = currentEnemyTypes[floor(random() * currentEnemyTypes.length)];
 
@@ -258,7 +258,7 @@ function gotoNextWave() {
   wave++;
   print(wave);
 
-  if (random() < 1 / 3) {
+  if (random() < 1 / 1) {
     spawnItem();
   }
   // let value = Game.EnemyTypes.SPLITTER;
@@ -370,12 +370,18 @@ function draw() {
     text("A Demo by Night Kolo", width / 2, 100);
     text("Playtester", width / 2, 140);
   }
-  for (let i = 0; i < p.powerups.length; i++){
-    textAlign(RIGHT);
+  // for (let i = 0; i < p.powerups.length; i++){
+  //   textAlign(RIGHT);
 
-    let itemHeld = Game.getItemName(p.powerups[i]);
-    text(`${itemHeld}`, width - 50.0, height - 30.0 - (50.0 * (i + 1)));
-  }
+  //   let itemHeld = Game.getItemName(p.items[i].itemType);
+  //   let timeRem = 0.0;
+
+  //   if (p.items[i].itemType != Game.Items.SPIKE_SPRINKER){
+  //     timeRem = p.items[i].getCooldownTimer()
+  //   }
+
+  //   text(`${itemHeld}, ${timeRem.toFixed(2)}`, width - 50.0, height - 30.0 - (50.0 * (i + 1)));
+  // }
 
   strokeWeight(5);
   
@@ -459,7 +465,13 @@ function mousePressed() {
     let s = new Sprinker(p.x, p.y, shootingSpdFactor * 2.0);
     sprinklers.push(s);
 
+    // TODO issue with handling spike sprinkler item
+    const item = Game.getItemOfType(p.items, Game.Items.SPIKE_SPRINKER);
+
+    Game.removeObject(p.items, item);
     Game.removeObject(p.powerups, Game.Items.SPIKE_SPRINKER);
+    print(p.items);
+    print(p.powerups);
 
     return;
   }
