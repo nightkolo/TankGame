@@ -479,7 +479,7 @@ function placeTankBuddy(){
 
     Game.startItemTimer(Game.Items.SPIKE_SPRINKER, Game.tankBuddyLifetime);
 
-    print(p.powerups);
+    // print(p.powerups);
   }
 }
 

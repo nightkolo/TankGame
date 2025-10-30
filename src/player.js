@@ -17,6 +17,7 @@ class Tank {
       y: -1,
     }
 
+    // Assets
     this.img = loadImage('img/tank-02.svg');
     this.imgGunU = loadImage('img/gun-pointer-up.svg');
     this.imgGunR = loadImage('img/gun-pointer-right.svg');
@@ -114,6 +115,7 @@ class Tank {
     } else if (this.curBulletDir.y < 0){
       image(this.imgGunU, this.x, this.y - 33.0); 
     }
+
     imageMode(CENTER);
     image(this.img, this.x, this.y, this.size, this.size);
 

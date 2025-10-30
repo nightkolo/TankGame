@@ -18,6 +18,11 @@ class Enemy {
     this.y = y;
     this.#initialY = y / 2.0;
     
+    // Assets
+    this.imgEyes = this.getEyes();
+    this.eyeX = 0.0;
+    this.eyeY = 0.0;
+
     // Stats
     this.size = this.getSize();
     this.maxSpeed = maxSpeed;
@@ -51,6 +56,10 @@ class Enemy {
     this.#slowState = false;
 
     this.spawned();
+  }
+  getEyes(){
+    // Experimental
+    return loadImage("img/enemy-eyes-regular-02.svg");
   }
   getInitialHealth(){
     return this.#initialHealth;
@@ -174,11 +183,21 @@ class Enemy {
   }
   update() {
     this.size = this.getSize();
+    
+    this.eyeX = this.x + ((this.#player.x - this.eyeX) / 25.0);
+    this.eyeY = this.y + ((this.#player.y - this.eyeY) / 25.0);
+
+    // if (this.player == null) return;
+
+    // print((this.#player.x - this.eyeX) / 25.0);
+
 
     if (!this.canMove) return;
 
     this.bounce();
     this.moveTowardPlayer();
+
+
   }
   show() {
     rectMode(CENTER);
@@ -226,6 +245,8 @@ class Enemy {
     fill(...this.col);
 
     circle(this.x, this.y, this.size);
+
+    image(this.imgEyes, this.eyeX, this.eyeY, 68.0 + this.health * 2.0,38.0 + this.health * 2.0);
 
     fill(255);
     stroke(0);
