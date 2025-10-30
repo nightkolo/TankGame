@@ -9,7 +9,7 @@ class Enemy {
     x = 200,
     y = 200,
     health = 10,
-    maxSpeed = 1.35,
+    maxSpeed = Game.defaultEnemySpeed,
     type = Game.EnemyTypes,
     followPlayer = true,
     player,
@@ -249,11 +249,13 @@ class Enemy {
     image(this.imgEyes, this.eyeX, this.eyeY, 68.0 + this.health * 2.0,38.0 + this.health * 2.0);
 
     fill(255);
-    stroke(0);
+    // stroke(127);
     textSize(40.0);
     textAlign(CENTER);
+    // text
+    // noStroke();
 
-    text(`${this.health}`, this.x, this.y);
+    text(`${this.health}`, this.x, this.y - 20.0);
   }
   getColor(){
     

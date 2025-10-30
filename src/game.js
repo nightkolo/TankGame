@@ -1,6 +1,7 @@
 class Game {
   static enemyHealthFactor = 20.0;
   static tankBuddyLifetime = 8.0;
+  static defaultEnemySpeed = 1.35;
 
   static EnemyTypes = { 
     NORMAL: 0, 

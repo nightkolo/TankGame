@@ -227,7 +227,10 @@ function spawnRandomWaveEnemies(onWave = wave) {
   let healthMin = 3 + floor(wave / 6.0);
   let enemySpawnsMin = 2 + floor(wave / 8.0);
   let enemySpawnsFactor = 3 + floor(wave / 8.0);
+  let enemySpeed = Game.defaultEnemySpeed + (floor(wave / 2.0) / 10.0);
 
+  // print(enemySpeed);
+  
   let noOfEnemies = enemySpawnsMin + floor(random() * enemySpawnsFactor);
 
   for (let i = 0; i < noOfEnemies; i++) {
@@ -246,6 +249,7 @@ function spawnRandomWaveEnemies(onWave = wave) {
       y: spawnY,
       health: health,
       player: p,
+      maxSpeed: enemySpeed,
       bulletDir: curBulletDir,
       type: randomType,
     });
@@ -258,7 +262,7 @@ function gotoNextWave() {
   wave++;
   print(wave);
 
-  if (random() < 1 / 1) {
+  if (random() < 1 / 4) {
     spawnItem();
   }
   // let value = Game.EnemyTypes.SPLITTER;
@@ -378,7 +382,7 @@ function draw() {
     strokeWeight(3);
     textSize(30);
     text("A Demo by Night Kolo", width / 2, 100);
-    text("Playtester", width / 2, 140);
+    text("(very) WIP", width / 2, 140);
   }
 
   // print(Game.itemTimes);

@@ -35,7 +35,7 @@ class Bullet {
     this.y += this.dirY * this.spd;
   }
   show(){
-    fill(255, 255, 255, 10);
+    fill(255, 255, 255);
     circle(this.x, this.y, this.size);
 
     // Images cause intense lag
