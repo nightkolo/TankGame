@@ -1,10 +1,27 @@
+// let img;
+
+// function preload(){
+//   img = loadImage('img/tank-01.png');
+// }
+
 class Tank {
   constructor() {
     this.x = 0.0;
     this.y = 0.0;
     this.size = 50.0;
+    
     this.enemies = [];
     this.powerups = [];
+    this.curBulletDir = {
+      x: 0,
+      y: -1,
+    }
+
+    this.img = loadImage('img/tank-02.svg');
+    this.imgGunU = loadImage('img/gun-pointer-up.svg');
+    this.imgGunR = loadImage('img/gun-pointer-right.svg');
+    this.imgGunD = loadImage('img/gun-pointer-down.svg');
+    this.imgGunL = loadImage('img/gun-pointer-left.svg');
 
     this.lives = 5;
     this.newLives = 0;
@@ -80,18 +97,31 @@ class Tank {
   }
   show() {
     if (this.invincible) {
-      fill(255 / 2, 255 / 2, 200 / 2);
+      fill(255 / 2, 255 / 2, 200 / 2, 0);
     } else {
-      fill(255, 255, 200);
+      fill(255, 255, 200, 0);
     }
+    // Placeholder assets
+    if (this.curBulletDir.x > 0){
+      image(this.imgGunR, this.x + 33.0, this.y);
 
-    square(this.x, this.y, this.size);
+    } else if (this.curBulletDir.x < 0){
+      image(this.imgGunL, this.x - 33.0, this.y);
+
+    } else if (this.curBulletDir.y > 0){
+      image(this.imgGunD, this.x, this.y + 33.0);
+      
+    } else if (this.curBulletDir.y < 0){
+      image(this.imgGunU, this.x, this.y - 33.0); 
+    }
+    imageMode(CENTER);
+    image(this.img, this.x, this.y, this.size, this.size);
 
     fill(255);
     stroke(0);
     textSize(25.0);
     textAlign(CENTER);
 
-    text(`${this.lives}`, this.x, this.y + 8.0);
+    text(`${this.lives}`, this.x, this.y - 54.0);
   }
 }

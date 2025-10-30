@@ -273,6 +273,10 @@ function preload() {
   bgIMG = loadImage("img/bg-main.png");
 }
 
+let screenShake = false;
+let shakeDuration = 0;
+let shakeIntensity = 10;
+
 function setup() {
   createCanvas(canSize.x, canSize.y);
 
@@ -296,6 +300,19 @@ function setup() {
 function draw() {
   background("#d1d166ff");
 
+  if (screenShake) {
+    // Apply a random translation based on intensity
+    let shakeX = random(-shakeIntensity, shakeIntensity);
+    let shakeY = random(-shakeIntensity, shakeIntensity);
+    translate(shakeX, shakeY);
+
+    // Decrease the shake duration over time
+    shakeDuration--;
+    if (shakeDuration <= 0) {
+      screenShake = false;
+    }
+  }
+
   // Handle BG
   push();
   translate(width / 2, height / 2);
@@ -303,6 +320,7 @@ function draw() {
   imageMode(CENTER);
   tint(255, 255, 155);
   image(bgIMG, 0, 0);
+  // image()
   pop();
   // 
 
@@ -435,6 +453,8 @@ function draw() {
   // Handle Player
   if (p.alive) {
     p.enemies = enemies;
+    p.curBulletDir = curBulletDir;
+
     noShoot = p.insideAnEnemy(false);
     slowMode = p.powerups.includes(Game.Items.SLOWNESS);
 
@@ -459,10 +479,7 @@ function placeTankBuddy(){
 
     Game.startItemTimer(Game.Items.SPIKE_SPRINKER, Game.tankBuddyLifetime);
 
-    // print(p.items);
     print(p.powerups);
-
-    return;
   }
 }
 
@@ -470,6 +487,12 @@ function mousePressed() {
   placeTankBuddy();
 
   isShooting = true;
+}
+
+function animScreenShake(){
+  screenShake = true;
+  shakeDuration = 10; // Shake for 30 frames
+  shakeIntensity = 5; // Reset intensity
 }
 
 function keyPressed(event) {

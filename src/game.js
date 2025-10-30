@@ -20,6 +20,7 @@ class Game {
     SPIKE_SPRINKER: 3
   }
 
+  // TODO utilize Maps
   static itemTimes = [
     0.0, // TWO_AXIS_SHOOTING
     0.0, // VARIABLE_SHOOTING
