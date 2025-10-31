@@ -51,6 +51,12 @@ class Enemy {
     this.canMove = false;
     this.canHurt = false;
 
+    // Animation
+    this.t = 1.0;
+    this.startX = 0;
+    this.startY = 0;
+    this.animatingBounce = false;
+
     // Misc.
     this.col = [0, 0, 0, 255];
     this.followPlayer = followPlayer;
@@ -70,11 +76,9 @@ class Enemy {
         break;
 
       // case Game.EnemyTypes.SPLITTER:
-      //   this.col = [0, 255, 0, alpha];
       //   break;
 
       // case Game.EnemyTypes.SPLITTED:
-      //   this.col = [255 / 4, 255 / 4, 255 / 4, alpha];
       //   break;
 
       case Game.EnemyTypes.SHOOTER:
@@ -82,10 +86,6 @@ class Enemy {
         break;
 
       // case Game.EnemyTypes.EXPLODER:
-      //   this.col = [
-      //     255 * (this.#initialHealth / this.health),
-      //     255 * (this.#initialHealth / this.health),
-      //     0, alpha];
       //   break;
 
       case Game.EnemyTypes.BOUNCER:
@@ -213,6 +213,14 @@ class Enemy {
     }
     return false;
   }
+  animBounce(){
+    if (this.t < 0.5) return;
+
+    this.startX = this.dpSizeX + (this.dpSizeX / 5.0);
+    this.startY = this.dpSizeY - (this.dpSizeX / 5.0);
+    this.t = 0;
+    this.animatingBounce = true;
+  }
   update() {
     this.size = this.getSize();
     this.dpSize = this.getSize();
@@ -272,71 +280,79 @@ class Enemy {
 
     fill(...this.col);
 
-  let imgSize = 68.0;
+    let imgSize = 68.0;
 
-  // TODO refactor
-  switch (this.type) {
+    switch (this.type) {
       case Game.EnemyTypes.NORMAL:
         break;
 
       case Game.EnemyTypes.SPLITTER:
         circle(this.x + (this.size/3), this.y + (this.size/4), this.size/2);
         circle(this.x - (this.size/3), this.y + (this.size/4), this.size/2);
-        ellipse(this.x, this.y, this.dpSizeX, this.dpSizeY);
         break;
 
       case Game.EnemyTypes.SPLITTED:
         circle(this.x + (this.size/3), this.y, this.size/2);
         circle(this.x - (this.size/3), this.y, this.size/2);
-        ellipse(this.x, this.y, this.dpSizeX, this.dpSizeY);
         break;
 
       case Game.EnemyTypes.SHOOTER:
-        imgSize = 108.0;
+        imgSize = 92.0;
 
         rect(this.x + this.size/3.4, this.y, this.size/2, this.size/3);
         rect(this.x - this.size/3.4, this.y, this.size/2, this.size/3);
         rect(this.x, this.y + this.size/3.4, this.size/3, this.size/2);
         rect(this.x, this.y  - this.size/3.4, this.size/3, this.size/2);
-        ellipse(this.x, this.y, this.dpSizeX, this.dpSizeY);
         break;
 
       case Game.EnemyTypes.EXPLODER:
-        //
+        // TODO
         break;
 
       case Game.EnemyTypes.BOUNCER:
         ellipse(this.x + (this.size/3.5), this.y - (this.size/5), this.size/2, this.size);
         ellipse(this.x - (this.size/3.5), this.y - (this.size/5), this.size/2, this.size);
-        ellipse(this.x, this.y, this.dpSizeX, this.dpSizeY);
         break;
 
       case Game.EnemyTypes.REFLECTOR:
         let t = millis() / 800.0;
-
         let distance = this.dpSize/2.6;
 
-        let animX1 = sin(t) * distance;
-        let animY1 = cos(t) * distance;
-        
-        let animX2 = sin(t + (PI / 2)) * distance;
-        let animY2 = cos(t + (PI / 2)) * distance;
-        
-        let animX3 = sin(t + PI) * distance;
-        let animY3 = cos(t + PI) * distance;
-
-        let animX4 = sin(t + ((PI * 3) / 2)) * distance;
-        let animY4 = cos(t + ((PI * 3) / 2)) * distance;
-        
-        circle(this.x + animX1, this.y + animY1, this.size/2.0);
-        circle(this.x + animX2, this.y + animY2, this.size/2.0);
-        circle(this.x + animX3, this.y + animY3, this.size/2.0);
-        circle(this.x + animX4, this.y + animY4, this.size/2.0);
-        ellipse(this.x, this.y, this.sizeX, this.sizeY);
+        circle(
+          this.x + (sin(t) * distance),
+          this.y + (cos(t) * distance),
+          this.size/2.0);
+        circle(
+          this.x + (sin(t + (PI / 2)) * distance),
+          this.y + (cos(t + (PI / 2)) * distance),
+          this.size/2.0);
+        circle(
+          this.x + (sin(t + PI) * distance),
+          this.y + (cos(t + PI) * distance),
+          this.size/2.0);
+        circle(
+          this.x + (sin(t + ((PI * 3) / 2)) * distance),
+          this.y + (cos(t + ((PI * 3) / 2)) * distance),
+          this.size/2.0);
         break;
     }
 
-    circle(this.x, this.y, this.size);
+    // Animation
+    if (this.animatingBounce) {
+      this.t += 0.015;
+      let eased = Anim.elasticEaseOut(constrain(this.t, 0, 1));
+      let x = lerp(this.startX, this.dpSizeX, eased);
+      let y = lerp(this.startY, this.dpSizeY, eased);
+      
+      // x and y are animation variables
+
+      ellipse(this.x, this.y, x, y);
+
+      // stop when finished
+      if (this.t >= 1) this.animatingBounce = false;
+    } else {
+      ellipse(this.x, this.y, this.dpSizeX, this.dpSizeY);
+    }
 
     // TODO mask
     this.imgEyes.resize(imgSize + this.health * 2.0, 0);
@@ -347,9 +363,6 @@ class Enemy {
     textAlign(CENTER);
 
     text(`${this.health}`, this.x, this.y - 20.0);
-  }
-  getColor(){
-    
   }
   getSize() {
     if (this.type == Game.EnemyTypes.EXPLODER) {

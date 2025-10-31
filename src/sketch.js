@@ -94,8 +94,12 @@ function hitEnemy(bullet, targetEnemy){
     targetEnemy.hit(bullet.dirX, bullet.dirY);
   }
 
+  targetEnemy.animBounce();
+
+
   if (targetEnemy.hasDied()) {
     let scoreGained = targetEnemy.points;
+    
 
     switch (targetEnemy.type) {
       case Game.EnemyTypes.EXPLODER:
