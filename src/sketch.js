@@ -195,6 +195,7 @@ function spawnEnemy(type) {
   let spawnY = GameMath.randomFloat(200.0, height - 200);
   let health = healthMin + floor(random() * enemyHealthFactor);
 
+
   let newEnemy = new Enemy({
     x: spawnX,
     y: spawnY,
