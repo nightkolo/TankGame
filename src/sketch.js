@@ -382,7 +382,7 @@ function draw() {
     strokeWeight(3);
     textSize(30);
     text("A Demo by Night Kolo", width / 2, 100);
-    text("(very) WIP", width / 2, 140);
+    text("WIP", width / 2, 140);
   }
 
   // print(Game.itemTimes);
@@ -453,6 +453,9 @@ function draw() {
   });
   fill(255);
   //
+
+
+  // noStroke();
 
   // Handle Player
   if (p.alive) {

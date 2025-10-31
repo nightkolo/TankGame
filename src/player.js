@@ -9,6 +9,7 @@ class Tank {
     this.x = 0.0;
     this.y = 0.0;
     this.size = 50.0;
+    this.dpSize = 50.0;
     
     this.enemies = [];
     this.powerups = [];
@@ -18,11 +19,11 @@ class Tank {
     }
 
     // Assets
-    this.img = loadImage('img/tank-02.svg');
-    this.imgGunU = loadImage('img/gun-pointer-up.svg');
-    this.imgGunR = loadImage('img/gun-pointer-right.svg');
-    this.imgGunD = loadImage('img/gun-pointer-down.svg');
-    this.imgGunL = loadImage('img/gun-pointer-left.svg');
+    this.img = loadImage('img/tank-eyes-01.svg');
+    // this.imgGunU = loadImage('img/gun-pointer-up.svg');
+    // this.imgGunR = loadImage('img/gun-pointer-right.svg');
+    // this.imgGunD = loadImage('img/gun-pointer-down.svg');
+    // this.imgGunL = loadImage('img/gun-pointer-left.svg');
 
     this.lives = 5;
     this.newLives = 0;
@@ -98,26 +99,54 @@ class Tank {
   }
   show() {
     if (this.invincible) {
-      fill(255 / 2, 255 / 2, 200 / 2, 0);
+      fill(255 / 2, 125 / 2, 0 / 2);
     } else {
-      fill(255, 255, 200, 0);
+      fill(255, 125, 125);
     }
     // Placeholder assets
-    if (this.curBulletDir.x > 0){
-      image(this.imgGunR, this.x + 33.0, this.y);
+    // if (this.curBulletDir.x > 0){
+    //   image(this.imgGunR, this.x + 33.0, this.y);
 
-    } else if (this.curBulletDir.x < 0){
-      image(this.imgGunL, this.x - 33.0, this.y);
+    // } else if (this.curBulletDir.x < 0){
+    //   image(this.imgGunL, this.x - 33.0, this.y);
 
-    } else if (this.curBulletDir.y > 0){
-      image(this.imgGunD, this.x, this.y + 33.0);
+    // } else if (this.curBulletDir.y > 0){
+    //   image(this.imgGunD, this.x, this.y + 33.0);
       
-    } else if (this.curBulletDir.y < 0){
-      image(this.imgGunU, this.x, this.y - 33.0); 
-    }
+    // } else if (this.curBulletDir.y < 0){
+    //   image(this.imgGunU, this.x, this.y - 33.0); 
+    // }
 
     imageMode(CENTER);
-    image(this.img, this.x, this.y, this.size, this.size);
+    // image(this.img, this.x, this.y, this.size, this.size);
+    square(this.x - (this.size/2.5), this.y, this.size/2.0);
+    square(this.x + (this.size/2.5), this.y, this.size/2.0);
+    square(this.x, this.y - (this.size/2.5), this.size/2.0);
+    square(this.x, this.y + (this.size/2.5), this.size/2.0);
+    
+    stroke(90, 0, 0)
+    square(this.x, this.y, this.dpSize, this.dpSize/10.0);
+  
+    image(this.img, this.x + 5.0, this.y)
+    
+    // strokeWeight(this.size/5.0);
+    // stroke(5);
+    
+    // line(this.x + (this.size/6), this.y - (this.size/4), this.x + (this.size/2.5), this.y + (this.size/6));
+    // line(
+    //   this.x + (this.size/2.5),
+    //   this.y - (this.size/5),
+    //   this.x + (this.size/8),
+    //   this.y + (this.size/4)
+    // );
+
+    noStroke();
+    fill(255);
+    // ellipse(this.x - (this.size/7), this.y + (this.size/25.0), this.size/3.4, this.size/2.0);
+    
+
+
+    strokeWeight(1);
 
     fill(255);
     stroke(0);

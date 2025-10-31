@@ -18,17 +18,11 @@ class Enemy {
     this.y = y;
     this.#initialY = y / 2.0;
     
-    // Assets
-    this.imgEyes = this.getEyes();
-    this.eyeX = 0.0;
-    this.eyeY = 0.0;
-
     // show
     this.size = this.getSize();
     this.dpSize = this.getSize(); // displaySize
     this.dpSizeX = this.getSize();
     this.dpSizeX = this.getSize();
-    
     
     // Stats
     this.maxSpeed = maxSpeed;
@@ -39,6 +33,11 @@ class Enemy {
     
     // Type
     this.type = type;
+
+    // Assets
+    this.imgEyes = this.getEyes();
+    this.eyeX = 0.0;
+    this.eyeY = 0.0;
 
     // Bouncer
     this.accel = 0.0;
@@ -64,8 +63,40 @@ class Enemy {
     this.spawned();
   }
   getEyes(){
-    // Experimental
-    return loadImage("img/enemy-eyes-regular-02.svg");
+    let img;
+    switch (this.type) {
+      case Game.EnemyTypes.NORMAL:
+        img = loadImage("img/enemy-eyes-normal-01.svg");
+        break;
+
+      // case Game.EnemyTypes.SPLITTER:
+      //   this.col = [0, 255, 0, alpha];
+      //   break;
+
+      // case Game.EnemyTypes.SPLITTED:
+      //   this.col = [255 / 4, 255 / 4, 255 / 4, alpha];
+      //   break;
+
+      case Game.EnemyTypes.SHOOTER:
+        img = loadImage("img/enemy-eyes-shooter-01.svg");
+        break;
+
+      // case Game.EnemyTypes.EXPLODER:
+      //   this.col = [
+      //     255 * (this.#initialHealth / this.health),
+      //     255 * (this.#initialHealth / this.health),
+      //     0, alpha];
+      //   break;
+
+      case Game.EnemyTypes.BOUNCER:
+        img = loadImage("img/enemy-eyes-rabbitball-01.svg");
+        break;
+
+      default:
+        img = loadImage("img/enemy-eyes-normal-01.svg");
+        break;
+    }
+  return img;
   }
   getInitialHealth(){
     return this.#initialHealth;
@@ -73,9 +104,6 @@ class Enemy {
   spawned() {
     // TODO of type SPITTER should continue moving
     switch (this.type){
-      // case Game.EnemyTypes.SPLITTED:
-      //   this.canMove = true;
-      //   break;
       case Game.EnemyTypes.BOUNCER:
         this.y /= 2.0;
         break;
@@ -93,11 +121,9 @@ class Enemy {
       this.accel = 0.0;
       this.canMove = true;
       this.canHurt = false;
-      // this.hasSpawned = false;
 
       setTimeout(() => {
         this.canHurt = true;
-        // this.hasSpawned = true;
       }, 1000.0);
     }
   }
@@ -196,17 +222,10 @@ class Enemy {
     this.eyeX = this.x + ((this.#player.x - this.eyeX) / 25.0);
     this.eyeY = this.y + ((this.#player.y - this.eyeY) / 25.0);
 
-    // if (this.player == null) return;
-
-    // print((this.#player.x - this.eyeX) / 25.0);
-
-
     if (!this.canMove) return;
 
     this.bounce();
     this.moveTowardPlayer();
-
-
   }
   show() {
     rectMode(CENTER);
@@ -219,7 +238,7 @@ class Enemy {
     if (!this.isHit){
       switch (this.type) {
         case Game.EnemyTypes.NORMAL:
-          this.col = [255, 255, 255, alpha];
+          this.col = [200, 200, 200, alpha];
           break;
   
         case Game.EnemyTypes.SPLITTER:
@@ -253,23 +272,7 @@ class Enemy {
 
     fill(...this.col);
 
-     // Reflector
-  // circle(x + (size/3), y + (size/4), size/2);
-  // circle(x - (size/3), y + (size/4), size/2);
-  // ellipse(x, y, dpSizeX, dpSizeY);
-
-  // // Shooter
-  // rectMode(CENTER);
-  // rect(x + size/3.4, y, size/2, size/3);
-  // rect(x - size/3.4, y, size/2, size/3);
-  // rect(x, y + size/3.4, size/3, size/2);
-  // rect(x, y  - size/3.4, size/3, size/2);
-  // ellipse(x, y, dpSizeX, dpSizeY);
-
-  // // Bouncer
-  // ellipse(x + (size/3.5), y - (size/5), size/2, size);
-  // ellipse(x - (size/3.5), y - (size/5), size/2, size);
-  // ellipse(x, y, dpSizeX, dpSizeY);
+  let imgSize = 68.0;
 
   // TODO refactor
   switch (this.type) {
@@ -289,6 +292,8 @@ class Enemy {
         break;
 
       case Game.EnemyTypes.SHOOTER:
+        imgSize = 108.0;
+
         rect(this.x + this.size/3.4, this.y, this.size/2, this.size/3);
         rect(this.x - this.size/3.4, this.y, this.size/2, this.size/3);
         rect(this.x, this.y + this.size/3.4, this.size/3, this.size/2);
@@ -297,7 +302,7 @@ class Enemy {
         break;
 
       case Game.EnemyTypes.EXPLODER:
-        
+        //
         break;
 
       case Game.EnemyTypes.BOUNCER:
@@ -333,14 +338,13 @@ class Enemy {
 
     circle(this.x, this.y, this.size);
 
-    image(this.imgEyes, this.eyeX, this.eyeY, 68.0 + this.health * 2.0,38.0 + this.health * 2.0);
+    // TODO mask
+    this.imgEyes.resize(imgSize + this.health * 2.0, 0);
+    image(this.imgEyes, this.eyeX, this.eyeY);
 
     fill(255);
-    // stroke(127);
     textSize(40.0);
     textAlign(CENTER);
-    // text
-    // noStroke();
 
     text(`${this.health}`, this.x, this.y - 20.0);
   }
@@ -354,8 +358,6 @@ class Enemy {
     return 80.0 + this.health * 5.0;
   }
   hit(hitX = 0, hitY = 0, hitpoint = 1) {
-    // if (!this.hasSpawned) return;
-
     let hitTime = 0.05;
     this.isHit = true;
     

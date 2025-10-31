@@ -15,6 +15,8 @@ function draw() {
   let sizeX = size; // Size to be visualized and animated
   let sizeY = size; // Size to be visualized and animated
 
+  
+
 
   // // Reflector
   // circle(x + (size/3), y + (size/4), size/2);
