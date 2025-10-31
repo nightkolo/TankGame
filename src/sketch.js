@@ -195,7 +195,6 @@ function spawnEnemy(type) {
   let spawnY = GameMath.randomFloat(200.0, height - 200);
   let health = healthMin + floor(random() * enemyHealthFactor);
 
-
   let newEnemy = new Enemy({
     x: spawnX,
     y: spawnY,
@@ -266,7 +265,7 @@ function gotoNextWave() {
   if (random() < 1 / 4) {
     spawnItem();
   }
-  // let value = Game.EnemyTypes.SPLITTER;
+  // let value = Game.EnemyTypes.REFLECTOR;
 
   // spawnEnemy(value);
   spawnRandomWaveEnemies();
