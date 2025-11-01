@@ -100,6 +100,8 @@ function hitEnemy(bullet, targetEnemy){
   if (targetEnemy.hasDied()) {
     let scoreGained = targetEnemy.points;
     
+    // TODO remove
+    animScreenShake(targetEnemy.points, 3.0);
 
     switch (targetEnemy.type) {
       case Game.EnemyTypes.EXPLODER:
@@ -266,10 +268,10 @@ function gotoNextWave() {
   wave++;
   print(wave);
 
-  if (random() < 1 / 4) {
+  if (random() < 1 / 1) {
     spawnItem();
   }
-  // let value = Game.EnemyTypes.REFLECTOR;
+  // let value = Game.EnemyTypes.SPLITTER;
 
   // spawnEnemy(value);
   spawnRandomWaveEnemies();
@@ -278,7 +280,7 @@ function gotoNextWave() {
 let bgIMG;
 
 function preload() {
-  bgIMG = loadImage("img/bg-main.png");
+  bgIMG = loadImage("img/bg-main-03.png");
 }
 
 let screenShake = false;
@@ -385,8 +387,8 @@ function draw() {
   if (wave === 0) {
     strokeWeight(3);
     textSize(30);
-    text("A Demo by Night Kolo", width / 2, 100);
-    text("WIP", width / 2, 140);
+    // text("A Demo by Night Kolo", width / 2, 100);
+    // text("WIP", width / 2, 140);
   }
 
   // print(Game.itemTimes);
@@ -500,10 +502,10 @@ function mousePressed() {
   isShooting = true;
 }
 
-function animScreenShake(){
+function animScreenShake(shake = 10.0, dur = 5.0){
   screenShake = true;
-  shakeDuration = 10; // Shake for 30 frames
-  shakeIntensity = 5; // Reset intensity
+  shakeDuration = shake; // Shake for 30 frames
+  shakeIntensity = dur; // Reset intensity
 }
 
 function keyPressed(event) {

@@ -75,11 +75,14 @@ class Enemy {
         img = loadImage("img/enemy-eyes-normal-01.svg");
         break;
 
-      // case Game.EnemyTypes.SPLITTER:
-      //   break;
+      case Game.EnemyTypes.SPLITTER:
+        print("splitter!")
+        img = loadImage("img/enemy-eyes-splitter-01.svg");
+        break;
 
-      // case Game.EnemyTypes.SPLITTED:
-      //   break;
+      case Game.EnemyTypes.SPLITTED:
+        img = loadImage("img/enemy-eyes-splitted-01.svg");
+        break;
 
       case Game.EnemyTypes.SHOOTER:
         img = loadImage("img/enemy-eyes-shooter-01.svg");
@@ -93,7 +96,7 @@ class Enemy {
         break;
 
       default:
-        img = loadImage("img/enemy-eyes-normal-01.svg");
+        // 
         break;
     }
   return img;
@@ -336,15 +339,12 @@ class Enemy {
           this.size/2.0);
         break;
     }
-
     // Animation
     if (this.animatingBounce) {
       this.t += 0.015;
       let eased = Anim.elasticEaseOut(constrain(this.t, 0, 1));
       let x = lerp(this.startX, this.dpSizeX, eased);
       let y = lerp(this.startY, this.dpSizeY, eased);
-      
-      // x and y are animation variables
 
       ellipse(this.x, this.y, x, y);
 
@@ -355,8 +355,10 @@ class Enemy {
     }
 
     // TODO mask
-    this.imgEyes.resize(imgSize + this.health * 2.0, 0);
-    image(this.imgEyes, this.eyeX, this.eyeY);
+    if (this.imgEyes != undefined){
+      this.imgEyes.resize(imgSize + this.health * 2.0, 0);
+      image(this.imgEyes, this.eyeX, this.eyeY);
+    }
 
     fill(255);
     textSize(40.0);

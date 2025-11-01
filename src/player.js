@@ -119,34 +119,15 @@ class Tank {
 
     imageMode(CENTER);
     // image(this.img, this.x, this.y, this.size, this.size);
-    square(this.x - (this.size/2.5), this.y, this.size/2.0);
-    square(this.x + (this.size/2.5), this.y, this.size/2.0);
-    square(this.x, this.y - (this.size/2.5), this.size/2.0);
-    square(this.x, this.y + (this.size/2.5), this.size/2.0);
+    // square(this.x - (this.size/2.5), this.y, this.size/2.0);
+    // square(this.x + (this.size/2.5), this.y, this.size/2.0);
+    // square(this.x, this.y - (this.size/2.5), this.size/2.0);
+    // square(this.x, this.y + (this.size/2.5), this.size/2.0);
     
     stroke(90, 0, 0)
     square(this.x, this.y, this.dpSize, this.dpSize/10.0);
   
-    image(this.img, this.x + 5.0, this.y)
-    
-    // strokeWeight(this.size/5.0);
-    // stroke(5);
-    
-    // line(this.x + (this.size/6), this.y - (this.size/4), this.x + (this.size/2.5), this.y + (this.size/6));
-    // line(
-    //   this.x + (this.size/2.5),
-    //   this.y - (this.size/5),
-    //   this.x + (this.size/8),
-    //   this.y + (this.size/4)
-    // );
-
-    noStroke();
-    fill(255);
-    // ellipse(this.x - (this.size/7), this.y + (this.size/25.0), this.size/3.4, this.size/2.0);
-    
-
-
-    strokeWeight(1);
+    // image(this.img, this.x + 5.0, this.y)
 
     fill(255);
     stroke(0);
