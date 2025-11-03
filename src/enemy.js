@@ -4,7 +4,6 @@ class Enemy {
   #initialHealth;
   #player;
   #slowState;
-  #hurtState;
 
   constructor({
     x = 200,
@@ -70,10 +69,15 @@ class Enemy {
 
     this.spawned();
   }
-  getEnemyEyesHit(){
-    let img;
+  getEnemyEyesHit() {
+    const options = [
+      "img/enemy-eyes-hit-01.svg",
+      "img/enemy-eyes-hit-02.svg",
+      "img/enemy-eyes-hit-03.svg"
+    ];
 
-    img = loadImage("img/enemy-eyes-hit-02.svg");
+    const choice = floor(random(options.length)); // picks 0, 1, or 2
+    const img = loadImage(options[choice]);
 
     return img;
   }
@@ -227,11 +231,19 @@ class Enemy {
     }
     return false;
   }
-  animBounce(){
+  animBounce(sideHit = false){
     if (this.t < 0.5) return;
 
-    this.startX = this.dpSizeX + (this.dpSizeX / 5.0);
-    this.startY = this.dpSizeY - (this.dpSizeY / 5.0);
+    // TODO simplify variables
+    if (sideHit){
+      this.startX = this.dpSizeX - (this.dpSizeX / 3.5);
+      this.startY = this.dpSizeY + (this.dpSizeY / 3.5);
+
+    } else {
+      
+      this.startX = this.dpSizeX + (this.dpSizeX / 3.5);
+      this.startY = this.dpSizeY - (this.dpSizeY / 3.5);
+    }
     this.t = 0;
     this.animatingBounce = true;
   }
@@ -249,9 +261,9 @@ class Enemy {
     this.bounce();
     this.moveTowardPlayer();
   }
-  getEnemyColor(div = 1.0){
+  getEnemyColor(div = 1.0, a = 255){
     let col = [0,0,0, 0];
-    let alpha = 255;
+    let alpha = a;
 
     switch (this.type) {
       case Game.EnemyTypes.NORMAL:
@@ -300,7 +312,7 @@ class Enemy {
     fill(this.col[0], this.col[1], this.col[2], this.col[3]);
 
     if (!this.canHurt){
-      this.col = [0,0,0,0];
+      this.col = this.getEnemyColor(5.0, 255/4);
       stroke(this.getEnemyColor());
       strokeWeight(10);
     } else {
@@ -369,7 +381,7 @@ class Enemy {
 
     // Animation
     if (this.animatingBounce) {
-      this.t += 0.015;
+      this.t += 0.01;
       let eased = Anim.elasticEaseOut(constrain(this.t, 0, 1));
       let x = lerp(this.startX, this.dpSizeX, eased);
       let y = lerp(this.startY, this.dpSizeY, eased);
@@ -418,6 +430,8 @@ class Enemy {
     this.col[0] *= 0.65;
     this.col[1] *= 0.65;
     this.col[2] *= 0.65;
+
+    this.animBounce(hitX !== 0 && hitY == 0);
 
     this.health -= hitpoint;
     this.knockback(hitX, hitY);

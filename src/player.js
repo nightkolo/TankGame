@@ -36,7 +36,7 @@ class Tank {
     this.newLives += lives;
   }
   gainItem(item, itemCooldown = 8.0) { // Game.Items, float
-    print("Item added!");
+    // print("Item added!");
 
     this.powerups.push(item);
     
@@ -49,7 +49,7 @@ class Tank {
     }
   }
   loseItem(item) {
-    print("Item removed!");
+    // print("Item removed!");
     
     Game.removeObject(this.powerups, item);
     print(this.powerups);

@@ -103,7 +103,7 @@ class Item {
     }
 
     if (this.opened && !this.#openState){
-      print("open!");
+      // print("open!");
       setTimeout(() => {
         this.collected = true;
       }, this.cooldown * 1000.0);

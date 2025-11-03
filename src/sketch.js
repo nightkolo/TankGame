@@ -227,8 +227,8 @@ function spawnRandomWaveEnemies(onWave = wave) {
   }
 
   let healthMin = 3 + floor(wave / 6.0);
-  let enemySpawnsMin = 2 + floor(wave / 8.0);
-  let enemySpawnsFactor = 3 + floor(wave / 8.0);
+  let enemySpawnsMin = 2 + floor(wave / 9.0);
+  let enemySpawnsFactor = 3 + floor(wave / 9.0);
   let enemySpeed = Game.defaultEnemySpeed + (floor(wave / 2.0) / 10.0);
 
   // print(enemySpeed);
@@ -267,7 +267,7 @@ function gotoNextWave() {
 
   bgCol = Game.bgCols[Game.getWaveCol(wave)];
 
-  if (random() < 1 / 1) {
+  if (random() < 1 / 2) {
     spawnItem();
   }
   // let value = Game.EnemyTypes.SPLITTER;
@@ -318,7 +318,7 @@ function animText(){
   }
 
 function draw() {
-  background("#d1d166ff");
+  background(bgCol[0], bgCol[1], bgCol[2]);
 
   if (screenShake) {
     // Apply a random translation based on intensity
@@ -385,12 +385,12 @@ function draw() {
 
   // Handle Text
   push();
-  translate(width / 2, height / 1.1);
+  translate(width / 4.75, height / 1.1);
   stroke(50);
   rotate((PI / 28.0) * sin(millis() / 360.0));
 
   textAlign(CENTER);
-  textSize(45);
+  textSize(50);
   strokeWeight(8);
   if (animatingBounce) {
       tBounce += 0.012;
@@ -411,8 +411,10 @@ function draw() {
   if (wave === 0) {
     strokeWeight(3);
     textSize(30);
-    // text("A Demo by Night Kolo", width / 2, 100);
-    // text("WIP", width / 2, 140);
+    textStyle(BOLD);
+    text("A Demo by Night Kolo", width / 2, 100);
+    text("WIP", width / 2, 140);
+    text("Hello there :)", width / 2, 180);
   }
 
   // print(Game.itemTimes);
