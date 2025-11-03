@@ -469,6 +469,9 @@ function draw() {
     e.show();
   });
 
+  stroke(0);
+  strokeWeight(5);
+
   // Handle Sprinklers
   sprinklers = sprinklers.filter(handleSprinklers);
   

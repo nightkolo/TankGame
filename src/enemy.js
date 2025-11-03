@@ -284,6 +284,10 @@ class Enemy {
       case Game.EnemyTypes.REFLECTOR:
         col = [100 / div, 255 / div, 100 / div, alpha];
         break;
+
+      case Game.EnemyTypes.SPRINTER:
+        col = [255 / div, 255 / div, 255 / div, alpha];
+        break;
     }
 
     return col;
@@ -298,9 +302,14 @@ class Enemy {
     if (!this.canHurt){
       this.col = [0,0,0,0];
       stroke(this.getEnemyColor());
-    } else if (!this.isHit){
-      this.col = this.getEnemyColor();
-      stroke(this.getEnemyColor(4.0));
+      strokeWeight(10);
+    } else {
+      strokeWeight(5);
+
+      if (!this.isHit) {
+        this.col = this.getEnemyColor();
+        stroke(this.getEnemyColor(4.0));
+      }
 
       switch (this.type) {
         case Game.EnemyTypes.NORMAL:
@@ -390,6 +399,8 @@ class Enemy {
     fill(255);
     textSize(40.0);
     textAlign(CENTER);
+    strokeWeight(5);
+    stroke(0);
 
     text(`${this.health}`, this.x, this.y - 20.0);
   }
