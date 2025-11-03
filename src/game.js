@@ -21,6 +21,22 @@ class Game {
     SPIKE_SPRINKER: 3
   }
 
+  static bgCols = [
+    [255, 255, 155],
+    [185, 185, 255],
+    [255, 155, 185],
+    [255, 255, 105],
+    [205, 105, 255]
+  ]
+
+  static getWaveCol(wave){
+    return floor(wave / 10.0);
+  }
+
+  static pulseBGcol(){
+
+  }
+
   // TODO utilize Maps
   static itemTimes = [
     0.0, // TWO_AXIS_SHOOTING

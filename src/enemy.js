@@ -3,7 +3,8 @@ class Enemy {
   #initialY;
   #initialHealth;
   #player;
-  #slowState
+  #slowState;
+  #hurtState;
 
   constructor({
     x = 200,
@@ -22,7 +23,7 @@ class Enemy {
     this.size = this.getSize();
     this.dpSize = this.getSize(); // displaySize
     this.dpSizeX = this.getSize();
-    this.dpSizeX = this.getSize();
+    this.dpSizeY = this.getSize();
     
     // Stats
     this.maxSpeed = maxSpeed;
@@ -35,7 +36,8 @@ class Enemy {
     this.type = type;
 
     // Assets
-    this.imgEyes = this.getEyes();
+    this.imgEyes = this.getEnemyEyes();
+    this.imgHitEyes = this.getEnemyEyesHit();
     this.eyeX = 0.0;
     this.eyeY = 0.0;
 
@@ -58,7 +60,7 @@ class Enemy {
     this.animatingBounce = false;
 
     // Misc.
-    this.col = [0, 0, 0, 255];
+    this.col = [0, 0, 0];
     this.followPlayer = followPlayer;
     this.canShoot = false;
     this.isHit = false;
@@ -68,8 +70,16 @@ class Enemy {
 
     this.spawned();
   }
-  getEyes(){
+  getEnemyEyesHit(){
     let img;
+
+    img = loadImage("img/enemy-eyes-hit-02.svg");
+
+    return img;
+  }
+  getEnemyEyes(){
+    let img;
+
     switch (this.type) {
       case Game.EnemyTypes.NORMAL:
         img = loadImage("img/enemy-eyes-normal-01.svg");
@@ -85,7 +95,7 @@ class Enemy {
         break;
 
       case Game.EnemyTypes.SHOOTER:
-        img = loadImage("img/enemy-eyes-shooter-01.svg");
+        img = loadImage("img/enemy-eyes-deadpan-01.svg");
         break;
 
       // case Game.EnemyTypes.EXPLODER:
@@ -155,6 +165,7 @@ class Enemy {
     this.y += this.accel * fallFactor;
 
     if (this.y > height - this.size / 2) {
+      animScreenShake();
       this.accel -= this.accel * 2.0;
     }
   }
@@ -220,7 +231,7 @@ class Enemy {
     if (this.t < 0.5) return;
 
     this.startX = this.dpSizeX + (this.dpSizeX / 5.0);
-    this.startY = this.dpSizeY - (this.dpSizeX / 5.0);
+    this.startY = this.dpSizeY - (this.dpSizeY / 5.0);
     this.t = 0;
     this.animatingBounce = true;
   }
@@ -238,107 +249,115 @@ class Enemy {
     this.bounce();
     this.moveTowardPlayer();
   }
-  show() {
-    rectMode(CENTER);
-
+  getEnemyColor(div = 1.0){
+    let col = [0,0,0, 0];
     let alpha = 255;
-    if (!this.canHurt){
-      // alpha = 255/2;
-    }
-
-    if (!this.isHit){
-      switch (this.type) {
-        case Game.EnemyTypes.NORMAL:
-          this.col = [200, 200, 200, alpha];
-          break;
-  
-        case Game.EnemyTypes.SPLITTER:
-          this.col = [0, 255, 0, alpha];
-          break;
-  
-        case Game.EnemyTypes.SPLITTED:
-          this.col = [255 / 4, 255 / 4, 255 / 4, alpha];
-          break;
-  
-        case Game.EnemyTypes.SHOOTER:
-          this.col = [255, 0, 0, alpha];
-          break;
-  
-        case Game.EnemyTypes.EXPLODER:
-          this.col = [
-            255 * (this.#initialHealth / this.health),
-            255 * (this.#initialHealth / this.health),
-            0, alpha];
-          break;
-  
-        case Game.EnemyTypes.BOUNCER:
-          this.col = [0, 0, 255, alpha];
-          break;
-  
-        case Game.EnemyTypes.REFLECTOR:
-          this.col = [100, 255, 100, alpha];
-          break;
-      }
-    }
-
-    fill(...this.col);
-
-    let imgSize = 68.0;
 
     switch (this.type) {
       case Game.EnemyTypes.NORMAL:
+        col = [200 / div, 200 / div, 200 / div, alpha];
         break;
 
       case Game.EnemyTypes.SPLITTER:
-        circle(this.x + (this.size/3), this.y + (this.size/4), this.size/2);
-        circle(this.x - (this.size/3), this.y + (this.size/4), this.size/2);
+        col = [0 / div, 255 / div, 0 / div, alpha];
         break;
 
       case Game.EnemyTypes.SPLITTED:
-        circle(this.x + (this.size/3), this.y, this.size/2);
-        circle(this.x - (this.size/3), this.y, this.size/2);
+        col = [255 / 4 / div, 255 / 4 / div, 255 / 4 / div, alpha];
         break;
 
       case Game.EnemyTypes.SHOOTER:
-        imgSize = 92.0;
-
-        rect(this.x + this.size/3.4, this.y, this.size/2, this.size/3);
-        rect(this.x - this.size/3.4, this.y, this.size/2, this.size/3);
-        rect(this.x, this.y + this.size/3.4, this.size/3, this.size/2);
-        rect(this.x, this.y  - this.size/3.4, this.size/3, this.size/2);
+        col = [255 / div, 0 / div, 0 / div, alpha];
         break;
 
       case Game.EnemyTypes.EXPLODER:
-        // TODO
+        col = [
+          255 * (this.#initialHealth / this.health) / div,
+          255 * (this.#initialHealth / this.health) / div,
+          0 / div, alpha];
         break;
 
       case Game.EnemyTypes.BOUNCER:
-        ellipse(this.x + (this.size/3.5), this.y - (this.size/5), this.size/2, this.size);
-        ellipse(this.x - (this.size/3.5), this.y - (this.size/5), this.size/2, this.size);
+        col = [0 / div, 0 / div, 255 / div, alpha];
         break;
 
       case Game.EnemyTypes.REFLECTOR:
-        let t = millis() / 800.0;
-        let distance = this.dpSize/2.6;
-
-        circle(
-          this.x + (sin(t) * distance),
-          this.y + (cos(t) * distance),
-          this.size/2.0);
-        circle(
-          this.x + (sin(t + (PI / 2)) * distance),
-          this.y + (cos(t + (PI / 2)) * distance),
-          this.size/2.0);
-        circle(
-          this.x + (sin(t + PI) * distance),
-          this.y + (cos(t + PI) * distance),
-          this.size/2.0);
-        circle(
-          this.x + (sin(t + ((PI * 3) / 2)) * distance),
-          this.y + (cos(t + ((PI * 3) / 2)) * distance),
-          this.size/2.0);
+        col = [100 / div, 255 / div, 100 / div, alpha];
         break;
     }
+
+    return col;
+  }
+  show() {
+    rectMode(CENTER);
+
+    let imgSize = 68.0;
+    
+    fill(this.col[0], this.col[1], this.col[2], this.col[3]);
+
+    if (!this.canHurt){
+      this.col = [0,0,0,0];
+      stroke(this.getEnemyColor());
+    } else if (!this.isHit){
+      this.col = this.getEnemyColor();
+      stroke(this.getEnemyColor(4.0));
+
+      switch (this.type) {
+        case Game.EnemyTypes.NORMAL:
+          break;
+
+        case Game.EnemyTypes.SPLITTER:
+          circle(this.x + (this.size/3), this.y + (this.size/4), this.size/2);
+          circle(this.x - (this.size/3), this.y + (this.size/4), this.size/2);
+          break;
+
+        case Game.EnemyTypes.SPLITTED:
+          circle(this.x + (this.size/3), this.y, this.size/2);
+          circle(this.x - (this.size/3), this.y, this.size/2);
+          break;
+
+        case Game.EnemyTypes.SHOOTER:
+          imgSize = 92.0;
+
+          rect(this.x + this.size/3.4, this.y, this.size/2, this.size/3);
+          rect(this.x - this.size/3.4, this.y, this.size/2, this.size/3);
+          rect(this.x, this.y + this.size/3.4, this.size/3, this.size/2);
+          rect(this.x, this.y  - this.size/3.4, this.size/3, this.size/2);
+          break;
+
+        case Game.EnemyTypes.EXPLODER:
+          // TODO
+          break;
+
+        case Game.EnemyTypes.BOUNCER:
+          ellipse(this.x + (this.size/3.5), this.y - (this.size/5), this.size/2, this.size);
+          ellipse(this.x - (this.size/3.5), this.y - (this.size/5), this.size/2, this.size);
+          break;
+
+        case Game.EnemyTypes.REFLECTOR:
+          let t = millis() / 800.0;
+          let distance = this.dpSize/2.6;
+
+          circle(
+            this.x + (sin(t) * distance),
+            this.y + (cos(t) * distance),
+            this.size/2.0);
+          circle(
+            this.x + (sin(t + (PI / 2)) * distance),
+            this.y + (cos(t + (PI / 2)) * distance),
+            this.size/2.0);
+          circle(
+            this.x + (sin(t + PI) * distance),
+            this.y + (cos(t + PI) * distance),
+            this.size/2.0);
+          circle(
+            this.x + (sin(t + ((PI * 3) / 2)) * distance),
+            this.y + (cos(t + ((PI * 3) / 2)) * distance),
+            this.size/2.0);
+          break;
+      }
+    } 
+
     // Animation
     if (this.animatingBounce) {
       this.t += 0.015;
@@ -355,9 +374,17 @@ class Enemy {
     }
 
     // TODO mask
-    if (this.imgEyes != undefined){
-      this.imgEyes.resize(imgSize + this.health * 2.0, 0);
-      image(this.imgEyes, this.eyeX, this.eyeY);
+    if (this.imgEyes != undefined && this.imgHitEyes != undefined){
+      let size = imgSize + this.health * 2.0;
+
+      if (this.isHit){
+        this.imgEyes.resize(imgSize + this.health * 2.0, 0);
+        image(this.imgHitEyes, this.eyeX, this.eyeY);
+      } else {
+        this.imgEyes.resize(imgSize + this.health * 2.0, 0);
+        image(this.imgEyes, this.eyeX, this.eyeY);
+      }
+
     }
 
     fill(255);
@@ -373,7 +400,7 @@ class Enemy {
     return 80.0 + this.health * 5.0;
   }
   hit(hitX = 0, hitY = 0, hitpoint = 1) {
-    let hitTime = 0.05;
+    let hitTime = 0.2;
     this.isHit = true;
     
     // TODO store colors in a const to manipulate

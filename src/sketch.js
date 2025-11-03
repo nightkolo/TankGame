@@ -32,8 +32,6 @@ let lastSpawnTime = 0.0;
 let shootingSpdFactor = 0.045;
 
 function handleEnemyBullets(bullet) {
-  // handleCactiBullets
-
   if (!bullet.alive) {
     Game.removeObject(enemyBullets, bullet);
   }
@@ -96,12 +94,11 @@ function hitEnemy(bullet, targetEnemy){
 
   targetEnemy.animBounce();
 
-
   if (targetEnemy.hasDied()) {
     let scoreGained = targetEnemy.points;
     
-    // TODO remove
-    animScreenShake(targetEnemy.points, 3.0);
+    // TODO Tame
+    animScreenShake(targetEnemy.points*1.5, targetEnemy.points*2.0);
 
     switch (targetEnemy.type) {
       case Game.EnemyTypes.EXPLODER:
@@ -196,7 +193,6 @@ function spawnEnemy(type) {
   let healthMin = 3;
   let enemyHealthFactor = 20.0;
 
-  let thres = 250.0;
   let spawnX = GameMath.randomFloat(200.0, width - 200);
   let spawnY = GameMath.randomFloat(200.0, height - 200);
   let health = healthMin + floor(random() * enemyHealthFactor);
@@ -267,6 +263,9 @@ function spawnRandomWaveEnemies(onWave = wave) {
 function gotoNextWave() {
   wave++;
   print(wave);
+  animText();
+
+  bgCol = Game.bgCols[Game.getWaveCol(wave)];
 
   if (random() < 1 / 1) {
     spawnItem();
@@ -307,6 +306,17 @@ function setup() {
   enemies.push(e1);
 }
 
+let animatingBounce = false;
+let tBounce = 1.0;
+let bgCol = Game.bgCols[0];
+
+function animText(){
+    if (tBounce < 0.5) return;
+
+    tBounce = 0;
+    animatingBounce = true;
+  }
+
 function draw() {
   background("#d1d166ff");
 
@@ -328,7 +338,9 @@ function draw() {
   translate(width / 2, height / 2);
   rotate(millis() * (1 / 18000));
   imageMode(CENTER);
-  tint(255, 255, 155);
+  bgCol[0]
+
+  tint(bgCol[0], bgCol[1], bgCol[2]);
   image(bgIMG, 0, 0);
   // image()
   pop();
@@ -379,7 +391,19 @@ function draw() {
 
   textAlign(CENTER);
   textSize(45);
-  strokeWeight(7);
+  strokeWeight(8);
+  if (animatingBounce) {
+      tBounce += 0.012;
+      let eased = Anim.elasticEaseOut(constrain(tBounce, 0, 1));
+      let x = lerp(1.5, 1, eased);
+      let y = lerp(0.5, 1, eased);
+
+      scale([x, y]);
+      if (tBounce >= 1) animatingBounce = false;
+    } else {
+      scale([1, 1]);
+    }
+  
   text(`Wave ${wave}`, 0, 0);
   
   pop();
