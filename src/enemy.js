@@ -1,10 +1,11 @@
 class Enemy {
-  #lastShotTime;
+  #lastShotTime = 0.0;
   #initialY;
   #initialHealth;
   #player;
-  #slowState;
+  #slowState = false;
   #hitState = false;
+  #lastHitTime = 0.0;
 
   constructor({
     x = 200,
@@ -36,7 +37,7 @@ class Enemy {
     
     // Assets
     this.bounceSFX = loadSound("audio/rabbitball_bounce.ogg");
-    this.shootsSFX = loadSound("audio/shoot_01.mov");
+    this.shootsSFX = this.getHitSound();
     this.imgEyes = this.getEnemyEyes();
     this.imgHitEyes = this.getEnemyEyesHit();
     this.eyeX = 0.0;
@@ -67,12 +68,17 @@ class Enemy {
     this.canShoot = false;
     this.isBeingHit = false;
     this.shootingSpdFactor = 1.7;
-    this.#lastShotTime = 0;
-    this.#slowState = false;
-
-    this.lastHitTime = 0.0;
     
     this.spawned();
+  }
+  getHitSound(){
+    // let aud; 
+    // TODO different hit sound for types
+    switch(this.type){
+      default:
+        return loadSound("audio/shoot_01.mov");
+        break;
+    }
   }
   spawned() {
     // TODO of type SPITTER should continue moving
@@ -210,14 +216,18 @@ class Enemy {
     this.eyeX = this.x + ((this.#player.x - this.eyeX) / 25.0);
     this.eyeY = this.y + ((this.#player.y - this.eyeY) / 25.0);
 
-    if (this.isBeingHit && millis() - this.lastHitTime > 200) { // 200 ms of no hits
+    if (this.isBeingHit && millis() - this.#lastHitTime > 200) {
       this.isBeingHit = false;
     }
 
-    // print(this.isBeingHit, this.#hitState)
+    // Audio
     if (this.shootsSFX.isLoaded()){
+      let panValue = map(this.x, 0, width, -1, 1);
+      this.shootsSFX.pan(panValue);
+      this.shootsSFX.setVolume(0.5 * (this.health / this.#initialHealth));
+
+      // TODO different hit sounds
       if (this.isBeingHit && !this.#hitState){
-        print("play!");
         if (!this.shootsSFX.isPlaying()){
           print("play!");
           print(this.shootsSFX);
@@ -339,10 +349,7 @@ class Enemy {
         this.imgEyes.resize(imgSize + this.health * 2.0, 0);
         image(this.imgEyes, this.eyeX, this.eyeY);
       }
-
     }
-
-    
 
     fill(255);
     textSize(40.0);
@@ -353,10 +360,9 @@ class Enemy {
     text(`${this.health}`, this.x, this.y - 20.0);
   }
   hit(hitX = 0, hitY = 0, hitpoint = 1) {
-    this.lastHitTime = millis(); // record when last hit occurred
+    this.#lastHitTime = millis(); // record when last hit occurred
     this.isBeingHit = true;
 
-    // Dim color a bit
     this.col[0] *= 0.65;
     this.col[1] *= 0.65;
     this.col[2] *= 0.65;
@@ -366,7 +372,7 @@ class Enemy {
     // Optionally apply damage or knockback:
     this.health -= hitpoint;
 
-    if (this.health < 1){
+    if (this.health < 2){
       if (this.shootsSFX.isPlaying()){
         this.shootsSFX.stop();
       }
