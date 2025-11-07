@@ -84,6 +84,9 @@ function handlePlayerBullets(bullet) {
 }
 
 function hitEnemy(bullet, targetEnemy){
+  let sfx = shootSFXs[floor( shootSFXs.length * random() )];
+  sfx.play();
+  
   let removeBullet = false;
 
   if (bullet.hasBeenReflected) {
@@ -97,6 +100,7 @@ function hitEnemy(bullet, targetEnemy){
   if (targetEnemy.hasDied()) {
     let scoreGained = targetEnemy.points;
     
+    enemyDeadSFX.play();
     // TODO Tame
     animScreenShake(targetEnemy.points*1.5, targetEnemy.points*2.0);
 
@@ -261,6 +265,8 @@ function spawnRandomWaveEnemies(onWave = wave) {
 }
 
 function gotoNextWave() {
+  nextwaveSFX.play(); 
+
   wave++;
   print(wave);
   animText();
@@ -277,9 +283,21 @@ function gotoNextWave() {
 }
 
 let bgIMG;
+let nextwaveSFX;
+let enemyDeadSFX;
+let shootSFXs = [];
 
 function preload() {
   bgIMG = loadImage("img/bg-main-03.png");
+  nextwaveSFX = loadSound("audio/new_wave_01.ogg");
+  enemyDeadSFX = loadSound("audio/enemy_ded_01.ogg");
+  shootSFXs = [
+    loadSound("audio/tank_shoot_01.ogg"),
+    loadSound("audio/tank_shoot_02.ogg"),
+    loadSound("audio/tank_shoot_03.ogg"),
+    loadSound("audio/tank_shoot_04.ogg"),
+    loadSound("audio/tank_shoot_05.ogg"),
+  ];
 }
 
 let screenShake = false;
