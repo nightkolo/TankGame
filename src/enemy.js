@@ -34,6 +34,7 @@ class Enemy {
     this.type = type;
     
     // Assets
+    this.bounceSFX = loadSound("audio/rabbitball_bounce.ogg");
     this.imgEyes = this.getEnemyEyes();
     this.imgHitEyes = this.getEnemyEyesHit();
     this.eyeX = 0.0;
@@ -108,6 +109,7 @@ class Enemy {
     this.y += this.accel * fallFactor;
 
     if (this.y > height - this.size / 2) {
+      this.bounceSFX.play();
       animScreenShake();
       this.accel -= this.accel * 2.0;
     }

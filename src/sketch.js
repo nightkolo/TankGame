@@ -265,7 +265,12 @@ function spawnRandomWaveEnemies(onWave = wave) {
 }
 
 function gotoNextWave() {
-  nextwaveSFX.play(); 
+  if (floor((wave + 1) / 10.0) == (wave + 1) / 10.0) {
+
+    next10waveSFX.play(); 
+  } else {
+    nextwaveSFX.play();
+  }
 
   wave++;
   print(wave);
@@ -282,14 +287,24 @@ function gotoNextWave() {
   spawnRandomWaveEnemies();
 }
 
+
+// Img
 let bgIMG;
+// SFX
 let nextwaveSFX;
+let next10waveSFX;
 let enemyDeadSFX;
+let shootRightSFX;
+let shootLeftSFX;
 let shootSFXs = [];
 
 function preload() {
   bgIMG = loadImage("img/bg-main-03.png");
-  nextwaveSFX = loadSound("audio/new_wave_01.ogg");
+  nextwaveSFX = loadSound("audio/new_wave_04.ogg");
+  next10waveSFX = loadSound("audio/new_wave_03.ogg");
+  shootRightSFX = loadSound("audio/tank_shoot_right.wav");
+  shootLeftSFX = loadSound("audio/tank_shoot_left.wav");
+
   enemyDeadSFX = loadSound("audio/enemy_ded_01.ogg");
   shootSFXs = [
     loadSound("audio/tank_shoot_01.ogg"),
@@ -556,13 +571,18 @@ function animScreenShake(shake = 10.0, dur = 5.0){
 }
 
 function keyPressed(event) {
+  shootRightSFX.setVolume(0.375); 
   if (event.key === "ArrowUp"|| event.key.toLowerCase() == "w") {
     curBulletDir.x = 0; curBulletDir.y = -1;
+    shootRightSFX.play();
   } else if ( event.key === "ArrowDown" || event.key.toLowerCase() == "s") {
     curBulletDir.x = 0; curBulletDir.y = 1;
+    shootRightSFX.play();
   } else if ( event.key === "ArrowLeft" || event.key.toLowerCase() == "a") {
     curBulletDir.x = -1; curBulletDir.y = 0;
+    shootRightSFX.play();
   } else if ( event.key === "ArrowRight" || event.key.toLowerCase() == "d") {
     curBulletDir.x = 1; curBulletDir.y = 0;
+    shootRightSFX.play();
   }
 }
