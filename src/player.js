@@ -20,6 +20,9 @@ class Tank {
 
     // Assets
     this.img = loadImage('img/tank-eyes-01.svg');
+    this.hitSFXs = [
+      loadSound("audio/tank_hit_01.ogg")
+    ];
     // this.imgGunU = loadImage('img/gun-pointer-up.svg');
     // this.imgGunR = loadImage('img/gun-pointer-right.svg');
     // this.imgGunD = loadImage('img/gun-pointer-down.svg');
@@ -57,9 +60,11 @@ class Tank {
 
   }
   hit() {
-    if (this.invincible) return;
+    if (this.invincible || !this.alive) return;
 
     print("Ouch!");
+
+    this.hitSFXs[floor(this.hitSFXs.length * random())].play();
 
     this.lives--;
 

@@ -84,9 +84,28 @@ function handlePlayerBullets(bullet) {
 }
 
 function hitEnemy(bullet, targetEnemy){
-  let sfx = shootSFXs[floor( shootSFXs.length * random() )];
-  sfx.play();
+
   
+
+
+  // let sfx = shootSFXs[floor(random(shootSFXs.length))];
+
+  // if (sfx.isPlaying()) {
+  //   sfx.stop();
+  // }
+  // sfx.play();
+  // let sfx = shootSFXs[floor( shootSFXs.length * random() )];
+  // sfx.playMode('sustain');
+  // sfx.play();
+  // sfx.onended(() => {
+  //   sfx.stop(); // ensures internal node cleanup
+  // });
+  // setTimeout(() => {
+  //   sfx.dispose();
+  //   print("Removed");
+  // }, 1000.0);
+  
+
   let removeBullet = false;
 
   if (bullet.hasBeenReflected) {
@@ -294,18 +313,18 @@ let bgIMG;
 let nextwaveSFX;
 let next10waveSFX;
 let enemyDeadSFX;
-let shootRightSFX;
-let shootLeftSFX;
+let shootChangeSFX;
+let shootsSFX;
+// let shootLeftSFX;
 let shootSFXs = [];
 
 function preload() {
   bgIMG = loadImage("img/bg-main-03.png");
-  nextwaveSFX = loadSound("audio/new_wave_04.ogg");
-  next10waveSFX = loadSound("audio/new_wave_03.ogg");
-  shootRightSFX = loadSound("audio/tank_shoot_right.wav");
-  shootLeftSFX = loadSound("audio/tank_shoot_left.wav");
-
+  nextwaveSFX = loadSound("audio/new_wave_02.ogg");
+  next10waveSFX = loadSound("audio/new_wave_01.ogg");
+  shootChangeSFX = loadSound("audio/tank_shoot_change.wav");
   enemyDeadSFX = loadSound("audio/enemy_ded_01.ogg");
+  shootsSFX = loadSound("audio/shoot_01.mov");
   shootSFXs = [
     loadSound("audio/tank_shoot_01.ogg"),
     loadSound("audio/tank_shoot_02.ogg"),
@@ -571,18 +590,18 @@ function animScreenShake(shake = 10.0, dur = 5.0){
 }
 
 function keyPressed(event) {
-  shootRightSFX.setVolume(0.375); 
+  shootChangeSFX.setVolume(0.375); 
   if (event.key === "ArrowUp"|| event.key.toLowerCase() == "w") {
     curBulletDir.x = 0; curBulletDir.y = -1;
-    shootRightSFX.play();
+    shootChangeSFX.play();
   } else if ( event.key === "ArrowDown" || event.key.toLowerCase() == "s") {
     curBulletDir.x = 0; curBulletDir.y = 1;
-    shootRightSFX.play();
+    shootChangeSFX.play();
   } else if ( event.key === "ArrowLeft" || event.key.toLowerCase() == "a") {
     curBulletDir.x = -1; curBulletDir.y = 0;
-    shootRightSFX.play();
+    shootChangeSFX.play();
   } else if ( event.key === "ArrowRight" || event.key.toLowerCase() == "d") {
     curBulletDir.x = 1; curBulletDir.y = 0;
-    shootRightSFX.play();
+    shootChangeSFX.play();
   }
 }

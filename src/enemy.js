@@ -4,6 +4,7 @@ class Enemy {
   #initialHealth;
   #player;
   #slowState;
+  #hitState = false;
 
   constructor({
     x = 200,
@@ -35,6 +36,7 @@ class Enemy {
     
     // Assets
     this.bounceSFX = loadSound("audio/rabbitball_bounce.ogg");
+    this.shootsSFX = loadSound("audio/shoot_01.mov");
     this.imgEyes = this.getEnemyEyes();
     this.imgHitEyes = this.getEnemyEyesHit();
     this.eyeX = 0.0;
@@ -63,11 +65,13 @@ class Enemy {
     this.col = [0, 0, 0];
     this.followPlayer = followPlayer;
     this.canShoot = false;
-    this.isHit = false;
+    this.isBeingHit = false;
     this.shootingSpdFactor = 1.7;
     this.#lastShotTime = 0;
     this.#slowState = false;
 
+    this.lastHitTime = 0.0;
+    
     this.spawned();
   }
   spawned() {
@@ -206,6 +210,29 @@ class Enemy {
     this.eyeX = this.x + ((this.#player.x - this.eyeX) / 25.0);
     this.eyeY = this.y + ((this.#player.y - this.eyeY) / 25.0);
 
+    if (this.isBeingHit && millis() - this.lastHitTime > 200) { // 200 ms of no hits
+      this.isBeingHit = false;
+    }
+
+    // print(this.isBeingHit, this.#hitState)
+    if (this.shootsSFX.isLoaded()){
+      if (this.isBeingHit && !this.#hitState){
+        print("play!");
+        if (!this.shootsSFX.isPlaying()){
+          print("play!");
+          print(this.shootsSFX);
+          this.shootsSFX.play();
+        }
+        this.#hitState = true;
+      } else if (!this.isBeingHit && this.#hitState) {
+        if (this.shootsSFX.isPlaying()){
+          print("stop!");
+          this.shootsSFX.stop();
+        }
+        this.#hitState = false;
+      }
+    }
+
     if (!this.canMove) return;
 
     this.bounce();
@@ -225,7 +252,7 @@ class Enemy {
     } else {
       strokeWeight(5);
 
-      if (!this.isHit) {
+      if (!this.isBeingHit) {
         this.col = this.getEnemyColor();
         stroke(this.getEnemyColor(4.0));
       }
@@ -305,7 +332,7 @@ class Enemy {
     if (this.imgEyes != undefined && this.imgHitEyes != undefined){
       let size = imgSize + this.health * 2.0;
 
-      if (this.isHit){
+      if (this.isBeingHit){
         this.imgEyes.resize(imgSize + this.health * 2.0, 0);
         image(this.imgHitEyes, this.eyeX, this.eyeY);
       } else {
@@ -314,6 +341,8 @@ class Enemy {
       }
 
     }
+
+    
 
     fill(255);
     textSize(40.0);
@@ -324,22 +353,26 @@ class Enemy {
     text(`${this.health}`, this.x, this.y - 20.0);
   }
   hit(hitX = 0, hitY = 0, hitpoint = 1) {
-    let hitTime = 0.2;
-    this.isHit = true;
-    
-    // TODO store colors in a const to manipulate
+    this.lastHitTime = millis(); // record when last hit occurred
+    this.isBeingHit = true;
+
+    // Dim color a bit
     this.col[0] *= 0.65;
     this.col[1] *= 0.65;
     this.col[2] *= 0.65;
 
     this.animBounce(hitX !== 0 && hitY == 0);
 
+    // Optionally apply damage or knockback:
     this.health -= hitpoint;
-    this.knockback(hitX, hitY);
 
-    setTimeout(() => {
-      this.isHit = false;
-    }, hitTime * 1000.0);
+    if (this.health < 1){
+      if (this.shootsSFX.isPlaying()){
+        this.shootsSFX.stop();
+      }
+    }
+
+    this.knockback(hitX, hitY);
   }
   
   knockback(hitX, hitY) {
