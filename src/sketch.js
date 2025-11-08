@@ -233,6 +233,7 @@ function spawnEnemy(type) {
 }
 
 let waveEnemyCount = 1;
+let tankBuddiesOwned = 0;
 
 function spawnRandomWaveEnemies(onWave = wave) {
   let encounterSet = 0;
@@ -301,8 +302,8 @@ function gotoNextWave() {
 
   bgCol = Game.bgCols[Game.getWaveCol(wave)];
 
-  if (random() < 1 / 2) {
-    spawnItem();
+  if (random() < 1 / 1) {
+    spawnItem(Game.Items.TANK_BUDDY);
   }
   // let value = Game.EnemyTypes.SPLITTER;
 
@@ -338,7 +339,6 @@ let shootsSFX = new Howl({
   src: ['audio/shoot_01.mov'],
   volume: 0.5
 });
-
 
 let enemyHitCuteSFXs = [
   new Howl({ src: ['audio/select_005.ogg'], volume: 0.5, stereo: 0 }),
@@ -404,12 +404,10 @@ function draw() {
   background(bgCol[0], bgCol[1], bgCol[2]);
 
   if (screenShake) {
-    // Apply a random translation based on intensity
     let shakeX = random(-shakeIntensity, shakeIntensity);
     let shakeY = random(-shakeIntensity, shakeIntensity);
     translate(shakeX, shakeY);
 
-    // Decrease the shake duration over time
     shakeDuration--;
     if (shakeDuration <= 0) {
       screenShake = false;
@@ -425,7 +423,6 @@ function draw() {
 
   tint(bgCol[0], bgCol[1], bgCol[2]);
   image(bgIMG, 0, 0);
-  // image()
   pop();
   // 
 
@@ -445,7 +442,7 @@ function draw() {
       let extraX = 0.0;
       let extraY = 0.0;
 
-      if (p.powerups.includes(Game.Items.VARIABLE_SHOOTING)){
+      if (p.powerups.includes(Game.Items.INACCURACY)){
         extraX = (random() * 0.5) - 0.25;
         extraY = (random() * 0.5) - 0.25;
         shootingSpdFactor = 0.045 / 1.25;
@@ -465,53 +462,9 @@ function draw() {
       lastSpawnTime = millis();
     }
   }
-
-  // Handle playerBullets
-  playerBullets = playerBullets.filter(handlePlayerBullets);
   
   // Handle Sprinklers
   sprinklers = sprinklers.filter(handleSprinklers);
-
-  // Handle Text
-  push();
-  translate(width / 4.75, height / 1.1);
-  stroke(50);
-  rotate((PI / 28.0) * sin(millis() / 360.0));
-
-  textAlign(CENTER);
-  textSize(50);
-  strokeWeight(8);
-  if (animatingBounce) {
-      tBounce += 0.012;
-      let eased = Anim.elasticEaseOut(constrain(tBounce, 0, 1));
-      let x = lerp(1.5, 1, eased);
-      let y = lerp(0.5, 1, eased);
-
-      scale([x, y]);
-      if (tBounce >= 1) animatingBounce = false;
-    } else {
-      scale([1, 1]);
-    }
-  
-  text(`Wave ${wave}`, 0, 0);
-  
-  pop();
-
-  if (wave === 0) {
-    strokeWeight(3);
-    textSize(30);
-    textStyle(BOLD);
-    text("A Demo by Night Kolo", width / 2, 100);
-    text("WIP", width / 2, 140);
-    text("Hello there :)", width / 2, 180);
-  }
-
-  // Item interface
-
-  strokeWeight(5);
-
-  // Handle enemyBullets
-  enemyBullets.forEach(handleEnemyBullets);
 
   // Handle sprinklerBullets
   sprinklerBullets = sprinklerBullets.filter((b) => {
@@ -552,7 +505,7 @@ function draw() {
   stroke(0);
   strokeWeight(5);
 
-  // Handle Items
+    // Handle Items
   fill(GRAY);
   items = items.filter((i) => {
     i.enemies = enemies;
@@ -564,8 +517,80 @@ function draw() {
   fill(255);
   //
 
+  // Handle Text
+  push();
+  translate(width / 4.75, height / 1.1);
+  stroke(50);
+  rotate((PI / 28.0) * sin(millis() / 360.0));
 
-  // noStroke();
+  textAlign(CENTER);
+  textSize(50);
+  strokeWeight(8);
+  if (animatingBounce) {
+      tBounce += 0.012;
+      let eased = Anim.elasticEaseOut(constrain(tBounce, 0, 1));
+      let x = lerp(1.5, 1, eased);
+      let y = lerp(0.5, 1, eased);
+
+      scale([x, y]);
+      if (tBounce >= 1) animatingBounce = false;
+    } else {
+      scale([1, 1]);
+    }
+  
+  text(`Wave ${wave}`, 0, 0);
+  
+  pop();
+
+  if (wave === 0) {
+    strokeWeight(3);
+    textSize(30);
+    textStyle(BOLD);
+    text("A Demo by Night Kolo", width / 2, 100);
+    text("WIP", width / 2, 140);
+    text("Hello there :)", width / 2, 180);
+  }
+
+  // Item interface
+  textSize(25);
+  textAlign(CENTER);
+
+  if (p.tankBuddiesOwned > 0){
+    text(`Tank Buddies Owned: ${p.tankBuddiesOwned}`, width / 2.0, 60.0);
+  }
+
+  // print(p.tankBuddiesOwned);
+
+  // Obtain only active times from itemTimes2 Map
+  let activeTimes = Array.from(Game.itemTimes2.entries()).filter(([key, value]) => {
+    return value !== 0.0
+  });
+
+  print(activeTimes)
+
+  for (let i = 0; i < activeTimes.length; i++){
+    // print(activeTimes[i][0], activeTimes[i][1]);
+
+    let itemHeld = activeTimes[i][0];
+    let timeRemaining = activeTimes[i][1].toFixed(2);
+
+    // if (itemHeld === "Tank Buddy" && activeTimes[i][1] === 8.0){
+    //   timeRemaining = "Click to Release!";
+    // } else {
+    //   timeRemaining = activeTimes[i][1].toFixed(2);
+    // }
+
+    text(`${itemHeld}: ${timeRemaining}`, width / 2.0, height - 30.0 - (35.0 * (i + 1)));
+  }
+  //
+
+  strokeWeight(5);
+
+  // Handle enemyBullets
+  enemyBullets.forEach(handleEnemyBullets);
+
+  // Handle playerBullets
+  playerBullets = playerBullets.filter(handlePlayerBullets);
 
   // Handle Player
   if (p.alive) {
@@ -588,13 +613,17 @@ function draw() {
 }
 
 function placeTankBuddy(){
-  if (p.powerups.includes(Game.Items.SPIKE_SPRINKER)){
+  if (p.powerups.includes(Game.Items.TANK_BUDDY)){
+    if (p.tankBuddiesOwned >= 1){
+      p.tankBuddiesOwned--;
+    }
+
     let s = new Sprinker(p.x, p.y, shootingSpdFactor * 2.0);
     sprinklers.push(s);
 
-    Game.removeObject(p.powerups, Game.Items.SPIKE_SPRINKER);
+    Game.removeObject(p.powerups, Game.Items.TANK_BUDDY);
 
-    Game.startItemTimer(Game.Items.SPIKE_SPRINKER, Game.tankBuddyLifetime);
+    Game.startItemTimer(Game.Items.TANK_BUDDY, Game.tankBuddyLifetime);
 
     // print(p.powerups);
   }

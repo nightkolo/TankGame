@@ -15,6 +15,7 @@ class Tank {
     
     this.enemies = [];
     this.powerups = [];
+    this.tankBuddiesOwned = 0;
     this.curBulletDir = {
       x: 0,
       y: -1,
@@ -43,10 +44,12 @@ class Tank {
     
     print(this.powerups);
 
-    if (item != Game.Items.SPIKE_SPRINKER){
+    if (item != Game.Items.TANK_BUDDY){
       setTimeout(() => {
       this.loseItem(item);
       }, itemCooldown * 1000.0);
+    } else {
+      this.tankBuddiesOwned++;
     }
   }
   loseItem(item) {

@@ -43,9 +43,11 @@ class Item {
 
     // print(`Item gained: ${Game.getItemName(this.item)}`);
 
-    if (this.itemType != Game.Items.SPIKE_SPRINKER){
+    if (this.itemType != Game.Items.TANK_BUDDY){
       Game.startItemTimer(this.itemType, this.cooldown);
-    }    
+    } else {
+      // Game.prepareItemTimer(this.itemType, this.cooldown);
+    }
 
     this.enemies.forEach((e) => {
       e.moveAwayItemCollected(this.x, this.y);
@@ -77,10 +79,10 @@ class Item {
       case Game.Items.TWO_AXIS_SHOOTING:
         this.col = [255,0,0];
         break;
-      case Game.Items.VARIABLE_SHOOTING:
+      case Game.Items.INACCURACY:
         this.col = [0,255,0];
         break;
-      case Game.Items.SPIKE_SPRINKER:
+      case Game.Items.TANK_BUDDY:
         this.col = [255,0,255];
         break;
       case Game.Items.SLOWNESS:
