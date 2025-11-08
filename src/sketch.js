@@ -84,27 +84,10 @@ function handlePlayerBullets(bullet) {
 }
 
 function hitEnemy(bullet, targetEnemy){
+  const sfx = shootSFXs[floor(random(shootSFXs.length))];
 
-  
-
-
-  // let sfx = shootSFXs[floor(random(shootSFXs.length))];
-
-  // if (sfx.isPlaying()) {
-  //   sfx.stop();
-  // }
-  // sfx.play();
-  // let sfx = shootSFXs[floor( shootSFXs.length * random() )];
-  // sfx.playMode('sustain');
-  // sfx.play();
-  // sfx.onended(() => {
-  //   sfx.stop(); // ensures internal node cleanup
-  // });
-  // setTimeout(() => {
-  //   sfx.dispose();
-  //   print("Removed");
-  // }, 1000.0);
-  
+  // TODO dependent on enemy type
+  sfx.play();
 
   let removeBullet = false;
 
@@ -284,9 +267,10 @@ function spawnRandomWaveEnemies(onWave = wave) {
 }
 
 function gotoNextWave() {
-  if (floor((wave + 1) / 10.0) == (wave + 1) / 10.0) {
-
+   if (floor((wave + 1) / 10.0) == (wave + 1) / 10.0) {
     next10waveSFX.play(); 
+  } else if (p.lives < 2){
+    p.criticalHealthSFX.play();
   } else {
     nextwaveSFX.play();
   }
@@ -309,29 +293,47 @@ function gotoNextWave() {
 
 // Img
 let bgIMG;
-// SFX
-let nextwaveSFX;
-let next10waveSFX;
-let enemyDeadSFX;
-let shootChangeSFX;
-let shootsSFX;
-// let shootLeftSFX;
-let shootSFXs = [];
+// SFX (Howler.js)
+let nextwaveSFX = new Howl({
+  src: ['audio/new_wave_02.ogg'],
+  volume: 0.5
+});
+
+let next10waveSFX = new Howl({
+  src: ['audio/new_wave_01.ogg'],
+  volume: 0.5
+});
+
+let enemyDeadSFX = new Howl({
+  src: ['audio/enemy_ded_01.ogg'],
+  volume: 0.5
+});
+
+let shootChangeSFX = new Howl({
+  src: ['audio/tank_shoot_change.wav'],
+  volume: 0.375
+});
+
+let shootsSFX = new Howl({
+  src: ['audio/shoot_01.mov'],
+  volume: 0.5
+});
+
+// let shootLeftSFX = new Howl({
+//   src: ['audio/tank_shoot_05.ogg'],
+//   volume: 0.5
+// });
+
+let shootSFXs = [
+  new Howl({ src: ['audio/legacy/tank_shoot_01.ogg'], volume: 0.5 }),
+  new Howl({ src: ['audio/legacy/tank_shoot_02.ogg'], volume: 0.5 }),
+  new Howl({ src: ['audio/legacy/tank_shoot_03.ogg'], volume: 0.5 }),
+  new Howl({ src: ['audio/legacy/tank_shoot_04.ogg'], volume: 0.5 }),
+  new Howl({ src: ['audio/legacy/tank_shoot_05.ogg'], volume: 0.5 }),
+];
 
 function preload() {
   bgIMG = loadImage("img/bg-main-03.png");
-  nextwaveSFX = loadSound("audio/new_wave_02.ogg");
-  next10waveSFX = loadSound("audio/new_wave_01.ogg");
-  shootChangeSFX = loadSound("audio/tank_shoot_change.wav");
-  enemyDeadSFX = loadSound("audio/enemy_ded_01.ogg");
-  shootsSFX = loadSound("audio/shoot_01.mov");
-  shootSFXs = [
-    loadSound("audio/tank_shoot_01.ogg"),
-    loadSound("audio/tank_shoot_02.ogg"),
-    loadSound("audio/tank_shoot_03.ogg"),
-    loadSound("audio/tank_shoot_04.ogg"),
-    loadSound("audio/tank_shoot_05.ogg"),
-  ];
 }
 
 let screenShake = false;
@@ -435,6 +437,12 @@ function draw() {
     }
   }
 
+  // Handle playerBullets
+  playerBullets = playerBullets.filter(handlePlayerBullets);
+  
+  // Handle Sprinklers
+  sprinklers = sprinklers.filter(handleSprinklers);
+
   // Handle Text
   push();
   translate(width / 4.75, height / 1.1);
@@ -469,21 +477,10 @@ function draw() {
     text("Hello there :)", width / 2, 180);
   }
 
-  // print(Game.itemTimes);
-
-  // for (let i = 0; i < Game.itemTimes.length; i++){
-  //   const time = Game.itemTimes[i];
-
-  //   if (time > 0.0){
-  //     print(time);
-  //   }
-  // }
+  // Item interface
 
   strokeWeight(5);
-  
-  // Handle playerBullets
-  playerBullets = playerBullets.filter(handlePlayerBullets);
-  
+
   // Handle enemyBullets
   enemyBullets.forEach(handleEnemyBullets);
 
@@ -526,9 +523,6 @@ function draw() {
   stroke(0);
   strokeWeight(5);
 
-  // Handle Sprinklers
-  sprinklers = sprinklers.filter(handleSprinklers);
-  
   // Handle Items
   fill(GRAY);
   items = items.filter((i) => {
@@ -590,17 +584,17 @@ function animScreenShake(shake = 10.0, dur = 5.0){
 }
 
 function keyPressed(event) {
-  shootChangeSFX.setVolume(0.375); 
-  if (event.key === "ArrowUp"|| event.key.toLowerCase() == "w") {
+  print(typeof(shootChangeSFX));
+  if (event.key === "ArrowUp" || event.key.toLowerCase() == "w") {
     curBulletDir.x = 0; curBulletDir.y = -1;
     shootChangeSFX.play();
-  } else if ( event.key === "ArrowDown" || event.key.toLowerCase() == "s") {
+  } else if (event.key === "ArrowDown" || event.key.toLowerCase() == "s") {
     curBulletDir.x = 0; curBulletDir.y = 1;
     shootChangeSFX.play();
-  } else if ( event.key === "ArrowLeft" || event.key.toLowerCase() == "a") {
+  } else if (event.key === "ArrowLeft" || event.key.toLowerCase() == "a") {
     curBulletDir.x = -1; curBulletDir.y = 0;
     shootChangeSFX.play();
-  } else if ( event.key === "ArrowRight" || event.key.toLowerCase() == "d") {
+  } else if (event.key === "ArrowRight" || event.key.toLowerCase() == "d") {
     curBulletDir.x = 1; curBulletDir.y = 0;
     shootChangeSFX.play();
   }

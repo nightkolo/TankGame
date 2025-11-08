@@ -1,5 +1,7 @@
 // let img;
 
+// import { Howl } from "./libraries/howler.core";
+
 // function preload(){
 //   img = loadImage('img/tank-01.png');
 // }
@@ -20,13 +22,14 @@ class Tank {
 
     // Assets
     this.img = loadImage('img/tank-eyes-01.svg');
+    // TODO Audio
     this.hitSFXs = [
-      loadSound("audio/tank_hit_01.ogg")
+      new Howl({ src: "audio/tank_hit_01.ogg", volume: 0.5})
+      // loadSound("audio/tank_hit_01.ogg")
     ];
-    // this.imgGunU = loadImage('img/gun-pointer-up.svg');
-    // this.imgGunR = loadImage('img/gun-pointer-right.svg');
-    // this.imgGunD = loadImage('img/gun-pointer-down.svg');
-    // this.imgGunL = loadImage('img/gun-pointer-left.svg');
+    this.criticalHealthSFX = new Howl({
+      src: "audio/tank_hearts_critical.ogg", volume: 0.5
+    });
 
     this.lives = 5;
     this.newLives = 0;
@@ -64,10 +67,13 @@ class Tank {
 
     print("Ouch!");
 
-    this.hitSFXs[floor(this.hitSFXs.length * random())].play();
+    // this.hitSFXs[floor(this.hitSFXs.length * random())].play();
 
     this.lives--;
 
+    if (this.lives < 2){
+      this.criticalHealthSFX.play();
+    }
     if (this.lives < 1) {
       this.die();
     }

@@ -36,8 +36,15 @@ class Enemy {
     this.type = type;
     
     // Assets
-    this.bounceSFX = loadSound("audio/rabbitball_bounce.ogg");
-    this.shootsSFX = this.getHitSound();
+    this.bounceSFX = new Howl({ src: "audio/enemy_rabbitball_bounce.ogg", volume: 0.5});
+    // this.hitSFX = this.getHitSound();
+    this.shootSFXs = [
+      new Howl({ src: "audio/enemy_shooter_shoot_01.ogg", volume: 0.5}),
+      new Howl({ src: "audio/enemy_shooter_shoot_02.ogg", volume: 0.5}),
+      new Howl({ src: "audio/enemy_shooter_shoot_03.ogg", volume: 0.5}),
+      new Howl({ src: "audio/enemy_shooter_shoot_04.ogg", volume: 0.5}),
+      new Howl({ src: "audio/enemy_shooter_shoot_05.ogg", volume: 0.5})
+    ];
     this.imgEyes = this.getEnemyEyes();
     this.imgHitEyes = this.getEnemyEyesHit();
     this.eyeX = 0.0;
@@ -71,15 +78,14 @@ class Enemy {
     
     this.spawned();
   }
-  getHitSound(){
-    // let aud; 
-    // TODO different hit sound for types
-    switch(this.type){
-      default:
-        return loadSound("audio/shoot_01.mov");
-        break;
-    }
-  }
+  // getHitSound(){
+  //   // let aud; 
+  //   // TODO Audio
+  //   switch(this.type){
+  //     default:
+  //       return new Howl({ src: "audio/shoot_01.mov", volume: 0.5});
+  //   }
+  // }
   spawned() {
     // TODO of type SPITTER should continue moving
     switch (this.type){
@@ -121,6 +127,8 @@ class Enemy {
     if (this.y > height - this.size / 2) {
       this.bounceSFX.play();
       animScreenShake();
+
+      // TODO issue, make a fixed calculated value
       this.accel -= this.accel * 2.0;
     }
   }
@@ -189,6 +197,11 @@ class Enemy {
     }
 
     if (millis() - this.#lastShotTime > factor * 1000) {
+      let aud = this.shootSFXs[floor(random() * this.shootSFXs.length)];
+      // if (aud.isLoaded()){
+      aud.play()
+      // }
+
       this.#lastShotTime = millis();
       return true; // ready to fire
     }
@@ -213,35 +226,40 @@ class Enemy {
     this.dpSizeX = this.getSize();
     this.dpSizeY = this.getSize();
     
-    this.eyeX = this.x + ((this.#player.x - this.eyeX) / 25.0);
-    this.eyeY = this.y + ((this.#player.y - this.eyeY) / 25.0);
+    if (this.isBeingHit){
+      this.eyeX = this.x;
+      this.eyeY = this.y;
+    } else {
+      this.eyeX = this.x + ((this.#player.x - this.eyeX) / 25.0);
+      this.eyeY = this.y + ((this.#player.y - this.eyeY) / 25.0);
+    }
 
     if (this.isBeingHit && millis() - this.#lastHitTime > 200) {
       this.isBeingHit = false;
     }
 
     // Audio
-    if (this.shootsSFX.isLoaded()){
-      let panValue = map(this.x, 0, width, -1, 1);
-      this.shootsSFX.pan(panValue);
-      this.shootsSFX.setVolume(0.5 * (this.health / this.#initialHealth));
+    // if (this.hitSFX.isLoaded()){
+    //   let panValue = map(this.x, 0, width, -1, 1);
+    //   this.hitSFX.pan(panValue);
+    //   this.hitSFX.setVolume(0.5 * (this.health / this.#initialHealth));
 
-      // TODO different hit sounds
-      if (this.isBeingHit && !this.#hitState){
-        if (!this.shootsSFX.isPlaying()){
-          print("play!");
-          print(this.shootsSFX);
-          this.shootsSFX.play();
-        }
-        this.#hitState = true;
-      } else if (!this.isBeingHit && this.#hitState) {
-        if (this.shootsSFX.isPlaying()){
-          print("stop!");
-          this.shootsSFX.stop();
-        }
-        this.#hitState = false;
-      }
-    }
+    //   // TODO different hit sounds
+    //   if (this.isBeingHit && !this.#hitState){
+    //     if (!this.hitSFX.isPlaying()){
+    //       print("play!");
+    //       print(this.hitSFX);
+    //       this.hitSFX.play();
+    //     }
+    //     this.#hitState = true;
+    //   } else if (!this.isBeingHit && this.#hitState) {
+    //     if (this.hitSFX.isPlaying()){
+    //       print("stop!");
+    //       this.hitSFX.stop();
+    //     }
+    //     this.#hitState = false;
+    //   }
+    // }
 
     if (!this.canMove) return;
 
@@ -373,9 +391,9 @@ class Enemy {
     this.health -= hitpoint;
 
     if (this.health < 2){
-      if (this.shootsSFX.isPlaying()){
-        this.shootsSFX.stop();
-      }
+      // if (this.hitSFX.isPlaying()){
+      //   this.hitSFX.stop();
+      // }
     }
 
     this.knockback(hitX, hitY);
