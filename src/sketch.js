@@ -84,10 +84,24 @@ function handlePlayerBullets(bullet) {
 }
 
 function hitEnemy(bullet, targetEnemy){
-  const sfx = shootSFXs[floor(random(shootSFXs.length))];
+  var sfx;
 
-  // TODO dependent on enemy type
+  // Audio
+  switch (targetEnemy.type){
+    case Game.EnemyTypes.SHOOTER:
+      sfx = enemyHitSFXs[floor(random(enemyHitSFXs.length))];
+      break;
+      // case Game.EnemyTypes.BOUNCER:
+      //   sfx = enemyHitCuteSFXs[floor(random(enemyHitCuteSFXs.length))];
+      //   break;
+      default:
+      sfx = enemyHitNormalSFXs[floor(random(enemyHitNormalSFXs.length))];
+      break;
+  }
+  
+  sfx.stereo(map(targetEnemy.x, 0, width, -1, 1)).play();
   sfx.play();
+  //
 
   let removeBullet = false;
 
@@ -102,7 +116,7 @@ function hitEnemy(bullet, targetEnemy){
   if (targetEnemy.hasDied()) {
     let scoreGained = targetEnemy.points;
     
-    enemyDeadSFX.play();
+    
     // TODO Tame
     animScreenShake(targetEnemy.points*1.5, targetEnemy.points*2.0);
 
@@ -149,6 +163,9 @@ function hitEnemy(bullet, targetEnemy){
 
     Game.removeObject(enemies, targetEnemy);
     score += scoreGained;
+
+    // enemyDeadSFX.rate(2.0 - (enemies.length / waveEnemyCount));
+    enemyDeadSFX.play();
   }
 
   if (targetEnemy.type == Game.EnemyTypes.REFLECTOR) {
@@ -215,6 +232,8 @@ function spawnEnemy(type) {
   enemies.push(newEnemy);
 }
 
+let waveEnemyCount = 1;
+
 function spawnRandomWaveEnemies(onWave = wave) {
   let encounterSet = 0;
 
@@ -240,6 +259,7 @@ function spawnRandomWaveEnemies(onWave = wave) {
   // print(enemySpeed);
   
   let noOfEnemies = enemySpawnsMin + floor(random() * enemySpawnsFactor);
+  waveEnemyCount = noOfEnemies;
 
   for (let i = 0; i < noOfEnemies; i++) {
     let spawnX = GameMath.randomFloat(120.0, width - 120.0);
@@ -319,17 +339,26 @@ let shootsSFX = new Howl({
   volume: 0.5
 });
 
-// let shootLeftSFX = new Howl({
-//   src: ['audio/tank_shoot_05.ogg'],
-//   volume: 0.5
-// });
 
-let shootSFXs = [
-  new Howl({ src: ['audio/legacy/tank_shoot_01.ogg'], volume: 0.5 }),
-  new Howl({ src: ['audio/legacy/tank_shoot_02.ogg'], volume: 0.5 }),
-  new Howl({ src: ['audio/legacy/tank_shoot_03.ogg'], volume: 0.5 }),
-  new Howl({ src: ['audio/legacy/tank_shoot_04.ogg'], volume: 0.5 }),
-  new Howl({ src: ['audio/legacy/tank_shoot_05.ogg'], volume: 0.5 }),
+let enemyHitCuteSFXs = [
+  new Howl({ src: ['audio/select_005.ogg'], volume: 0.5, stereo: 0 }),
+  new Howl({ src: ['audio/select_003.ogg'], volume: 0.5, stereo: 0 }),
+  new Howl({ src: ['audio/select_004.ogg'], volume: 0.5, stereo: 0 }),
+  new Howl({ src: ['audio/select_005.ogg'], volume: 0.5, stereo: 0 }),
+];
+let enemyHitNormalSFXs = [
+  new Howl({ src: ['audio/enemy_hit_2_01.ogg'], volume: 0.5, stereo: 0 }),
+  new Howl({ src: ['audio/enemy_hit_2_02.ogg'], volume: 0.5, stereo: 0 }),
+  new Howl({ src: ['audio/enemy_hit_2_03.ogg'], volume: 0.5, stereo: 0 }),
+  new Howl({ src: ['audio/enemy_hit_2_04.ogg'], volume: 0.5, stereo: 0 }),
+  new Howl({ src: ['audio/enemy_hit_2_05.ogg'], volume: 0.5, stereo: 0 }),
+];
+let enemyHitSFXs = [
+  new Howl({ src: ['audio/enemy_hit_01.ogg'], volume: 0.5, stereo: 0 }),
+  new Howl({ src: ['audio/enemy_hit_02.ogg'], volume: 0.5, stereo: 0 }),
+  new Howl({ src: ['audio/enemy_hit_03.ogg'], volume: 0.5, stereo: 0 }),
+  new Howl({ src: ['audio/enemy_hit_04.ogg'], volume: 0.5, stereo: 0 }),
+  new Howl({ src: ['audio/enemy_hit_05.ogg'], volume: 0.5, stereo: 0 }),
 ];
 
 function preload() {

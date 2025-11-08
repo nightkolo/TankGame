@@ -37,7 +37,6 @@ class Enemy {
     
     // Assets
     this.bounceSFX = new Howl({ src: "audio/enemy_rabbitball_bounce.ogg", volume: 0.5});
-    // this.hitSFX = this.getHitSound();
     this.shootSFXs = [
       new Howl({ src: "audio/enemy_shooter_shoot_01.ogg", volume: 0.5}),
       new Howl({ src: "audio/enemy_shooter_shoot_02.ogg", volume: 0.5}),
@@ -78,14 +77,6 @@ class Enemy {
     
     this.spawned();
   }
-  // getHitSound(){
-  //   // let aud; 
-  //   // TODO Audio
-  //   switch(this.type){
-  //     default:
-  //       return new Howl({ src: "audio/shoot_01.mov", volume: 0.5});
-  //   }
-  // }
   spawned() {
     // TODO of type SPITTER should continue moving
     switch (this.type){
@@ -238,29 +229,6 @@ class Enemy {
       this.isBeingHit = false;
     }
 
-    // Audio
-    // if (this.hitSFX.isLoaded()){
-    //   let panValue = map(this.x, 0, width, -1, 1);
-    //   this.hitSFX.pan(panValue);
-    //   this.hitSFX.setVolume(0.5 * (this.health / this.#initialHealth));
-
-    //   // TODO different hit sounds
-    //   if (this.isBeingHit && !this.#hitState){
-    //     if (!this.hitSFX.isPlaying()){
-    //       print("play!");
-    //       print(this.hitSFX);
-    //       this.hitSFX.play();
-    //     }
-    //     this.#hitState = true;
-    //   } else if (!this.isBeingHit && this.#hitState) {
-    //     if (this.hitSFX.isPlaying()){
-    //       print("stop!");
-    //       this.hitSFX.stop();
-    //     }
-    //     this.#hitState = false;
-    //   }
-    // }
-
     if (!this.canMove) return;
 
     this.bounce();
@@ -387,15 +355,7 @@ class Enemy {
 
     this.animBounce(hitX !== 0 && hitY == 0);
 
-    // Optionally apply damage or knockback:
     this.health -= hitpoint;
-
-    if (this.health < 2){
-      // if (this.hitSFX.isPlaying()){
-      //   this.hitSFX.stop();
-      // }
-    }
-
     this.knockback(hitX, hitY);
   }
   

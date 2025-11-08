@@ -22,14 +22,9 @@ class Tank {
 
     // Assets
     this.img = loadImage('img/tank-eyes-01.svg');
-    // TODO Audio
-    this.hitSFXs = [
-      new Howl({ src: "audio/tank_hit_01.ogg", volume: 0.5})
-      // loadSound("audio/tank_hit_01.ogg")
-    ];
-    this.criticalHealthSFX = new Howl({
-      src: "audio/tank_hearts_critical.ogg", volume: 0.5
-    });
+    // Audio
+    this.hitSFX = new Howl({ src: "audio/tank_hit_01.ogg", volume: 0.5});
+    this.criticalHealthSFX = new Howl({src: "audio/tank_hearts_critical.ogg", volume: 0.5});
 
     this.lives = 5;
     this.newLives = 0;
@@ -67,7 +62,7 @@ class Tank {
 
     print("Ouch!");
 
-    // this.hitSFXs[floor(this.hitSFXs.length * random())].play();
+    this.hitSFX.play();
 
     this.lives--;
 
