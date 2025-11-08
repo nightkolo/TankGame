@@ -1,3 +1,7 @@
+let CSinterval;
+let dazzleInterval;
+let inaccuracyInterval;
+
 class Game {
   static enemyHealthFactor = 20.0;
   static tankBuddyLifetime = 8.0;
@@ -18,7 +22,7 @@ class Game {
     TWO_AXIS_SHOOTING: 0,
     INACCURACY: 1,
     SLOWNESS: 2,
-    TANK_BUDDY: 3 // Removed in sketch.js
+    TANK_BUDDY: 3
   }
 
   static bgCols = [
@@ -29,54 +33,65 @@ class Game {
     [255, 255, 105]
   ]
 
-  static getWaveCol(wave){
+  static getWaveCol(wave){ // experimental
     return floor(wave / 10.0);
   }
 
-  // TODO utilize Maps
-  static itemTimes2 = new Map([
+  static itemTimes = new Map([
     ["Counter-Spike", 0.0],
     ["Inaccuracy", 0.0],
     ["Dazzle", 0.0],
-    ["Tank Buddy", 0.0],
+    ["Tank Buddy", 0], // Activatable
   ]);
 
-  static itemTimes = [
-    0.0, // TWO_AXIS_SHOOTING
-    0.0, // INACCURACY
-    0.0, // SLOWNESS
-    0 // TANK_BUDDY
-  ];
-
-  static setItemTimer(itemType, value){
-    this.itemTimes2.set(this.getItemName(itemType, false), value);
+  static setItemTimer(itemType, value){ // set by Player
+    this.itemTimes.set(this.getItemName(itemType, false), value);
   }
 
-  static startItemTimer(itemType, duration){
+  static startItemTimer(itemType, duration){ // set by Player
     const start = millis();
     const dur = duration * 1000.0;
 
-    const interval = setInterval(() => {
+    switch (itemType){
+      case Game.Items.SLOWNESS:
+        clearInterval(dazzleInterval);
+
+        dazzleInterval = setInterval(() => {
+          Game.intervalTimer(start, dur, Game.Items.SLOWNESS);
+        }, 100);
+        break;
+      case Game.Items.TWO_AXIS_SHOOTING:
+        clearInterval(CSinterval);
+
+        CSinterval = setInterval(() => {
+          Game.intervalTimer(start, dur, Game.Items.TWO_AXIS_SHOOTING);
+        }, 100);
+        break;
+      case Game.Items.INACCURACY:
+        clearInterval(inaccuracyInterval);
+
+        inaccuracyInterval = setInterval(() => {
+          Game.intervalTimer(start, dur, Game.Items.INACCURACY);
+        }, 100);
+        break;
+    }
+  }
+
+  static intervalTimer(start, dur, type){
       const timeElapsed = millis() - start;
       const remaining = Math.max(0, (dur - timeElapsed));
 
       const cooldownTimer = remaining / 1000
       
-      this.itemTimes[itemType] = cooldownTimer;
-      this.itemTimes2.set(this.getItemName(itemType, false), cooldownTimer);
+      this.itemTimes.set(this.getItemName(type, false), cooldownTimer);
 
-      // print(`Item ${Game.getItemName(itemType)} expires in ${cooldownTimer.toFixed(1)}s`);
+      // if (remaining <= 0.0) {
+      //   this.itemTimes.set(this.getItemName(type, false), 0.0);
+      //   clearInterval(dazzleInterval)
+      // };
+    }
 
-      if (remaining <= 0.0) {
-        this.itemTimes[itemType] = 0.0;
-        this.itemTimes2.set(this.getItemName(itemType, false), 0.0);
-        clearInterval(interval)
-      };
-    }, 100);
-    // setInterval(callbackFunction, delayInMilliseconds)
-    // clearInterval(intervalID)
-  }
-  // TODO make unique item timers for each item.
+    // TODO remove codeName param
   static getItemName(value, codeName = false) {
     let name = "";
 

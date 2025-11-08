@@ -237,7 +237,6 @@ function spawnEnemy(type) {
 }
 
 let waveEnemyCount = 1;
-let tankBuddiesOwned = 0;
 
 function spawnRandomWaveEnemies(onWave = wave) {
   let encounterSet = 0;
@@ -307,7 +306,7 @@ function gotoNextWave() {
   bgCol = Game.bgCols[Game.getWaveCol(wave)];
 
   if (random() < 1 / 1) {
-    // spawnItem(Game.Items.TANK_BUDDY);
+    // spawnItem(Game.Items.SLOWNESS);
     spawnItem();
 
   }
@@ -561,22 +560,22 @@ function draw() {
   textSize(25);
   textAlign(CENTER);
 
-  if (p.tankBuddiesOwned > 0){
-    text(`Tank Buddies Owned: ${p.tankBuddiesOwned}`, width / 2.0, 60.0);
-  }
-
-  // Obtain only active times from itemTimes2 Map
-  let activeTimes = Array.from(Game.itemTimes2.entries()).filter(([key, value]) => {
+  // Obtain only active times from itemTimes Map
+  let activeTimes = Array.from(Game.itemTimes.entries()).filter(([key, value]) => {
     return value !== 0.0;
   });
-
-  // print(activeTimes)
 
   for (let i = 0; i < activeTimes.length; i++){
     print(activeTimes[i][0], activeTimes[i][1]);
 
     let itemHeld = activeTimes[i][0];
-    let timeRemaining = activeTimes[i][1].toFixed(2);
+    let timeRemaining;
+
+    if (itemHeld === "Tank Buddy"){
+      timeRemaining = `${activeTimes[i][1]} (Click to Release)`;
+    } else {
+      timeRemaining = activeTimes[i][1].toFixed(2);
+    }
 
     text(`${itemHeld}: ${timeRemaining}`, width / 2.0, height - 30.0 - (35.0 * (i + 1)));
   }
