@@ -198,7 +198,11 @@ function spawnItem(item = -1) {
 
   if (item == -1){
     const types = Object.values(Game.Items);
+
     itemToSpawn = random(types);
+    // if (itemToSpawn === Game.Items.TANK_BUDDY && p.powerups.includes(Game.Items.TANK_BUDDY)){
+    //   return;
+    // }
   } else {
     itemToSpawn = item;
   }
@@ -303,7 +307,9 @@ function gotoNextWave() {
   bgCol = Game.bgCols[Game.getWaveCol(wave)];
 
   if (random() < 1 / 1) {
-    spawnItem(Game.Items.TANK_BUDDY);
+    // spawnItem(Game.Items.TANK_BUDDY);
+    spawnItem();
+
   }
   // let value = Game.EnemyTypes.SPLITTER;
 
@@ -548,7 +554,7 @@ function draw() {
     textStyle(BOLD);
     text("A Demo by Night Kolo", width / 2, 100);
     text("WIP", width / 2, 140);
-    text("Hello there :)", width / 2, 180);
+    // text("Hello there :)", width / 2, 180);
   }
 
   // Item interface
@@ -559,26 +565,18 @@ function draw() {
     text(`Tank Buddies Owned: ${p.tankBuddiesOwned}`, width / 2.0, 60.0);
   }
 
-  // print(p.tankBuddiesOwned);
-
   // Obtain only active times from itemTimes2 Map
   let activeTimes = Array.from(Game.itemTimes2.entries()).filter(([key, value]) => {
-    return value !== 0.0
+    return value !== 0.0;
   });
 
-  print(activeTimes)
+  // print(activeTimes)
 
   for (let i = 0; i < activeTimes.length; i++){
-    // print(activeTimes[i][0], activeTimes[i][1]);
+    print(activeTimes[i][0], activeTimes[i][1]);
 
     let itemHeld = activeTimes[i][0];
     let timeRemaining = activeTimes[i][1].toFixed(2);
-
-    // if (itemHeld === "Tank Buddy" && activeTimes[i][1] === 8.0){
-    //   timeRemaining = "Click to Release!";
-    // } else {
-    //   timeRemaining = activeTimes[i][1].toFixed(2);
-    // }
 
     text(`${itemHeld}: ${timeRemaining}`, width / 2.0, height - 30.0 - (35.0 * (i + 1)));
   }
@@ -616,6 +614,7 @@ function placeTankBuddy(){
   if (p.powerups.includes(Game.Items.TANK_BUDDY)){
     if (p.tankBuddiesOwned >= 1){
       p.tankBuddiesOwned--;
+      Game.setItemTimer(Game.Items.TANK_BUDDY, p.tankBuddiesOwned);
     }
 
     let s = new Sprinker(p.x, p.y, shootingSpdFactor * 2.0);
@@ -623,7 +622,7 @@ function placeTankBuddy(){
 
     Game.removeObject(p.powerups, Game.Items.TANK_BUDDY);
 
-    Game.startItemTimer(Game.Items.TANK_BUDDY, Game.tankBuddyLifetime);
+    // Game.startItemTimer(Game.Items.TANK_BUDDY, Game.tankBuddyLifetime);
 
     // print(p.powerups);
   }

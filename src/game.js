@@ -45,11 +45,11 @@ class Game {
     0.0, // TWO_AXIS_SHOOTING
     0.0, // INACCURACY
     0.0, // SLOWNESS
-    0.0 // TANK_BUDDY
+    0 // TANK_BUDDY
   ];
 
-  static prepareItemTimer(itemType, duration = 8.0){
-    this.itemTimes2.set(this.getItemName(itemType, false), duration);
+  static setItemTimer(itemType, value){
+    this.itemTimes2.set(this.getItemName(itemType, false), value);
   }
 
   static startItemTimer(itemType, duration){
@@ -69,6 +69,7 @@ class Game {
 
       if (remaining <= 0.0) {
         this.itemTimes[itemType] = 0.0;
+        this.itemTimes2.set(this.getItemName(itemType, false), 0.0);
         clearInterval(interval)
       };
     }, 100);

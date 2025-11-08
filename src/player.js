@@ -44,12 +44,16 @@ class Tank {
     
     print(this.powerups);
 
+
     if (item != Game.Items.TANK_BUDDY){
+      Game.startItemTimer(item, itemCooldown);
+
       setTimeout(() => {
       this.loseItem(item);
       }, itemCooldown * 1000.0);
     } else {
       this.tankBuddiesOwned++;
+      Game.setItemTimer(item, this.tankBuddiesOwned);
     }
   }
   loseItem(item) {

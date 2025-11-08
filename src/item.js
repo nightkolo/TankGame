@@ -43,12 +43,6 @@ class Item {
 
     // print(`Item gained: ${Game.getItemName(this.item)}`);
 
-    if (this.itemType != Game.Items.TANK_BUDDY){
-      Game.startItemTimer(this.itemType, this.cooldown);
-    } else {
-      // Game.prepareItemTimer(this.itemType, this.cooldown);
-    }
-
     this.enemies.forEach((e) => {
       e.moveAwayItemCollected(this.x, this.y);
     })
