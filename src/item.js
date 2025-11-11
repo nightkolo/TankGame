@@ -70,7 +70,7 @@ class Item {
   }
   show() {
     switch (this.itemType){
-      case Game.Items.TWO_AXIS_SHOOTING:
+      case Game.Items.COUNTER_SPIKE:
         this.col = [255,0,0];
         break;
       case Game.Items.INACCURACY:
@@ -79,7 +79,7 @@ class Item {
       case Game.Items.TANK_BUDDY:
         this.col = [255,0,255];
         break;
-      case Game.Items.SLOWNESS:
+      case Game.Items.DAZZLE:
         this.col = [255,255,255];
         break;
     }

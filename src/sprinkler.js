@@ -1,4 +1,4 @@
-class Sprinker{ // TankBuddy
+class Sprinker{ // TankBuddy (tank-buddy.js)
   #start
    
   constructor(x, y, shootSpd /*, shootingDir*/){

@@ -10,7 +10,7 @@ class Game {
   static EnemyTypes = { 
     NORMAL: 0, 
     SHOOTER: 1, 
-    BOUNCER: 2,
+    BOUNCER: 2, // RABBITBALL
     REFLECTOR: 3,
     SPLITTER: 4,
     EXPLODER: 5, 
@@ -19,9 +19,9 @@ class Game {
   };
 
   static Items = {
-    TWO_AXIS_SHOOTING: 0,
+    COUNTER_SPIKE: 0,
     INACCURACY: 1,
-    SLOWNESS: 2,
+    DAZZLE: 2,
     TANK_BUDDY: 3
   }
 
@@ -53,26 +53,26 @@ class Game {
     const dur = duration * 1000.0;
 
     switch (itemType){
-      case Game.Items.SLOWNESS:
+      case Game.Items.DAZZLE:
         clearInterval(dazzleInterval);
 
         dazzleInterval = setInterval(() => {
-          Game.intervalTimer(start, dur, Game.Items.SLOWNESS);
-        }, 100);
+          Game.intervalTimer(start, dur, Game.Items.DAZZLE);
+          }, 100);
         break;
-      case Game.Items.TWO_AXIS_SHOOTING:
+      case Game.Items.COUNTER_SPIKE:
         clearInterval(CSinterval);
 
         CSinterval = setInterval(() => {
-          Game.intervalTimer(start, dur, Game.Items.TWO_AXIS_SHOOTING);
-        }, 100);
+          Game.intervalTimer(start, dur, Game.Items.COUNTER_SPIKE);
+          }, 100);
         break;
       case Game.Items.INACCURACY:
         clearInterval(inaccuracyInterval);
 
         inaccuracyInterval = setInterval(() => {
           Game.intervalTimer(start, dur, Game.Items.INACCURACY);
-        }, 100);
+          }, 100);
         break;
     }
   }
@@ -97,14 +97,14 @@ class Game {
 
     if (codeName){
       switch (value){
-        case this.Items.TWO_AXIS_SHOOTING:
-          name = "TWO_AXIS_SHOOTING"
+        case this.Items.COUNTER_SPIKE:
+          name = "COUNTER_SPIKE"
           break;
         case this.Items.INACCURACY:
           name = "INACCURACY"
           break;
-        case this.Items.SLOWNESS:
-          name = "SLOWNESS"
+        case this.Items.DAZZLE:
+          name = "DAZZLE"
           break;
         case this.Items.TANK_BUDDY:
           name = "TANK_BUDDY"
@@ -112,13 +112,13 @@ class Game {
       }
     } else {
       switch (value){
-        case this.Items.TWO_AXIS_SHOOTING:
+        case this.Items.COUNTER_SPIKE:
           name = "Counter-Spike"
           break;
         case this.Items.INACCURACY:
           name = "Inaccuracy"
           break;
-        case this.Items.SLOWNESS:
+        case this.Items.DAZZLE:
           name = "Dazzle"
           break;
         case this.Items.TANK_BUDDY:

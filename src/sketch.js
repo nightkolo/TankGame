@@ -38,13 +38,9 @@ function handleEnemyBullets(bullet) {
 
   bullet.spd = Game.getEnemyBulletsSpeed(slowMode);
 
-  if (
-    GameMath.circleCollision(bullet.x, bullet.y, bullet.size / 2.0, p.x, p.y, p.size / 2.0)
-  ) {
-    if (!p.invincible){
-      p.hit();
-      Game.removeObject(enemyBullets, bullet);
-    }
+  if (!p.invincible && GameMath.circleCollision(bullet.x, bullet.y, bullet.size / 2.0, p.x, p.y, p.size / 2.0)) {
+    p.hit();
+    Game.removeObject(enemyBullets, bullet);
   }
 
   bullet.update();
@@ -56,9 +52,7 @@ function handlePlayerBullets(bullet) {
 
   // Enemy detection
   enemies.forEach((e) => {
-    if (
-      GameMath.circleCollision(e.x, e.y, e.size / 2.0, bullet.x, bullet.y, bullet.size / 2.0)
-    ) {
+    if (GameMath.circleCollision(e.x, e.y, e.size / 2.0, bullet.x, bullet.y, bullet.size / 2.0)) {
       removeBullet = hitEnemy(bullet, e);
     }
   });
@@ -94,7 +88,7 @@ function hitEnemy(bullet, targetEnemy){
       // case Game.EnemyTypes.BOUNCER:
       //   sfx = enemyHitCuteSFXs[floor(random(enemyHitCuteSFXs.length))];
       //   break;
-      default:
+    default:
       sfx = enemyHitNormalSFXs[floor(random(enemyHitNormalSFXs.length))];
       break;
   }
@@ -116,8 +110,6 @@ function hitEnemy(bullet, targetEnemy){
   if (targetEnemy.hasDied()) {
     let scoreGained = targetEnemy.points;
     
-    
-    // TODO Tame
     animScreenShake(targetEnemy.points*1.5, targetEnemy.points*2.0);
 
     switch (targetEnemy.type) {
@@ -200,9 +192,6 @@ function spawnItem(item = -1) {
     const types = Object.values(Game.Items);
 
     itemToSpawn = random(types);
-    // if (itemToSpawn === Game.Items.TANK_BUDDY && p.powerups.includes(Game.Items.TANK_BUDDY)){
-    //   return;
-    // }
   } else {
     itemToSpawn = item;
   }
@@ -306,7 +295,7 @@ function gotoNextWave() {
   bgCol = Game.bgCols[Game.getWaveCol(wave)];
 
   if (random() < 1 / 1) {
-    // spawnItem(Game.Items.SLOWNESS);
+    // spawnItem(Game.Items.DAZZLE);
     spawnItem();
 
   }
@@ -320,6 +309,7 @@ function gotoNextWave() {
 // Img
 let bgIMG;
 // SFX (Howler.js)
+// TODO move to audio.js
 let nextwaveSFX = new Howl({
   src: ['audio/new_wave_02.ogg'],
   volume: 0.5
@@ -458,7 +448,7 @@ function draw() {
       playerBullets.push(
         new Bullet(p.x, p.y, curBulletDir.x + extraX, curBulletDir.y + extraY, size)
       );
-      if (p.powerups.includes(Game.Items.TWO_AXIS_SHOOTING)) {
+      if (p.powerups.includes(Game.Items.COUNTER_SPIKE)) {
         // TODO make other axis bullets a different fill
         playerBullets.push(
           new Bullet(p.x, p.y, -curBulletDir.x + extraX, -curBulletDir.y + extraY, size)
@@ -566,7 +556,7 @@ function draw() {
   });
 
   for (let i = 0; i < activeTimes.length; i++){
-    print(activeTimes[i][0], activeTimes[i][1]);
+    // print(activeTimes[i][0], activeTimes[i][1]);
 
     let itemHeld = activeTimes[i][0];
     let timeRemaining;
@@ -595,7 +585,7 @@ function draw() {
     p.curBulletDir = curBulletDir;
 
     noShoot = p.insideAnEnemy(false);
-    slowMode = p.powerups.includes(Game.Items.SLOWNESS);
+    slowMode = p.powerups.includes(Game.Items.DAZZLE);
 
     if (p.insideAnEnemy()) {
       // TODO add better feedback for player getting hit

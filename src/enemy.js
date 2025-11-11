@@ -277,7 +277,6 @@ class Enemy {
           break;
 
         case Game.EnemyTypes.EXPLODER:
-          // TODO
           break;
 
         case Game.EnemyTypes.BOUNCER:
