@@ -5,8 +5,8 @@ let p;
 let e1;
 let playerBullets = []; // playerBullets
 let enemyBullets = []; // enemyBullets
-let sprinklerBullets = [];
-let sprinklers = [];
+let buddyBullets = [];
+let tankBuddies = [];
 let enemies = [];
 let items = [];
 let isShooting = false;
@@ -27,6 +27,8 @@ let curBulletDir = {
   x: 0,
   y: -1,
 };
+
+let bgCol = Game.bgCols[0];
 
 let lastSpawnTime = 0.0;
 let shootingSpdFactor = 0.045;
@@ -85,9 +87,9 @@ function hitEnemy(bullet, targetEnemy){
     case Game.EnemyTypes.SHOOTER:
       sfx = enemyHitSFXs[floor(random(enemyHitSFXs.length))];
       break;
-      // case Game.EnemyTypes.BOUNCER:
-      //   sfx = enemyHitCuteSFXs[floor(random(enemyHitCuteSFXs.length))];
-      //   break;
+    // case Game.EnemyTypes.BOUNCER:
+    //   sfx = enemyHitCuteSFXs[floor(random(enemyHitCuteSFXs.length))];
+    //   break;
     default:
       sfx = enemyHitNormalSFXs[floor(random(enemyHitNormalSFXs.length))];
       break;
@@ -169,20 +171,20 @@ function hitEnemy(bullet, targetEnemy){
   return removeBullet;
 }
 
-function handleSprinklers(sprnk){
-    if (sprnk.spawnBullets()) {
+function handleTankBuddies(buddy){
+    if (buddy.spawnBullets()) {
       let spd = 10.0;
 
-      sprinklerBullets.push(new Bullet(sprnk.x, sprnk.y, 0, -1, spd));
-      sprinklerBullets.push(new Bullet(sprnk.x, sprnk.y, 0, 1, spd));
-      sprinklerBullets.push(new Bullet(sprnk.x, sprnk.y, -1, 0, spd));
-      sprinklerBullets.push(new Bullet(sprnk.x, sprnk.y, 1, 0, spd));
+      buddyBullets.push(new Bullet(buddy.x, buddy.y, 0, -1, spd));
+      buddyBullets.push(new Bullet(buddy.x, buddy.y, 0, 1, spd));
+      buddyBullets.push(new Bullet(buddy.x, buddy.y, -1, 0, spd));
+      buddyBullets.push(new Bullet(buddy.x, buddy.y, 1, 0, spd));
     }
 
-    sprnk.update();
-    sprnk.show();
+    buddy.update();
+    buddy.show();
 
-    return sprnk.alive;
+    return buddy.alive;
 }
 
 function spawnItem(item = -1) {
@@ -313,10 +315,6 @@ function preload() {
   bgIMG = loadImage("img/bg-main-03.png");
 }
 
-let screenShake = false;
-let shakeDuration = 0;
-let shakeIntensity = 10;
-
 function setup() {
   createCanvas(canSize.x, canSize.y);
 
@@ -337,17 +335,6 @@ function setup() {
   enemies.push(e1);
 }
 
-let animatingBounce = false;
-let tBounce = 1.0;
-let bgCol = Game.bgCols[0];
-
-function animText(){
-    if (tBounce < 0.5) return;
-
-    tBounce = 0;
-    animatingBounce = true;
-  }
-
 function draw() {
   background(bgCol[0], bgCol[1], bgCol[2]);
 
@@ -367,7 +354,6 @@ function draw() {
   translate(width / 2, height / 2);
   rotate(millis() * (1 / 18000));
   imageMode(CENTER);
-  bgCol[0]
 
   tint(bgCol[0], bgCol[1], bgCol[2]);
   image(bgIMG, 0, 0);
@@ -379,7 +365,7 @@ function draw() {
   rectMode(CENTER);
 
   // Enemies defeated
-  if (enemies.length == 0 && !gameOver/* && !enemiesDefeated*/) {
+  if (enemies.length == 0 && !gameOver) {
     gotoNextWave();
   }
 
@@ -411,11 +397,11 @@ function draw() {
     }
   }
   
-  // Handle Sprinklers
-  sprinklers = sprinklers.filter(handleSprinklers);
+  // Handle tankBuddies
+  tankBuddies = tankBuddies.filter(handleTankBuddies);
 
-  // Handle sprinklerBullets
-  sprinklerBullets = sprinklerBullets.filter((b) => {
+  // Handle buddyBullets
+  buddyBullets = buddyBullets.filter((b) => {
     let removeBullet = false;
 
     enemies.forEach((e) => {
@@ -453,7 +439,7 @@ function draw() {
   stroke(0);
   strokeWeight(5);
 
-    // Handle Items
+  // Handle Items
   fill(GRAY);
   items = items.filter((i) => {
     i.enemies = enemies;
@@ -475,16 +461,16 @@ function draw() {
   textSize(50);
   strokeWeight(8);
   if (animatingBounce) {
-      tBounce += 0.012;
-      let eased = Anim.elasticEaseOut(constrain(tBounce, 0, 1));
-      let x = lerp(1.5, 1, eased);
-      let y = lerp(0.5, 1, eased);
+    tBounce += 0.012;
+    let eased = Anim.elasticEaseOut(constrain(tBounce, 0, 1));
+    let x = lerp(1.5, 1, eased);
+    let y = lerp(0.5, 1, eased);
 
-      scale([x, y]);
-      if (tBounce >= 1) animatingBounce = false;
-    } else {
-      scale([1, 1]);
-    }
+    scale([x, y]);
+    if (tBounce >= 1) animatingBounce = false;
+  } else {
+    scale([1, 1]);
+  }
   
   text(`Wave ${wave}`, 0, 0);
   
@@ -496,7 +482,6 @@ function draw() {
     textStyle(BOLD);
     text("A Demo by Night Kolo", width / 2, 100);
     text("WIP", width / 2, 140);
-    // text("Hello there :)", width / 2, 180);
   }
 
   // Item interface
@@ -559,8 +544,8 @@ function placeTankBuddy(){
       Game.setItemTimer(Game.Items.TANK_BUDDY, p.tankBuddiesOwned);
     }
 
-    let s = new Sprinker(p.x, p.y, shootingSpdFactor * 2.0);
-    sprinklers.push(s);
+    let s = new TankBuddy(p.x, p.y, shootingSpdFactor * 2.0);
+    tankBuddies.push(s);
 
     Game.removeObject(p.powerups, Game.Items.TANK_BUDDY);
 
@@ -576,14 +561,27 @@ function mousePressed() {
   isShooting = true;
 }
 
+let screenShake = false;
+let shakeDuration = 0;
+let shakeIntensity = 10;
+
 function animScreenShake(shake = 10.0, dur = 5.0){
   screenShake = true;
   shakeDuration = shake; // Shake for 30 frames
   shakeIntensity = dur; // Reset intensity
 }
 
+let animatingBounce = false;
+let tBounce = 1.0;
+
+function animText(){
+  if (tBounce < 0.5) return;
+
+  tBounce = 0;
+  animatingBounce = true;
+}
+
 function keyPressed(event) {
-  print(typeof(shootChangeSFX));
   if (event.key === "ArrowUp" || event.key.toLowerCase() == "w") {
     curBulletDir.x = 0; curBulletDir.y = -1;
     shootChangeSFX.play();
