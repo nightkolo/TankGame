@@ -9,14 +9,17 @@ let buddyBullets = [];
 let tankBuddies = [];
 let enemies = [];
 let items = [];
-let isShooting = false;
 
 // Game Loop
-let wave = 0;
+let wave = 67; // Why
 let score = 0;
 let gameOver = false;
+let gameStarted = false;
 let currentEnemyTypes = [Game.EnemyTypes.NORMAL];
 const enemySetEncounters = [0, 5, 13];
+let lastSpawnTime = 0.0;
+let shootingSpdFactor = 0.045;
+let isShooting = false;
 
 // Items
 let slowMode = false;
@@ -30,8 +33,6 @@ let curBulletDir = {
 
 let bgCol = Game.bgCols[0];
 
-let lastSpawnTime = 0.0;
-let shootingSpdFactor = 0.045;
 
 function handleEnemyBullets(bullet) {
   if (!bullet.alive) {
@@ -307,6 +308,41 @@ function gotoNextWave() {
   spawnRandomWaveEnemies();
 }
 
+function newGame(){
+  enemyBullets = [];
+  buddyBullets = [];
+  playerBullets = [];
+  tankBuddies = [];
+  enemies = [];
+  items = [];
+
+  gameStarted = true;
+  gameOver = false;
+  isShooting = false;
+  currentEnemyTypes = [Game.EnemyTypes.NORMAL];
+  lastSpawnTime = 0.0;
+  shootingSpdFactor = 0.045;
+
+  Game.resetGame();
+
+  wave = 0;
+
+  animText();
+  bgCol = Game.bgCols[Game.getWaveCol(wave)];
+
+  p = new Tank();
+
+  e1 = new Enemy({
+    x: width / 2,
+    y: height / 2,
+    health: 10,
+    player: p,
+    type: Game.EnemyTypes.NORMAL,
+    followPlayer: false,
+    bulletDir: curBulletDir,
+  });
+  enemies.push(e1);
+}
 
 // Img
 let bgIMG;
@@ -321,18 +357,7 @@ function setup() {
   textFont("Nunito");
   textStyle(BOLD);
 
-  p = new Tank();
-
-  e1 = new Enemy({
-    x: width / 2,
-    y: height / 2,
-    health: 10,
-    player: p,
-    type: Game.EnemyTypes.NORMAL,
-    followPlayer: false,
-    bulletDir: curBulletDir,
-  });
-  enemies.push(e1);
+  newGame();
 }
 
 function draw() {
@@ -365,7 +390,7 @@ function draw() {
   rectMode(CENTER);
 
   // Enemies defeated
-  if (enemies.length == 0 && !gameOver) {
+  if (enemies.length == 0 && !gameOver && gameStarted) {
     gotoNextWave();
   }
 
@@ -480,13 +505,23 @@ function draw() {
     strokeWeight(3);
     textSize(30);
     textStyle(BOLD);
-    text("A Demo by Night Kolo", width / 2, 100);
-    text("WIP", width / 2, 140);
+
+    text("A Game by Night Kolo", width / 2, 100);
+    text("Made in p5.js", width / 2, 140);
+    // text("WIP", width / 2, 140);
+    strokeWeight(7.5);
+    stroke(50);
+    text("Defeat the Enemies", (width / 4) * 3.0, height / 2.0);
+    text("WASD\nto change\nProjectiles", (width / 4), (height / 2.0) + 50.0);
+    text("Click to Fire", (width / 4), (height / 2.0) - 50.0);
+
   }
 
   // Item interface
   textSize(25);
   textAlign(CENTER);
+  strokeWeight(5);
+  stroke(50);
 
   // Obtain only active times from itemTimes Map
   let activeTimes = Array.from(Game.itemTimes.entries()).filter(([key, value]) => {
@@ -534,6 +569,7 @@ function draw() {
     p.show();
   } else {
     gameOver = true;
+    gameStarted = false;
   }
 }
 
@@ -556,9 +592,15 @@ function placeTankBuddy(){
 }
 
 function mousePressed() {
-  placeTankBuddy();
+  if (!p.alive){
+    newGame();
+  } else {
+    placeTankBuddy();
+  }
 
-  isShooting = true;
+  if (gameStarted){
+    isShooting = true;
+  }
 }
 
 let screenShake = false;

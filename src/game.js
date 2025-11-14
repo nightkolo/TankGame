@@ -7,6 +7,19 @@ class Game {
   static tankBuddyLifetime = 8.0;
   static defaultEnemySpeed = 1.35;
 
+  static resetGame(){
+    clearInterval(inaccuracyInterval);
+    clearInterval(dazzleInterval);
+    clearInterval(CSinterval);
+
+    this.itemTimes.set("Counter-Spike", 0.0);
+    this.itemTimes.set("Inaccuracy", 0.0);
+
+    this.itemTimes.set("Dazzle", 0.0);
+
+    this.itemTimes.set("Tank Buddy", 0);
+  }
+
   static EnemyTypes = { 
     NORMAL: 0, 
     SHOOTER: 1, 
