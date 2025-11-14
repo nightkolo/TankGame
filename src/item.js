@@ -92,7 +92,7 @@ class Item {
 
     fill(255);
 
-    if (!this.opened ){
+    if (!this.opened){
       text(`${this.hitsToOpen}`, this.x, this.y);
     } else {
       text("! ! !", this.x, this.y);

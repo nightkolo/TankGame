@@ -38,12 +38,9 @@ class Tank {
     this.newLives += lives;
   }
   gainItem(item, itemCooldown = 8.0) { // Game.Items, float
-    // print("Item added!");
-
     this.powerups.push(item);
     
     print(this.powerups);
-
 
     if (item != Game.Items.TANK_BUDDY){
       Game.startItemTimer(item, itemCooldown);
@@ -57,12 +54,8 @@ class Tank {
     }
   }
   loseItem(item) {
-    // print("Item removed!");
-    
     Game.removeObject(this.powerups, item);
     print(this.powerups);
-    // print(this.items);
-
   }
   hit() {
     if (this.invincible || !this.alive) return;
