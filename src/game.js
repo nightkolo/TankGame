@@ -1,6 +1,7 @@
 let CSinterval;
 let dazzleInterval;
 let inaccuracyInterval;
+let bestWave = 0;
 
 class Game {
   static enemyHealthFactor = 20.0;
@@ -16,14 +17,14 @@ class Game {
     ["Counter-Spike", 0.0],
     ["Inaccuracy", 0.0],
     ["Dazzle", 0.0],
-    ["Tank Buddy", 0], // Activatable
+    ["Tank Buddy", 0] // Activatable
   ]);
 
     this.itemStats = new Map([
       ["Counter-Spike", 0],
       ["Inaccuracy", 0],
       ["Dazzle", 0],
-      ["Tank Buddy", 0], // Activatable
+      ["Tank Buddy", 0]
     ]);
   }
 

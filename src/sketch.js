@@ -113,7 +113,8 @@ function hitEnemy(bullet, targetEnemy){
 
   if (targetEnemy.hasDied()) {
     let scoreGained = targetEnemy.points;
-    
+    Game.enemiesDefeated++;
+
     animScreenShake(targetEnemy.points*1.5, targetEnemy.points*2.0);
 
     switch (targetEnemy.type) {
@@ -296,6 +297,10 @@ function gotoNextWave() {
   print(wave);
   animText();
 
+  if (wave > Game.bestWave){
+    Game.bestWave = wave;
+  }
+
   bgCol = Game.bgCols[Game.getWaveCol(wave)];
 
   if (random() < 1 / 1) {
@@ -316,10 +321,12 @@ function gameEnd(){
   gameOver = true;
   gameStarted = false;
 
-  print(wave);  
-  print(score);
-  print(Game.enemiesDefeated);
-  print(Game.itemStats);
+  print("Game over!")
+  print("== Stats ==");
+  print(`Wave reached: ${wave}`);  
+  print(`Score: ${score}`);
+  print(`Enemies defeated: ${Game.enemiesDefeated}`);
+  print(`Items collected: ${Game.itemStats}`);
 }
 
 function newGame(){
@@ -329,7 +336,6 @@ function newGame(){
   tankBuddies = [];
   enemies = [];
   items = [];
-
  
   gameStarted = true;
   gameOver = false;
