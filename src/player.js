@@ -1,11 +1,3 @@
-// let img;
-
-// import { Howl } from "./libraries/howler.core";
-
-// function preload(){
-//   img = loadImage('img/tank-01.png');
-// }
-
 class Tank {
   constructor() {
     this.x = 0.0;

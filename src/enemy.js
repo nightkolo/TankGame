@@ -78,7 +78,6 @@ class Enemy {
     this.spawned();
   }
   spawned() {
-    // TODO of type SPITTER should continue moving
     switch (this.type){
       case Game.EnemyTypes.BOUNCER:
         this.y /= 2.0;
@@ -115,7 +114,7 @@ class Enemy {
     this.accel += 9.8;
     this.y += this.accel * fallFactor;
 
-    if (this.y > height - this.size / 2) {
+    if (this.y > height - (this.size / 2.0)) {
       this.bounceSFX.play();
       animScreenShake();
 
@@ -323,7 +322,7 @@ class Enemy {
       ellipse(this.x, this.y, this.dpSizeX, this.dpSizeY);
     }
 
-    // TODO mask
+    // TODO mask somehow
     if (this.imgEyes != undefined && this.imgHitEyes != undefined){
       let size = imgSize + this.health * 2.0;
 

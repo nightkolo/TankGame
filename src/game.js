@@ -3,29 +3,33 @@ let dazzleInterval;
 let inaccuracyInterval;
 let bestWave = 0;
 
+// const itemNames = {};
+
 class Game {
   static enemyHealthFactor = 20.0;
   static tankBuddyLifetime = 8.0;
   static defaultEnemySpeed = 1.35;
+  static bombDropped = false;
 
-  static resetGame(){
+  static setGame(){
     clearInterval(inaccuracyInterval);
     clearInterval(dazzleInterval);
     clearInterval(CSinterval);
 
     this.itemTimes = new Map([
-    ["Counter-Spike", 0.0],
-    ["Inaccuracy", 0.0],
-    ["Dazzle", 0.0],
-    ["Tank Buddy", 0] // Activatable
-  ]);
+      ["Counter-Spike", 0.0],
+      ["Inaccuracy", 0.0],
+      ["Dazzle", 0.0],
+      ["Tank Buddy", 0] // Activatable
+    ]);
 
     this.itemStats = new Map([
       ["Counter-Spike", 0],
       ["Inaccuracy", 0],
       ["Dazzle", 0],
-      ["Tank Buddy", 0]
-    ]);
+      ["Tank Buddy", 0],
+      ["Bomb", 0] // Instant
+    ])
   }
 
   static EnemyTypes = { 
@@ -40,11 +44,12 @@ class Game {
   };
 
   static Items = {
-    COUNTER_SPIKE: 0,
-    INACCURACY: 1,
-    DAZZLE: 2,
-    TANK_BUDDY: 3
-  }
+    COUNTER_SPIKE: { id: 0, name: "Counter-Spike" },
+    INACCURACY: { id: 1, name: "Inaccuracy" },
+    DAZZLE: { id: 2, name: "Dazzle" },
+    TANK_BUDDY: { id: 3, name: "Tank Buddy" },
+    BOMB: { id: 4, name: "Bomb" }
+  };
 
   static bgCols = [
     [255, 255, 155],
@@ -59,30 +64,22 @@ class Game {
   }
 
   static enemiesDefeated = 0;
-  static itemStats = new Map([
-    ["Counter-Spike", 0],
-    ["Inaccuracy", 0],
-    ["Dazzle", 0],
-    ["Tank Buddy", 0], // Activatable
-  ]);
+  static itemStats;
 
   static itemCollected(item){
-    let name = this.getItemName(item);
+    let name = item.name;
 
     this.itemStats.set(name, this.itemStats.get(name) + 1);
 
     print(this.itemStats);
   }
 
-  static itemTimes = new Map([
-    ["Counter-Spike", 0.0],
-    ["Inaccuracy", 0.0],
-    ["Dazzle", 0.0],
-    ["Tank Buddy", 0], // Activatable
-  ]);
+  static itemTimes;
 
   static setItemTimer(itemType, value){ // set by Player
-    this.itemTimes.set(this.getItemName(itemType, false), value);
+    if (itemType == this.Items.BOMB) return;
+
+    this.itemTimes.set(itemType.name, value);
   }
 
   static startItemTimer(itemType, duration){ // set by Player
@@ -120,7 +117,7 @@ class Game {
 
       const cooldownTimer = remaining / 1000
       
-      this.itemTimes.set(this.getItemName(type, false), cooldownTimer);
+      this.itemTimes.set(type.name, cooldownTimer);
 
       // if (remaining <= 0.0) {
       //   this.itemTimes.set(this.getItemName(type, false), 0.0);
@@ -128,44 +125,6 @@ class Game {
       // };
     }
 
-    // TODO remove codeName param
-  static getItemName(value, codeName = false) {
-    let name = "";
-
-    if (codeName){
-      switch (value){
-        case this.Items.COUNTER_SPIKE:
-          name = "COUNTER_SPIKE"
-          break;
-        case this.Items.INACCURACY:
-          name = "INACCURACY"
-          break;
-        case this.Items.DAZZLE:
-          name = "DAZZLE"
-          break;
-        case this.Items.TANK_BUDDY:
-          name = "TANK_BUDDY"
-          break;
-      }
-    } else {
-      switch (value){
-        case this.Items.COUNTER_SPIKE:
-          name = "Counter-Spike"
-          break;
-        case this.Items.INACCURACY:
-          name = "Inaccuracy"
-          break;
-        case this.Items.DAZZLE:
-          name = "Dazzle"
-          break;
-        case this.Items.TANK_BUDDY:
-          name = "Tank Buddy"
-          break;
-      }
-    }
-    
-    return name;
-  }
   static getEnemyBulletsSpeed(isSlow = false){
     if (isSlow){
       return 2.6 / 4.0;

@@ -1,16 +1,11 @@
 class Bullet {
-  constructor(px, py, dirX = 0, dirY = -1, spd = 10.0, size = 25.0){
+  constructor(px, py, dirX = 0, dirY = -1, spd = 10.0, size = 25.0, col = [255,255,255]){
     this.dirX = dirX;
     this.dirY = dirY;
     this.x = px;
     this.y = py;
     this.spd = spd;
-
-   // Assets
-    // this.img_p_up = loadImage("img/bullet-up-player.svg");
-    // this.img_p_right = loadImage("img/bullet-right-player.svg");
-    // this.img_p_left = loadImage("img/bullet-left-player.svg");
-    // this.img_p_down = loadImage("img/bullet-down-player.svg");
+    this.col = col;
 
     this.size = size;
     this.lifetime = 4.0;
@@ -35,27 +30,7 @@ class Bullet {
     this.y += this.dirY * this.spd;
   }
   show(){
-    fill(255, 255, 255);
+    fill(this.col[0], this.col[1], this.col[2]);
     circle(this.x, this.y, this.size);
-
-    // Images cause intense lag
-  //   imageMode(CENTER);
-  //    if (this.dirX > 0){
-  //     image(this.img_p_right, this.x + 33.0, this.y);
-
-  //   } else if (this.dirX < 0){
-  //     image(this.img_p_left, this.x - 33.0, this.y);
-
-  //   } else if (this.dirY > 0){
-  //     image(this.img_p_down, this.x, this.y + 33.0);
-      
-  //   } else if (this.dirY < 0){
-  //     image(this.img_p_up, this.x, this.y - 33.0); 
-  //   }
-  }
-
-  // TODO remove when bullet is offscreen
-  offScreen(){
-    return (this.x > canSize.x || this.x < 0.0 || this.y > canSize.y || this.y < 0.0);
   }
 }

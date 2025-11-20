@@ -39,7 +39,10 @@ class Item {
 
     this.collected = true;
     this.player.gainLives();
-    this.player.gainItem(this.itemType, this.cooldown);
+
+    if (this.itemType != Game.Items.BOMB){
+      this.player.gainItem(this.itemType, this.cooldown);
+    }
 
     Game.itemCollected(this.itemType);
 
@@ -84,6 +87,9 @@ class Item {
       case Game.Items.DAZZLE:
         this.col = [255,255,255];
         break;
+      case Game.Items.BOMB:
+        this.col = [0,0,0];
+        break;
     }
 
     fill(this.col[0], this.col[1], this.col[2])
@@ -107,5 +113,27 @@ class Item {
       }, this.cooldown * 1000.0);
       this.#openState = true;
     }
+  }
+}
+class Bomb {
+  constructor(x, y){
+    this.x = x;
+    this.y = y;
+    this.hitRadius = 50.0;
+    this.hasExploded = false;
+    this.enemies = [];
+  }
+  explode(){
+    // TODO get enemies array, circle collision
+
+    circle(this.x, this.y, this.hitRadius * 2.0);
+
+    this.enemies.forEach((e) => {
+      if (GameMath.circleCollision(this.x, this.y, this.hitRadius, e.x, e.y, e.size)){
+        e.hit(0, 0, 5);
+      }
+    })
+    this.hasExploded = true;
+
   }
 }
