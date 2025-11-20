@@ -60,6 +60,7 @@ function handlePlayerBullets(bullet) {
     }
   });
 
+
   items.forEach((item) => {
     if (!item.opened && GameMath.circleCollision(
         item.x,
@@ -308,6 +309,19 @@ function gotoNextWave() {
   spawnRandomWaveEnemies();
 }
 
+
+// let itemStats = 0;
+
+function gameEnd(){
+  gameOver = true;
+  gameStarted = false;
+
+  print(wave);  
+  print(score);
+  print(Game.enemiesDefeated);
+  print(Game.itemStats);
+}
+
 function newGame(){
   enemyBullets = [];
   buddyBullets = [];
@@ -316,6 +330,7 @@ function newGame(){
   enemies = [];
   items = [];
 
+ 
   gameStarted = true;
   gameOver = false;
   isShooting = false;
@@ -567,9 +582,8 @@ function draw() {
 
     p.update();
     p.show();
-  } else {
-    gameOver = true;
-    gameStarted = false;
+  } else if (gameOver == false) {
+    gameEnd();
   }
 }
 

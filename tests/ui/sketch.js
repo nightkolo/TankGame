@@ -1,6 +1,9 @@
 // import { Font } from "../../../../../../.vscode/extensions/samplavigne.p5-vscode-1.2.16/p5types";
 
+
+
 // It kinda sucks when you don't have that creative energy :/
+
 
 let gui;
 let f;

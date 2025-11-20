@@ -12,12 +12,19 @@ class Game {
     clearInterval(dazzleInterval);
     clearInterval(CSinterval);
 
-    this.itemTimes.set("Counter-Spike", 0.0);
-    this.itemTimes.set("Inaccuracy", 0.0);
+    this.itemTimes = new Map([
+    ["Counter-Spike", 0.0],
+    ["Inaccuracy", 0.0],
+    ["Dazzle", 0.0],
+    ["Tank Buddy", 0], // Activatable
+  ]);
 
-    this.itemTimes.set("Dazzle", 0.0);
-
-    this.itemTimes.set("Tank Buddy", 0);
+    this.itemStats = new Map([
+      ["Counter-Spike", 0],
+      ["Inaccuracy", 0],
+      ["Dazzle", 0],
+      ["Tank Buddy", 0], // Activatable
+    ]);
   }
 
   static EnemyTypes = { 
@@ -48,6 +55,22 @@ class Game {
 
   static getWaveCol(wave){ // experimental
     return floor(wave / 10.0);
+  }
+
+  static enemiesDefeated = 0;
+  static itemStats = new Map([
+    ["Counter-Spike", 0],
+    ["Inaccuracy", 0],
+    ["Dazzle", 0],
+    ["Tank Buddy", 0], // Activatable
+  ]);
+
+  static itemCollected(item){
+    let name = this.getItemName(item);
+
+    this.itemStats.set(name, this.itemStats.get(name) + 1);
+
+    print(this.itemStats);
   }
 
   static itemTimes = new Map([

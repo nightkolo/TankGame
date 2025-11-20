@@ -41,6 +41,8 @@ class Item {
     this.player.gainLives();
     this.player.gainItem(this.itemType, this.cooldown);
 
+    Game.itemCollected(this.itemType);
+
     // print(`Item gained: ${Game.getItemName(this.item)}`);
 
     this.enemies.forEach((e) => {
