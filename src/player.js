@@ -19,7 +19,7 @@ class Tank {
     this.hitSFX = new Howl({ src: "audio/tank_hit_01.ogg", volume: 0.5});
     this.criticalHealthSFX = new Howl({src: "audio/tank_hearts_critical.ogg", volume: 0.5});
 
-    this.lives = 1;
+    this.lives = 5;
     this.newLives = 0;
     this.alive = true;
     this.invincible = false;
@@ -34,15 +34,19 @@ class Tank {
     
     print(this.powerups);
 
-    if (item != Game.Items.TANK_BUDDY){
+    if (item.type == Game.ItemType.DEFAULT){
       Game.startItemTimer(item, itemCooldown);
 
       setTimeout(() => {
       this.loseItem(item);
       }, itemCooldown * 1000.0);
     } else {
-      this.tankBuddiesOwned++;
-      Game.setItemTimer(item, this.tankBuddiesOwned);
+
+      if (item == Game.Items.TANK_BUDDY){
+        this.tankBuddiesOwned++;
+        Game.setItemTimer(item, this.tankBuddiesOwned);
+      }
+
     }
   }
   loseItem(item) {

@@ -115,7 +115,7 @@ class Enemy {
     this.y += this.accel * fallFactor;
 
     if (this.y > height - (this.size / 2.0)) {
-      this.bounceSFX.play();
+      // this.bounceSFX.play();
       animScreenShake();
 
       // TODO issue, make a fixed calculated value

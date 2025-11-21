@@ -111,60 +111,8 @@ function hitEnemy(bullet, targetEnemy){
 
   targetEnemy.animBounce();
 
-  if (targetEnemy.hasDied()) {
-    let scoreGained = targetEnemy.points;
-    Game.enemiesDefeated++;
-
-    animScreenShake(targetEnemy.points*1.5, targetEnemy.points*2.0);
-
-    switch (targetEnemy.type) {
-      case Game.EnemyTypes.EXPLODER:
-        let spd = Game.getEnemyBulletsSpeed(slowMode);
-        let size = 75.0;
-
-        enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 0, -1, spd, size));
-        enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 0, 1, spd, size));
-        enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, -1, 0, spd, size));
-        enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 1, 0, spd, size));
-        enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, -1, -1, spd, size));
-        enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 1, 1, spd, size));
-        enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, -1, 1, spd, size));
-        enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 1, -1, spd, size));
-        break;
-
-      case Game.EnemyTypes.SPLITTER:
-        let lastX = targetEnemy.x;
-        let lastY = targetEnemy.y;
-        let h = ceil(targetEnemy.getInitialHealth() / 3.0);
-
-        let enemy1 = new Enemy({
-          x: lastX + (100 * -bullet.dirY),
-          y: lastY + (100 * bullet.dirX),
-          health: h,
-          type: Game.EnemyTypes.SPLITTED,
-          player: p,
-        });
-        let enemy2 = new Enemy({
-          x: lastX - (100 * -bullet.dirY),
-          y: lastY - (100 * bullet.dirX),
-          health: h,
-          type: Game.EnemyTypes.SPLITTED,
-          player: p,
-        });
-
-        enemies.push(enemy1);
-        enemies.push(enemy2);
-
-        break;
-    }
-
-    Game.removeObject(enemies, targetEnemy);
-    score += scoreGained;
-
-    // enemyDeadSFX.rate(2.0 - (enemies.length / waveEnemyCount));
-    enemyDeadSFX.play();
-  }
-
+  enemyDied(targetEnemy, bullet);
+  
   if (targetEnemy.type == Game.EnemyTypes.REFLECTOR) {
     bullet.reflect();
   } else {
@@ -172,6 +120,62 @@ function hitEnemy(bullet, targetEnemy){
   }
 
   return removeBullet;
+}
+
+function enemyDied(targetEnemy, bullet){
+  if (targetEnemy.hasDied() == false) return;
+
+  let scoreGained = targetEnemy.points;
+  Game.enemiesDefeated++;
+
+  animScreenShake(targetEnemy.points*1.5, targetEnemy.points*2.0);
+
+  switch (targetEnemy.type) {
+    case Game.EnemyTypes.EXPLODER:
+      let spd = Game.getEnemyBulletsSpeed(slowMode);
+      let size = 75.0;
+
+      enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 0, -1, spd, size));
+      enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 0, 1, spd, size));
+      enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, -1, 0, spd, size));
+      enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 1, 0, spd, size));
+      enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, -1, -1, spd, size));
+      enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 1, 1, spd, size));
+      enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, -1, 1, spd, size));
+      enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 1, -1, spd, size));
+      break;
+
+    case Game.EnemyTypes.SPLITTER:
+      let lastX = targetEnemy.x;
+      let lastY = targetEnemy.y;
+      let h = ceil(targetEnemy.getInitialHealth() / 3.0);
+
+      let enemy1 = new Enemy({
+        x: lastX + (100 * -bullet.dirY),
+        y: lastY + (100 * bullet.dirX),
+        health: h,
+        type: Game.EnemyTypes.SPLITTED,
+        player: p,
+      });
+      let enemy2 = new Enemy({
+        x: lastX - (100 * -bullet.dirY),
+        y: lastY - (100 * bullet.dirX),
+        health: h,
+        type: Game.EnemyTypes.SPLITTED,
+        player: p,
+      });
+
+      enemies.push(enemy1);
+      enemies.push(enemy2);
+
+      break;
+  }
+
+  Game.removeObject(enemies, targetEnemy);
+  score += scoreGained;
+
+  // enemyDeadSFX.rate(2.0 - (enemies.length / waveEnemyCount));
+  enemyDeadSFX.play();
 }
 
 function handleTankBuddies(buddy){
@@ -304,7 +308,7 @@ function gotoNextWave() {
   bgCol = Game.bgCols[Game.getWaveCol(wave)];
 
   if (random() < 1 / 1) {
-    spawnItem(Game.Items.COUNTER_SPIKE);
+    spawnItem(Game.Items.BOMB);
     // spawnItem();
 
   }
@@ -313,9 +317,6 @@ function gotoNextWave() {
   // spawnEnemy(value);
   spawnRandomWaveEnemies();
 }
-
-
-// let itemStats = 0;
 
 function gameEnd(){
   gameOver = true;
@@ -382,7 +383,7 @@ function setup() {
   newGame();
 }
 
-let b;
+let bombs = [];
 
 function draw() {
   background(bgCol[0], bgCol[1], bgCol[2]);
@@ -504,6 +505,25 @@ function draw() {
   fill(255);
   //
 
+  // Handle Bombs
+
+  if (Game.bombDropped){
+    bombs.push(new Bomb(Game.bombX, Game.bombY));
+    Game.bombDropped = false;
+  }
+
+  bombs = bombs.filter((b) => {
+    b.enemies = enemies;
+
+    b.update();
+    b.show();
+
+    b.explode();
+
+    return !b.hasExploded;
+  });
+  fill(255);
+
   // Handle Text
   push();
   translate(width / 4.75, height / 1.1);
@@ -574,6 +594,7 @@ function draw() {
 
   strokeWeight(5);
 
+  // TODO different colors for bullets
   // Handle enemyBullets
   enemyBullets.forEach(handleEnemyBullets);
 

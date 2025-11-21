@@ -40,8 +40,14 @@ class Item {
     this.collected = true;
     this.player.gainLives();
 
-    if (this.itemType != Game.Items.BOMB){
+    if (this.itemType.type != Game.ItemType.INSTANT){
       this.player.gainItem(this.itemType, this.cooldown);
+    } else {
+      // Switch
+
+      if (this.itemType == Game.Items.BOMB){
+        Game.dropBomb(this.x, this.y);
+      }
     }
 
     Game.itemCollected(this.itemType);
@@ -59,6 +65,8 @@ class Item {
       } else {
         this.y += this.spd * this.dir;
       }
+    } else if( this.itemType.type == Game.ItemType.INSTANT ) {
+      this.grantItem();
     } else if (
       GameMath.circleCollision(
         this.x,
@@ -119,21 +127,42 @@ class Bomb {
   constructor(x, y){
     this.x = x;
     this.y = y;
-    this.hitRadius = 50.0;
+    this.hitRadius = 400.0;
     this.hasExploded = false;
+    this.isExploding = false;
     this.enemies = [];
+
+    this.hitPower = 10;
+    this.lifetime = 3.0;
+  }
+  update(){
+
+  }
+  show(){
+    fill(125, 125, 125, 50);
+    circle(this.x, this.y, 2.0 * this.hitRadius);
+    text("I'm a bomb lol");
+  }
+  animExplode(){
+    this.enemies.forEach((e) => {
+      if (GameMath.circleCollision(this.x, this.y, this.hitRadius, e.x, e.y, e.size)){
+        e.hit(0, 0, this.hitPower);
+
+        if (e.hasDied()){
+          enemyDied(e, new Bullet(this.x, this.y));
+        }
+      }
+    })
+
+    setTimeout(() => {
+      this.hasExploded = true;
+    }, this.lifetime * 1000.0);
   }
   explode(){
     // TODO get enemies array, circle collision
-
-    circle(this.x, this.y, this.hitRadius * 2.0);
-
-    this.enemies.forEach((e) => {
-      if (GameMath.circleCollision(this.x, this.y, this.hitRadius, e.x, e.y, e.size)){
-        e.hit(0, 0, 5);
-      }
-    })
-    this.hasExploded = true;
-
+    if (!this.isExploding){
+      this.animExplode();
+      this.isExploding = true;
+    }
   }
 }

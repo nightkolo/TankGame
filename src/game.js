@@ -10,6 +10,14 @@ class Game {
   static tankBuddyLifetime = 8.0;
   static defaultEnemySpeed = 1.35;
   static bombDropped = false;
+  static bombX = 0.0;
+  static bombY = 0.0;
+
+  static dropBomb(x, y){
+    this.bombDropped = true;
+    this.bombX = x;
+    this.bombY = y;
+  }
 
   static setGame(){
     clearInterval(inaccuracyInterval);
@@ -43,12 +51,17 @@ class Game {
     SPLITTED: 99
   };
 
+  static ItemType = {
+    DEFAULT: 0,
+    ACTIVATABLE: 1,
+    INSTANT: 2
+  }
   static Items = {
-    COUNTER_SPIKE: { id: 0, name: "Counter-Spike" },
-    INACCURACY: { id: 1, name: "Inaccuracy" },
-    DAZZLE: { id: 2, name: "Dazzle" },
-    TANK_BUDDY: { id: 3, name: "Tank Buddy" },
-    BOMB: { id: 4, name: "Bomb" }
+    COUNTER_SPIKE: { id: 0, name: "Counter-Spike", type: this.ItemType.DEFAULT },
+    INACCURACY: { id: 1, name: "Inaccuracy", type: this.ItemType.DEFAULT },
+    DAZZLE: { id: 2, name: "Dazzle", type: this.ItemType.DEFAULT },
+    TANK_BUDDY: { id: 3, name: "Tank Buddy", type: this.ItemType.ACTIVATABLE },
+    BOMB: { id: 4, name: "Bomb", type: this.ItemType.INSTANT }
   };
 
   static bgCols = [
