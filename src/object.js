@@ -127,26 +127,28 @@ class Bomb {
   constructor(x, y){
     this.x = x;
     this.y = y;
-    this.hitRadius = 400.0;
+    this.hitRadius = 440.0;
     this.hasExploded = false;
     this.isExploding = false;
-    this.enemies = [];
 
-    this.hitPower = 10;
-    this.lifetime = 3.0;
+    this.hitPower = 30;
+    this.lifetime = 1.0;
   }
-  update(){
-
-  }
+  update(){}
   show(){
     fill(125, 125, 125, 50);
     circle(this.x, this.y, 2.0 * this.hitRadius);
-    text("I'm a bomb lol");
   }
-  animExplode(){
-    this.enemies.forEach((e) => {
+  animExplode(enemies = []){
+    // console.log(enemies);
+    animScreenShake(2500.0, 1.0);
+
+    enemies.forEach((e) => {
       if (GameMath.circleCollision(this.x, this.y, this.hitRadius, e.x, e.y, e.size)){
-        e.hit(0, 0, this.hitPower);
+        const hitStrength = 1.0 - (GameMath.distance(this.x, this.y, e.x, e.y) / (2.0 * this.hitRadius));
+        // console.log(hitStrength);
+
+        e.hit(0, 0, floor(this.hitPower * hitStrength));
 
         if (e.hasDied()){
           enemyDied(e, new Bullet(this.x, this.y));
@@ -158,11 +160,60 @@ class Bomb {
       this.hasExploded = true;
     }, this.lifetime * 1000.0);
   }
-  explode(){
-    // TODO get enemies array, circle collision
+  explode(enemies = []){
     if (!this.isExploding){
-      this.animExplode();
+      this.animExplode(enemies);
       this.isExploding = true;
     }
+  }
+}
+
+class TankBuddy{
+  #start
+   
+  constructor(x, y, shootSpd /*, shootingDir*/){
+    this.x = x;
+    this.y = y;
+    this.size = 50.0;
+
+    this.shootingSpdFactor = shootSpd;
+    this.lastShotTime = 0.0;
+    this.lifetime = Game.tankBuddyLifetime;
+    this.#start = 0.0;
+    this.alive = true;
+
+    this.spawned(); 
+  }
+  spawned(){
+    this.#start = millis();
+
+    setTimeout(() => {
+      print("peace out")
+      this.alive = false;
+    }, this.lifetime * 1000.0)
+  }
+  spawnBullets() {
+    if (millis() - this.lastShotTime > this.shootingSpdFactor * 1000) {
+      this.lastShotTime = millis();
+      return true; // ready to fire
+    }
+    return false;
+  }
+  getTimeLeft(){
+    return Game.tankBuddyLifetime - ((millis() - this.#start) / 1000.0);
+  }
+  update(){
+  }
+  show(){
+    square(this.x, this.y, this.size);
+
+    fill(255);
+    stroke(0);
+    textSize(25.0);
+    textAlign(CENTER);
+
+    this.timeLeft = Game.tankBuddyLifetime - ((millis() - this.start) / 1000.0)
+
+    text(`${this.getTimeLeft().toFixed(1)}`, this.x, this.y + 8.0);
   }
 }

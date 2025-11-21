@@ -104,7 +104,7 @@ function hitEnemy(bullet, targetEnemy){
   let removeBullet = false;
 
   if (bullet.hasBeenReflected) {
-    targetEnemy.hit(bullet.dirX, bullet.dirY, 2);
+    targetEnemy.hit(bullet.dirX, quad.dirY, 2);
   } else {
     targetEnemy.hit(bullet.dirX, bullet.dirY);
   }
@@ -506,22 +506,23 @@ function draw() {
   //
 
   // Handle Bombs
-
   if (Game.bombDropped){
     bombs.push(new Bomb(Game.bombX, Game.bombY));
     Game.bombDropped = false;
   }
 
+  // console.log(enemies);
   bombs = bombs.filter((b) => {
-    b.enemies = enemies;
+    // b.enemies = enemies;
 
     b.update();
     b.show();
 
-    b.explode();
+    b.explode(enemies);
 
     return !b.hasExploded;
   });
+  //
   fill(255);
 
   // Handle Text
@@ -654,11 +655,13 @@ function mousePressed() {
 let screenShake = false;
 let shakeDuration = 0;
 let shakeIntensity = 10;
+let overrideScreenshake = false;
 
 function animScreenShake(shake = 10.0, dur = 5.0){
   screenShake = true;
-  shakeDuration = shake; // Shake for 30 frames
-  shakeIntensity = dur; // Reset intensity
+  shakeDuration = dur; // Shake for 30 frames
+  shakeIntensity = shake; // Reset intensity
+  // overrideScreenshake = override;
 }
 
 let animatingBounce = false;
