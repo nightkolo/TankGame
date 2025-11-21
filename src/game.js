@@ -70,10 +70,10 @@ class Game {
     [255, 155, 185],
     [205, 105, 255],
     [255, 255, 105]
-  ]
+  ];
 
   static getWaveCol(wave){ // experimental
-    return floor(wave / 10.0);
+    return this.bgCols[floor(wave / 10.0)];
   }
 
   static enemiesDefeated = 0;
@@ -125,18 +125,13 @@ class Game {
   }
 
   static intervalTimer(start, dur, type){
-      const timeElapsed = millis() - start;
-      const remaining = Math.max(0, (dur - timeElapsed));
+    const timeElapsed = millis() - start;
+    const remaining = Math.max(0, (dur - timeElapsed));
 
-      const cooldownTimer = remaining / 1000
-      
-      this.itemTimes.set(type.name, cooldownTimer);
-
-      // if (remaining <= 0.0) {
-      //   this.itemTimes.set(this.getItemName(type, false), 0.0);
-      //   clearInterval(dazzleInterval)
-      // };
-    }
+    const cooldownTimer = remaining / 1000
+    
+    this.itemTimes.set(type.name, cooldownTimer);
+  }
 
   static getEnemyBulletsSpeed(isSlow = false){
     if (isSlow){

@@ -1,11 +1,10 @@
 class Bullet {
-  constructor(px, py, dirX = 0, dirY = -1, spd = 10.0, size = 25.0, col = [255,255,255]){
+  constructor(px, py, dirX = 0, dirY = -1, spd = 10.0, size = 25.0){
     this.dirX = dirX;
     this.dirY = dirY;
     this.x = px;
     this.y = py;
     this.spd = spd;
-    this.col = col;
 
     this.size = size;
     this.lifetime = 4.0;
@@ -30,7 +29,6 @@ class Bullet {
     this.y += this.dirY * this.spd;
   }
   show(){
-    fill(this.col[0], this.col[1], this.col[2]);
     circle(this.x, this.y, this.size);
   }
 }

@@ -19,7 +19,7 @@ class Tank {
     this.hitSFX = new Howl({ src: "audio/tank_hit_01.ogg", volume: 0.5});
     this.criticalHealthSFX = new Howl({src: "audio/tank_hearts_critical.ogg", volume: 0.5});
 
-    this.lives = 5;
+    this.lives = 3;
     this.newLives = 0;
     this.alive = true;
     this.invincible = false;
@@ -59,6 +59,7 @@ class Tank {
     print("Ouch!");
 
     this.hitSFX.play();
+
 
     this.lives--;
 

@@ -10,6 +10,8 @@ let tankBuddies = [];
 let enemies = [];
 let items = [];
 
+let playerTrail = [];
+
 // Game Loop
 let wave = 67; // Why
 let score = 0;
@@ -272,8 +274,6 @@ function spawnRandomWaveEnemies(onWave = wave) {
 
     const randomType = currentEnemyTypes[floor(random() * currentEnemyTypes.length)];
 
-    // TODO make the newly added enemy type appear in the wave it is added in
-
     let newEnemy = new Enemy({
       x: spawnX,
       y: spawnY,
@@ -305,11 +305,11 @@ function gotoNextWave() {
     Game.bestWave = wave;
   }
 
-  bgCol = Game.bgCols[Game.getWaveCol(wave)];
+  bgCol = Game.getWaveCol(wave);
 
-  if (random() < 1 / 1) {
+  if (random() < 1 / 3) {
     spawnItem(Game.Items.BOMB);
-    // spawnItem();
+    spawnItem();
 
   }
   // let value = Game.EnemyTypes.SPLITTER;
@@ -350,7 +350,7 @@ function newGame(){
   wave = 0;
 
   animText();
-  bgCol = Game.bgCols[Game.getWaveCol(wave)];
+  bgCol = Game.getWaveCol(wave);
 
   p = new Tank();
 
@@ -405,6 +405,21 @@ function draw() {
   rotate(millis() * (1 / 18000));
   imageMode(CENTER);
 
+  if (bgPulseStart !== null) {
+    let t = (millis() - bgPulseStart) / bgPulseDuration;
+
+    if (t >= 1) {
+      bgCol = Game.getWaveCol(wave);
+      bgPulseStart = null;
+    } else {
+      bgCol = [
+        lerp(bgPulseFrom[0], bgPulseTo[0], t),
+        lerp(bgPulseFrom[1], bgPulseTo[1], t),
+        lerp(bgPulseFrom[2], bgPulseTo[2], t)
+      ];
+    }
+  }
+
   tint(bgCol[0], bgCol[1], bgCol[2]);
   image(bgIMG, 0, 0);
   pop();
@@ -438,14 +453,11 @@ function draw() {
         new Bullet(p.x, p.y, curBulletDir.x + extraX, curBulletDir.y + extraY, size)
       );
       if (p.powerups.includes(Game.Items.COUNTER_SPIKE)) {
-        // TODO make other axis bullets a different 
+        // TODO make other axis bullets a different fill
         
         playerBullets.push(
-          new Bullet(p.x, p.y, -curBulletDir.x + extraX, -curBulletDir.y + extraY, size
-            [100,100,100]
-          )
+          new Bullet(p.x, p.y, -curBulletDir.x + extraX, -curBulletDir.y + extraY, size, [50,50,50])
         );
-        fill(255);
       }
       lastSpawnTime = millis();
     }
@@ -455,6 +467,7 @@ function draw() {
   tankBuddies = tankBuddies.filter(handleTankBuddies);
 
   // Handle buddyBullets
+  fill(200, 200, 255);
   buddyBullets = buddyBullets.filter((b) => {
     let removeBullet = false;
 
@@ -470,7 +483,8 @@ function draw() {
     b.show();
 
     return !removeBullet && !GameMath.offScreen(b.x, b.y, canSize.x, canSize.y);
-  })
+  });
+  fill(255);
 
   // Handle Enemies
   enemies.forEach((e) => {
@@ -510,11 +524,7 @@ function draw() {
     bombs.push(new Bomb(Game.bombX, Game.bombY));
     Game.bombDropped = false;
   }
-
-  // console.log(enemies);
   bombs = bombs.filter((b) => {
-    // b.enemies = enemies;
-
     b.update();
     b.show();
 
@@ -561,9 +571,7 @@ function draw() {
     strokeWeight(7.5);
     stroke(50);
     text("Defeat the Enemies", (width / 4) * 3.0, height / 2.0);
-    text("WASD\nto change\nProjectiles", (width / 4), (height / 2.0) + 50.0);
-    text("Click to Fire", (width / 4), (height / 2.0) - 50.0);
-
+    text("Click to Fire\n\n\nWASD\nto change\nProjectiles", (width / 4), (height / 2.0) - 50.0);
   }
 
   // Item interface
@@ -579,7 +587,6 @@ function draw() {
 
   for (let i = 0; i < activeTimes.length; i++){
     // print(activeTimes[i][0], activeTimes[i][1]);
-
     let itemHeld = activeTimes[i][0];
     let timeRemaining;
 
@@ -595,10 +602,11 @@ function draw() {
 
   strokeWeight(5);
 
-  // TODO different colors for bullets
   // Handle enemyBullets
+  fill(255, 175, 175);
   enemyBullets.forEach(handleEnemyBullets);
 
+  fill(255);
   // Handle playerBullets
   playerBullets = playerBullets.filter(handlePlayerBullets);
 
@@ -611,11 +619,36 @@ function draw() {
     slowMode = p.powerups.includes(Game.Items.DAZZLE);
 
     if (p.insideAnEnemy()) {
-      // TODO add better feedback for player getting hit
+      if (!p.invincible){
+        animBG(255, 125, 125, 0.35);
+        animScreenShake(5.0,3.0);
+      }
       p.hit();
     }
 
     p.update();
+    // Add player trail point
+    playerTrail.push({
+      x: p.x,
+      y: p.y,
+      life: 1.0
+    });
+    // Draw player trail
+    // for (let i = playerTrail.length - 1; i >= 0; i--) {
+    //   let t = playerTrail[i];
+    //   t.life -= 0.02;
+
+    //   if (t.life <= 0) {
+    //     playerTrail.splice(i, 1);
+    //     continue;
+    //   }
+
+    //   push();
+    //   noStroke();
+    //   fill(255, 125 * t.life);  // fading alpha
+    //   square(t.x, t.y, p.size * 0.7);
+    //   pop();
+    // }
     p.show();
   } else if (gameOver == false) {
     gameEnd();
@@ -633,10 +666,6 @@ function placeTankBuddy(){
     tankBuddies.push(s);
 
     Game.removeObject(p.powerups, Game.Items.TANK_BUDDY);
-
-    // Game.startItemTimer(Game.Items.TANK_BUDDY, Game.tankBuddyLifetime);
-
-    // print(p.powerups);
   }
 }
 
@@ -658,10 +687,24 @@ let shakeIntensity = 10;
 let overrideScreenshake = false;
 
 function animScreenShake(shake = 10.0, dur = 5.0){
+  // TODO fix screenshake
   screenShake = true;
   shakeDuration = dur; // Shake for 30 frames
   shakeIntensity = shake; // Reset intensity
   // overrideScreenshake = override;
+}
+
+let bgPulseStart = null;
+let bgPulseDuration = 0;
+let bgPulseFrom = null;
+let bgPulseTo = null;
+
+function animBG(c1, c2, c3, dur){
+  bgPulseFrom = [c1, c2, c3]; // we start at the flash color
+  bgPulseTo = Game.getWaveCol(wave); // we fade back to normal
+  bgCol = [...bgPulseFrom]; // immediate flash
+  bgPulseDuration = dur * 1000.0; // ms
+  bgPulseStart = millis();
 }
 
 let animatingBounce = false;
