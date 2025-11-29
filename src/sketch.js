@@ -521,7 +521,7 @@ function draw() {
   textSize(50);
   strokeWeight(8);
   if (animatingBounce) {
-    tBounce += 0.012;
+    tBounce += deltaTime * 0.0006;
     let eased = Anim.elasticEaseOut(constrain(tBounce, 0, 1));
     let x = lerp(1.5, 1, eased);
     let y = lerp(0.5, 1, eased);
@@ -621,7 +621,7 @@ function draw() {
   stroke(30);
   fill(255, 255, 55);
   if (animatingCritHit) {
-    tCritHit += 0.009;
+    tCritHit += deltaTime * 0.00045;
     let eased = Anim.elasticEaseOut(constrain(tCritHit, 0, 1));
     let x = lerp(Game.critHitScaleX, 1, eased);
     let y = lerp(Game.critHitScaleY, 1, eased);
