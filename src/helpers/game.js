@@ -18,6 +18,7 @@ class Game {
   static critHitY;
   static critHitScaleX;
   static critHitScaleY;
+  static lastEnemyTypeHit;
 
   static critHitEvent(x, y){
     this.critHitX = x;

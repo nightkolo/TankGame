@@ -3,8 +3,8 @@ const canSize = { x: 900, y: 720 }; // 5:4
 // Objects
 let p;
 let e1;
-let playerBullets = []; // playerBullets
-let enemyBullets = []; // enemyBullets
+let playerBullets = []; 
+let enemyBullets = []; 
 let buddyBullets = [];
 let tankBuddies = [];
 let enemies = [];
@@ -35,7 +35,6 @@ let curBulletDir = {
 
 let bgCol = Game.bgCols[0];
 
-
 function handleEnemyBullets(bullet) {
   if (!bullet.alive) {
     Game.removeObject(enemyBullets, bullet);
@@ -55,7 +54,6 @@ function handleEnemyBullets(bullet) {
 function handlePlayerBullets(bullet) {
   let removeBullet = false;
 
-  // Enemy detection
   enemies.forEach((e) => {
     if (GameMath.circleCollision(e.x, e.y, e.size / 2.0, bullet.x, bullet.y, bullet.size / 2.0)) {
       removeBullet = hitEnemy(bullet, e);
@@ -128,6 +126,8 @@ function enemyDied(targetEnemy, bullet){
   if (targetEnemy.hasDied() == false) return;
 
   let scoreGained = targetEnemy.points;
+
+  Game.lastEnemyTypeHit = targetEnemy.type;
   Game.enemiesDefeated++;
 
   animScreenShake(targetEnemy.points*1.5, targetEnemy.points*2.0);
@@ -215,27 +215,6 @@ function spawnItem(item = -1) {
   items.push(i);
 }
 
-// Debug
-function spawnEnemy(type) {
-  let healthMin = 3;
-  let enemyHealthFactor = 20.0;
-
-  let spawnX = GameMath.randomFloat(200.0, width - 200);
-  let spawnY = GameMath.randomFloat(200.0, height - 200);
-  let health = healthMin + floor(random() * enemyHealthFactor);
-
-  let newEnemy = new Enemy({
-    x: spawnX,
-    y: spawnY,
-    health: health,
-    player: p,
-    bulletDir: curBulletDir,
-    type: type,
-  });
-
-  enemies.push(newEnemy);
-}
-
 let waveEnemyCount = 1;
 
 function spawnRandomWaveEnemies(onWave = wave) {
@@ -259,8 +238,6 @@ function spawnRandomWaveEnemies(onWave = wave) {
   let enemySpawnsMin = 2 + floor(wave / 9.0);
   let enemySpawnsFactor = 3 + floor(wave / 9.0);
   let enemySpeed = Game.defaultEnemySpeed + (floor(wave / 2.0) / 10.0);
-
-  // print(enemySpeed);
   
   let noOfEnemies = enemySpawnsMin + floor(random() * enemySpawnsFactor);
   waveEnemyCount = noOfEnemies;
@@ -270,7 +247,7 @@ function spawnRandomWaveEnemies(onWave = wave) {
     let spawnY = GameMath.randomFloat(120.0, height - 120.0);
     let health = healthMin + floor(random() * Game.enemyHealthFactor);
 
-    // print(`Enemy (${i + 1}): ${round(spawnX)}, ${round(spawnY)}, ${health}`);
+    // console.log(`Enemy (${i + 1}): ${round(spawnX)}, ${round(spawnY)}, ${health}`);
 
     const randomType = currentEnemyTypes[floor(random() * currentEnemyTypes.length)];
 
@@ -366,7 +343,6 @@ function newGame(){
   enemies.push(e1);
 }
 
-// Img
 let bgIMG;
 
 function preload() {
@@ -762,15 +738,16 @@ function animBG(c1, c2, c3, dur){
   bgPulseStart = millis();
 }
 
-let animatingBounce = false;
 let animatingCritHit = false;
-let tBounce = 1.0;
 let tCritHit = 1.0;
 
 function animCritHit(){
   tCritHit = 0;
   animatingCritHit = true;
 }
+
+let animatingBounce = false;
+let tBounce = 1.0;
 
 function animText(){
   if (tBounce < 0.5) return;
