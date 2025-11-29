@@ -307,8 +307,8 @@ function gotoNextWave() {
 
   bgCol = Game.getWaveCol(wave);
 
-  if (random() < 1 / 3) {
-    spawnItem(Game.Items.BOMB);
+  if (random() < 1 / 1) {
+    // spawnItem(Game.Items.BOMB);
     spawnItem();
 
   }
@@ -456,7 +456,7 @@ function draw() {
         // TODO make other axis bullets a different fill
         
         playerBullets.push(
-          new Bullet(p.x, p.y, -curBulletDir.x + extraX, -curBulletDir.y + extraY, size, [50,50,50])
+          new Bullet(p.x, p.y, -curBulletDir.x + extraX, -curBulletDir.y + extraY, size)
         );
       }
       lastSpawnTime = millis();
@@ -579,6 +579,7 @@ function draw() {
   textAlign(CENTER);
   strokeWeight(5);
   stroke(50);
+  fill(255);
 
   // Obtain only active times from itemTimes Map
   let activeTimes = Array.from(Game.itemTimes.entries()).filter(([key, value]) => {
@@ -586,7 +587,7 @@ function draw() {
   });
 
   for (let i = 0; i < activeTimes.length; i++){
-    // print(activeTimes[i][0], activeTimes[i][1]);
+    print(activeTimes[i][0], activeTimes[i][1]);
     let itemHeld = activeTimes[i][0];
     let timeRemaining;
 
@@ -594,9 +595,33 @@ function draw() {
       timeRemaining = `${activeTimes[i][1]} (Click to Release)`;
     } else {
       timeRemaining = activeTimes[i][1].toFixed(2);
-    }
 
-    text(`${itemHeld}: ${timeRemaining}`, width / 2.0, height - 30.0 - (35.0 * (i + 1)));
+      // TODO add indicator when time <= 3.0
+
+      let barHeight = 100.0 * (activeTimes[i][1] / Game.powerupTime);
+
+      rectMode(CORNER);
+      noStroke();
+
+      rect(
+        width - 170.0 - (140.0 * i),
+        height - 50.0 - barHeight,
+        100.0,
+        barHeight,
+        10.0,
+        10.0
+      );
+
+      rectMode(CENTER);
+      stroke(50);
+    }
+    
+    text(`${itemHeld}:\n${timeRemaining}`,
+      width - 120.0 - (140.0 * (i)), 
+      height - 100.0
+      // width / 2.0, 
+      // height - 30.0 - (35.0 * (i + 1))
+    );
   }
   //
 
@@ -609,6 +634,36 @@ function draw() {
   fill(255);
   // Handle playerBullets
   playerBullets = playerBullets.filter(handlePlayerBullets);
+
+  // Critical Hit Anim
+  push();
+  translate(Game.critHitX, Game.critHitY);
+  rotate((PI / 28.0) * sin(millis() / 720.0));
+
+  strokeWeight(10);
+  textSize(50);
+  stroke(30);
+  fill(255, 255, 55);
+  if (animatingCritHit) {
+    tCritHit += 0.009;
+    let eased = Anim.elasticEaseOut(constrain(tCritHit, 0, 1));
+    let x = lerp(Game.critHitScaleX, 1, eased);
+    let y = lerp(Game.critHitScaleY, 1, eased);
+
+    fill(255, 255, 55, 255 * (Math.min(1.0, 2.0 - (2.0 * tCritHit))));
+    stroke(30, 255 * (Math.min(1.0, 2.0 - (2.0 * tCritHit))));
+
+    scale([x, y]);
+
+    text("Critical\nHit!", 0, 0);
+
+    if (tCritHit >= 1) animatingCritHit = false;
+  } else {
+    scale([1, 1]);
+  }
+
+  pop();
+  //
 
   // Handle Player
   if (p.alive) {
@@ -634,21 +689,21 @@ function draw() {
       life: 1.0
     });
     // Draw player trail
-    // for (let i = playerTrail.length - 1; i >= 0; i--) {
-    //   let t = playerTrail[i];
-    //   t.life -= 0.02;
+    for (let i = playerTrail.length - 1; i >= 0; i--) {
+      let t = playerTrail[i];
+      t.life -= 0.04;
 
-    //   if (t.life <= 0) {
-    //     playerTrail.splice(i, 1);
-    //     continue;
-    //   }
+      if (t.life <= 0) {
+        playerTrail.splice(i, 1);
+        continue;
+      }
 
-    //   push();
-    //   noStroke();
-    //   fill(255, 125 * t.life);  // fading alpha
-    //   square(t.x, t.y, p.size * 0.7);
-    //   pop();
-    // }
+      push();
+      noStroke();
+      fill(255, (125/2) * t.life);  // fading alpha
+      square(t.x, t.y, p.size * 0.7);
+      pop();
+    }
     p.show();
   } else if (gameOver == false) {
     gameEnd();
@@ -708,7 +763,14 @@ function animBG(c1, c2, c3, dur){
 }
 
 let animatingBounce = false;
+let animatingCritHit = false;
 let tBounce = 1.0;
+let tCritHit = 1.0;
+
+function animCritHit(){
+  tCritHit = 0;
+  animatingCritHit = true;
+}
 
 function animText(){
   if (tBounce < 0.5) return;

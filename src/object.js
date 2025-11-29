@@ -1,7 +1,7 @@
 class Item {
   #openState;
 
-  constructor(x, y, item, player, cooldown = 8.0) {
+  constructor(x, y, item, player, cooldown = Game.powerupTime) {
     this.x = x;
     this.y = y;
     this.itemType = item;

@@ -30,6 +30,7 @@ class Enemy {
     this.maxSpeed = maxSpeed;
     this.health = health;
     this.points = round(health / 4.0); // experimental
+    this.critHitThres = floor(random(5, 10));
     this.#initialHealth = health;
     
     // Type
@@ -354,6 +355,14 @@ class Enemy {
     this.animBounce(hitX !== 0 && hitY == 0);
 
     this.health -= hitpoint;
+
+    if (random() < 1 / Game.critHitProb && this.health == this.critHitThres){
+      console.log("Critical Hit!");
+      Game.critHitEvent(this.x, this.y);
+      animCritHit();
+      this.health = 0;
+    }
+
     this.knockback(hitX, hitY);
   }
   

@@ -9,9 +9,27 @@ class Game {
   static enemyHealthFactor = 20.0;
   static tankBuddyLifetime = 8.0;
   static defaultEnemySpeed = 1.35;
+  static powerupTime = 8.0;
   static bombDropped = false;
   static bombX = 0.0;
   static bombY = 0.0;
+  static critHitProb = 10;
+  static critHitX;
+  static critHitY;
+  static critHitScaleX;
+  static critHitScaleY;
+
+  static critHitEvent(x, y){
+    this.critHitX = x;
+    this.critHitY = y;
+    if (random() < 1/2){
+      this.critHitScaleY = 2.0;
+      this.critHitScaleX = 0.25;
+    } else {
+      this.critHitScaleX = 2.0;
+      this.critHitScaleY = 0.25;
+    }
+  }
 
   static dropBomb(x, y){
     this.bombDropped = true;
