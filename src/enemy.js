@@ -67,6 +67,9 @@ class Enemy {
     this.startX = 0;
     this.startY = 0;
     this.animatingBounce = false;
+
+    this.tStart = 1.0;
+    this.animatingStart = false;
     
     // Misc.
     this.#player = player;
@@ -79,6 +82,8 @@ class Enemy {
     this.spawned();
   }
   spawned() {
+    this.animStart();
+
     switch (this.type){
       case Game.EnemyTypes.BOUNCER:
         this.y /= 2.0;
@@ -198,18 +203,25 @@ class Enemy {
     }
     return false;
   }
+  
   animBounce(sideHit = false){
     if (this.t < 0.5) return;
 
     if (sideHit){
-      this.startX = this.dpSizeX - (this.dpSizeX / 3.5);
-      this.startY = this.dpSizeY + (this.dpSizeY / 3.5);
+      this.startX = this.dpSizeX - (this.dpSizeX / 2.5);
+      this.startY = this.dpSizeY + (this.dpSizeY / 2.5);
     } else {
-      this.startX = this.dpSizeX + (this.dpSizeX / 3.5);
-      this.startY = this.dpSizeY - (this.dpSizeY / 3.5);
+      this.startX = this.dpSizeX + (this.dpSizeX / 2.5);
+      this.startY = this.dpSizeY - (this.dpSizeY / 2.5);
     }
     this.t = 0;
     this.animatingBounce = true;
+  }
+  animStart(){
+
+
+    this.tStart = 0.0;
+    this.animatingStart = true;
   }
   update() {
     this.size = this.getSize();
@@ -309,8 +321,20 @@ class Enemy {
     } 
 
     // Animation
-    if (this.animatingBounce) {
-      this.t += 0.01;
+    if (this.animatingStart) {
+      // TODO enemy spawn and anim not synced
+      this.tStart += deltaTime * 0.001;
+
+      console.log(this.tStart);
+
+      circle(this.x, this.y, this.dpSize * this.tStart);
+
+      if (this.tStart >= 1) {
+        this.animBounce();
+        this.animatingStart = false;
+      }
+    } else if (this.animatingBounce) {
+      this.t += deltaTime * 0.00045;
       let eased = Anim.elasticEaseOut(constrain(this.t, 0, 1));
       let x = lerp(this.startX, this.dpSizeX, eased);
       let y = lerp(this.startY, this.dpSizeY, eased);

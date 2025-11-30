@@ -60,7 +60,6 @@ function handlePlayerBullets(bullet) {
     }
   });
 
-
   items.forEach((item) => {
     if (!item.opened && GameMath.circleCollision(
         item.x,
