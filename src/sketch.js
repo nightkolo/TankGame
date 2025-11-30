@@ -617,6 +617,7 @@ function draw() {
 
   strokeWeight(10);
   textSize(50);
+  textLeading(50);
   stroke(30);
   fill(255, 255, 55);
   if (animatingCritHit) {
@@ -625,6 +626,7 @@ function draw() {
     let x = lerp(Game.critHitScaleX, 1, eased);
     let y = lerp(Game.critHitScaleY, 1, eased);
 
+    // TODO set text color to attacked Enemy color
     fill(255, 255, 55, 255 * (Math.min(1.0, 2.0 - (2.0 * tCritHit))));
     stroke(30, 255 * (Math.min(1.0, 2.0 - (2.0 * tCritHit))));
 

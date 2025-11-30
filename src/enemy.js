@@ -4,7 +4,6 @@ class Enemy {
   #initialHealth;
   #player;
   #slowState = false;
-  #hitState = false;
   #lastHitTime = 0.0;
 
   constructor({
@@ -203,7 +202,6 @@ class Enemy {
     }
     return false;
   }
-  
   animBounce(sideHit = false){
     if (this.t < 0.5) return;
 
@@ -218,8 +216,6 @@ class Enemy {
     this.animatingBounce = true;
   }
   animStart(){
-
-
     this.tStart = 0.0;
     this.animatingStart = true;
   }
@@ -257,6 +253,7 @@ class Enemy {
       this.col = this.getEnemyColor(5.0, 255/4);
       stroke(this.getEnemyColor());
       strokeWeight(10);
+
     } else {
       strokeWeight(5);
 
@@ -292,6 +289,8 @@ class Enemy {
           break;
 
         case Game.EnemyTypes.BOUNCER:
+          // TODO trail for Rabbitball enemy
+
           ellipse(this.x + (this.size/3.5), this.y - (this.size/5), this.size/2, this.size);
           ellipse(this.x - (this.size/3.5), this.y - (this.size/5), this.size/2, this.size);
           break;
@@ -325,8 +324,6 @@ class Enemy {
       // TODO enemy spawn and anim not synced
       this.tStart += deltaTime * 0.001;
 
-      console.log(this.tStart);
-
       circle(this.x, this.y, this.dpSize * this.tStart);
 
       if (this.tStart >= 1) {
@@ -341,14 +338,13 @@ class Enemy {
 
       ellipse(this.x, this.y, x, y);
 
-      // stop when finished
       if (this.t >= 1) this.animatingBounce = false;
     } else {
       ellipse(this.x, this.y, this.dpSizeX, this.dpSizeY);
     }
 
     // TODO mask somehow
-    if (this.imgEyes != undefined && this.imgHitEyes != undefined){
+    if (!this.animatingStart && this.imgEyes != undefined && this.imgHitEyes != undefined){
       let size = imgSize + this.health * 2.0;
 
       if (this.isBeingHit){
