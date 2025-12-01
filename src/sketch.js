@@ -348,11 +348,23 @@ function preload() {
   bgIMG = loadImage("img/bg-main-03.png");
 }
 
+let b;
+let gui;
+
 function setup() {
   createCanvas(canSize.x, canSize.y);
+  gui = createGui();
 
   textFont("Nunito");
   textStyle(BOLD);
+
+  b = createButton("Another whirl?", width/2 - 100, height - 200.0, 200, 50);
+  b.setStyle({
+      fillBg: color("#fbbfbfff"),
+      // font: loadFont("font/Nunito-Bold.ttf"),
+      rounding: 5,
+      textSize: 20
+  });
 
   Game.setGame();
   newGame();
@@ -362,6 +374,7 @@ let bombs = [];
 
 function draw() {
   background(bgCol[0], bgCol[1], bgCol[2]);
+  
 
   if (screenShake) {
     let shakeX = random(-shakeIntensity, shakeIntensity);
@@ -685,6 +698,25 @@ function draw() {
   } else if (gameOver == false) {
     gameEnd();
   }
+
+  // gui = createGui();
+  
+  if (gameOver){
+    cursor();
+
+    fill(0,0,0,125);
+    rect(0,0,width*2.0,height*2.0);
+    
+    drawGui();
+    
+    if (b.isPressed){
+      console.log("Try again!");
+      newGame();
+    }
+
+
+  }
+
 }
 
 function placeTankBuddy(){
@@ -703,7 +735,7 @@ function placeTankBuddy(){
 
 function mousePressed() {
   if (!p.alive){
-    newGame();
+    
   } else {
     placeTankBuddy();
   }

@@ -13,8 +13,6 @@ function preload(){
 }
 
 function setup() {
-
-
   createCanvas(400, 400);
 
   let w = 100;
@@ -26,7 +24,7 @@ function setup() {
   b.labelOn = "Bad idea.";
   b.setStyle({
       fillBg: color("#fbbfbfff"),
-      font: f,
+      // font: loadFont("font/Nunito-Bold.ttf"),
       rounding: 5,
       textSize: 20
   });
@@ -37,6 +35,7 @@ function setup() {
 
 function draw() {
   background(220);
+  drawGui();
   textFont("Nunito");
   textStyle(BOLD);
 

@@ -97,6 +97,7 @@ class Game {
 
   static enemiesDefeated = 0;
   static itemStats;
+  static itemTimes;
 
   static itemCollected(item){
     let name = item.name;
@@ -106,7 +107,6 @@ class Game {
     print(this.itemStats);
   }
 
-  static itemTimes;
 
   static setItemTimer(itemType, value){ // set by Player
     if (itemType == this.Items.BOMB) return;
