@@ -343,9 +343,11 @@ function newGame(){
 }
 
 let bgIMG;
+let fonts;
 
 function preload() {
   bgIMG = loadImage("img/bg-main-03.png");
+  fonts = loadFont("font/Nunito-Bold.ttf");
 }
 
 let b;
@@ -361,9 +363,19 @@ function setup() {
   b = createButton("Another whirl?", width/2 - 100, height - 200.0, 200, 50);
   b.setStyle({
       fillBg: color("#fbbfbfff"),
-      // font: loadFont("font/Nunito-Bold.ttf"),
+      font: fonts,
       rounding: 5,
-      textSize: 20
+      textSize: 2,
+      textSize: 24,
+      // fillBg p5.Color: default background color
+      fillBgHover: color("#ffffffff"),
+      fillBgActive: color("#000000ff"),
+      // fillLabel p5.Color: default label color
+      // fillLabelHover p5.Color: hover label color
+      fillLabelActive: color("#ffffffff")
+      // strokeBg p5.Color: default stroke color
+      // strokeBgHover p5.Color: hover stroke color
+      // strokeBgActive
   });
 
   Game.setGame();
@@ -698,25 +710,26 @@ function draw() {
   } else if (gameOver == false) {
     gameEnd();
   }
-
-  // gui = createGui();
   
   if (gameOver){
     cursor();
 
-    fill(0,0,0,125);
+    noStroke();
+    fill(255,255,255,127);
     rect(0,0,width*2.0,height*2.0);
     
     drawGui();
     
-    if (b.isPressed){
+    if (b.isReleased){
       console.log("Try again!");
       newGame();
     }
 
-
+    fill(255);
+    stroke(20);
+    text("Tank is Dead", width/2, 200.0);
+    text(`== Stats ==\nWave reached: ${wave}\nScore: ${score}\nEnemies defeated: ${Game.enemiesDefeated}\nItems collected:\n${JSON.stringify([...Game.itemStats])}`,width/2, 300.0);
   }
-
 }
 
 function placeTankBuddy(){
