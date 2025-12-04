@@ -284,8 +284,8 @@ function gotoNextWave() {
   bgCol = Game.getWaveCol(wave);
 
   if (random() < 1 / 1) {
-    // spawnItem(Game.Items.BOMB);
-    spawnItem();
+    spawnItem(Game.Items.BOMB);
+    // spawnItem();
 
   }
   // let value = Game.EnemyTypes.SPLITTER;
@@ -587,7 +587,8 @@ function draw() {
   });
 
   for (let i = 0; i < activeTimes.length; i++){
-    print(activeTimes[i][0], activeTimes[i][1]);
+    // print(activeTimes[i][0], activeTimes[i][1]);
+
     let itemHeld = activeTimes[i][0];
     let timeRemaining;
 
@@ -721,7 +722,6 @@ function draw() {
     drawGui();
     
     if (b.isReleased){
-      console.log("Try again!");
       newGame();
     }
 

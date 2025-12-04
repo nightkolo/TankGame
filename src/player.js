@@ -15,6 +15,8 @@ class Tank {
 
     // Assets
     this.img = loadImage('img/tank-eyes-01.svg');
+    this.imgHit = loadImage('img/tank-eyes-01.svg');
+    this.imgHeart = loadImage('img/heart-02.svg');
     // Audio
     this.hitSFX = new Howl({ src: "audio/tank_hit_01.ogg", volume: 0.5});
     this.criticalHealthSFX = new Howl({src: "audio/tank_hearts_critical.ogg", volume: 0.5});
@@ -32,7 +34,7 @@ class Tank {
   gainItem(item, itemCooldown = 8.0) { // Game.Items, float
     this.powerups.push(item);
     
-    print(this.powerups);
+    // print(this.powerups);
 
     if (item.type == Game.ItemType.DEFAULT){
       Game.startItemTimer(item, itemCooldown);
@@ -51,7 +53,7 @@ class Tank {
   }
   loseItem(item) {
     Game.removeObject(this.powerups, item);
-    print(this.powerups);
+    // print(this.powerups);
   }
   hit() {
     if (this.invincible || !this.alive) return;
@@ -130,7 +132,8 @@ class Tank {
     stroke(90, 0, 0)
     square(this.x, this.y, this.dpSize, this.dpSize/10.0);
   
-    // image(this.img, this.x + 5.0, this.y)
+    image(this.img, this.x + 5.0, this.y)
+    image(this.imgHeart, this.x, this.y - 60.0)
 
     fill(255);
     stroke(0);
@@ -138,5 +141,6 @@ class Tank {
     textAlign(CENTER);
 
     text(`${this.lives}`, this.x, this.y - 54.0);
+
   }
 }

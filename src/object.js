@@ -8,9 +8,12 @@ class Item {
     this.player = player;
     this.enemies = [];
     this.col = [];
+    
+    this.size = 50.0;
+    this.img = loadImage('img/question.svg');
+    this.imgEyes = loadImage('img/bomb-eyes.svg');
 
     this.hitsToOpen = 15;
-    this.size = 50.0;
     this.cooldown = cooldown;
 
     this.moveX = random() > 1 / 2;
@@ -96,7 +99,7 @@ class Item {
         this.col = [255,255,255];
         break;
       case Game.Items.BOMB:
-        this.col = [0,0,0];
+        // this.col = [25,25,25];
         break;
     }
 
@@ -109,13 +112,26 @@ class Item {
     fill(255);
 
     if (!this.opened){
-      text(`${this.hitsToOpen}`, this.x, this.y);
+      if (this.itemType == Game.Items.BOMB){
+        image(this.imgEyes, this.x, this.y);
+        this.size = 60.0;
+
+        this.col[0] = (1.0 - (this.hitsToOpen / 15.0)) * 175;
+        this.col[1] = 25;
+        this.col[2] = 25;
+        
+      } else {
+        image(this.img, this.x, this.y);
+        
+      }
+
+      text(`${this.hitsToOpen}`, this.x, this.y+50.0);
+
     } else {
       text("! ! !", this.x, this.y);
     }
 
     if (this.opened && !this.#openState){
-      // print("open!");
       setTimeout(() => {
         this.collected = true;
       }, this.cooldown * 1000.0);
@@ -188,7 +204,6 @@ class TankBuddy{
     this.#start = millis();
 
     setTimeout(() => {
-      print("peace out")
       this.alive = false;
     }, this.lifetime * 1000.0)
   }

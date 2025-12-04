@@ -427,7 +427,6 @@ class Enemy {
         break;
 
       case Game.EnemyTypes.SPLITTER:
-        print("splitter!")
         img = loadImage("img/enemy-eyes-splitter-01.svg");
         break;
 
