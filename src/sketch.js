@@ -600,41 +600,35 @@ function draw() {
   });
 
   for (let i = 0; i < activeTimes.length; i++){
-    // print(activeTimes[i][0], activeTimes[i][1]);
-
     let itemHeld = activeTimes[i][0];
-    let timeRemaining;
 
     const w = width - 120.0 - (120.0 * i);
     const h = height - 100.0;
-
-    console.log(itemHeld);
-
     
-    if (itemHeld === "Tank Buddy"){
-      timeRemaining = `${activeTimes[i][1]} (Click to Release)`;
-    } else {
-      timeRemaining = activeTimes[i][1].toFixed(2);
+    let timeLeft = activeTimes[i][1];
+    let barHeight = 100.0 * (timeLeft / Game.powerupTime);
+    
+    rectMode(CORNER);
+    noStroke();
 
-      // TODO add indicator when time <= 3.0
-
-      let barHeight = 100.0 * (activeTimes[i][1] / Game.powerupTime);
-
-      rectMode(CORNER);
-      noStroke();
-
-      rect(
-        w - 50.0,
-        h - barHeight + 50.0,
-        100.0,
-        barHeight,
-        10.0,
-        10.0
-      );
-
-      rectMode(CENTER);
-      stroke(50);
+    let flash = 1;
+    if (timeLeft <= 3.0) {
+      flash = map(sin(millis() * 0.015), -1, 1, 0.5, 1);
     }
+
+    fill(255, 255 * flash, 255 * flash);
+
+    rect(
+      w - 50.0,
+      h - barHeight + 50.0,
+      100.0,
+      barHeight,
+      10.0,
+      10.0
+    );
+    
+    rectMode(CENTER);
+    stroke(50);
     
     if (itemHeld === "Counter-Spike"){
       image(iconCS, w, h);
@@ -646,12 +640,19 @@ function draw() {
       image(iconInacc, w, h);
     }
 
-    // text(`${itemHeld}:\n${timeRemaining}`,
-    //   width - 120.0 - (140.0 * (i)), 
-    //   height - 100.0
-    //   // width / 2.0, 
-    //   // height - 30.0 - (35.0 * (i + 1))
-    // );
+    if (itemHeld === "Tank Buddy"){
+      textSize(20);
+      text('Click to\nRelease!',
+        w, 
+        h - 75.0
+      );
+
+      textSize(30);
+      text(`${activeTimes[i][1]}`,
+        w + 45.0, 
+        h + 45.0
+      );
+    }
   }
   //
 
