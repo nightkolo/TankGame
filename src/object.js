@@ -198,6 +198,8 @@ class TankBuddy{
     this.#start = 0.0;
     this.alive = true;
 
+    this.img = loadImage('img/buddy-eyes.svg');
+
     this.spawned(); 
   }
   spawned(){
@@ -220,7 +222,7 @@ class TankBuddy{
   update(){
   }
   show(){
-    square(this.x, this.y, this.size);
+    square(this.x, this.y, this.size, this.size/8.0);
 
     fill(255);
     stroke(0);
@@ -229,6 +231,8 @@ class TankBuddy{
 
     this.timeLeft = Game.tankBuddyLifetime - ((millis() - this.start) / 1000.0)
 
-    text(`${this.getTimeLeft().toFixed(1)}`, this.x, this.y + 8.0);
+    image(this.img, this.x, this.y)
+
+    text(`${this.getTimeLeft().toFixed(1)}`, this.x, this.y + 50.0);
   }
 }

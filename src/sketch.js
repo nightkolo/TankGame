@@ -284,8 +284,8 @@ function gotoNextWave() {
   bgCol = Game.getWaveCol(wave);
 
   if (random() < 1 / 1) {
-    spawnItem(Game.Items.BOMB);
-    // spawnItem();
+    // spawnItem(Game.Items.TANK_BUDDY);
+    spawnItem();
 
   }
   // let value = Game.EnemyTypes.SPLITTER;
@@ -343,9 +343,20 @@ function newGame(){
 }
 
 let bgIMG;
+let icon;
+let iconDazzle;
+let iconCS;
+let iconBuddy;
+let iconInacc;
 let fonts;
 
 function preload() {
+  icon = loadImage('img/power-up-icon-def.svg');
+  iconDazzle = loadImage('img/item-icon-dazzle.svg');
+  iconCS = loadImage('img/item-icon-counter-spike.svg');
+  iconBuddy = loadImage('img/item-icon-tankbuddy.svg');
+  iconInacc = loadImage('img/item-icon-inaccuracy-01.svg');
+ 
   bgIMG = loadImage("img/bg-main-03.png");
   fonts = loadFont("font/Nunito-Bold.ttf");
 }
@@ -463,9 +474,6 @@ function draw() {
     }
   }
   
-  // Handle tankBuddies
-  tankBuddies = tankBuddies.filter(handleTankBuddies);
-
   // Handle buddyBullets
   fill(200, 200, 255);
   buddyBullets = buddyBullets.filter((b) => {
@@ -485,6 +493,11 @@ function draw() {
     return !removeBullet && !GameMath.offScreen(b.x, b.y, canSize.x, canSize.y);
   });
   fill(255);
+
+  // Handle tankBuddies
+  fill(127, 127, 255);
+  tankBuddies = tankBuddies.filter(handleTankBuddies);
+
 
   // Handle Enemies
   enemies.forEach((e) => {
@@ -592,6 +605,12 @@ function draw() {
     let itemHeld = activeTimes[i][0];
     let timeRemaining;
 
+    const w = width - 120.0 - (120.0 * i);
+    const h = height - 100.0;
+
+    console.log(itemHeld);
+
+    
     if (itemHeld === "Tank Buddy"){
       timeRemaining = `${activeTimes[i][1]} (Click to Release)`;
     } else {
@@ -605,8 +624,8 @@ function draw() {
       noStroke();
 
       rect(
-        width - 170.0 - (140.0 * i),
-        height - 50.0 - barHeight,
+        w - 50.0,
+        h - barHeight + 50.0,
         100.0,
         barHeight,
         10.0,
@@ -617,12 +636,22 @@ function draw() {
       stroke(50);
     }
     
-    text(`${itemHeld}:\n${timeRemaining}`,
-      width - 120.0 - (140.0 * (i)), 
-      height - 100.0
-      // width / 2.0, 
-      // height - 30.0 - (35.0 * (i + 1))
-    );
+    if (itemHeld === "Counter-Spike"){
+      image(iconCS, w, h);
+    } else if (itemHeld === "Dazzle"){
+      image(iconDazzle, w, h);
+    } else if (itemHeld === "Tank Buddy"){
+      image(iconBuddy, w, h);
+    } else if (itemHeld === "Inaccuracy"){
+      image(iconInacc, w, h);
+    }
+
+    // text(`${itemHeld}:\n${timeRemaining}`,
+    //   width - 120.0 - (140.0 * (i)), 
+    //   height - 100.0
+    //   // width / 2.0, 
+    //   // height - 30.0 - (35.0 * (i + 1))
+    // );
   }
   //
 

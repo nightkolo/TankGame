@@ -350,6 +350,8 @@ class Enemy {
       if (this.isBeingHit){
         this.imgEyes.resize(imgSize + this.health * 2.0, 0);
         image(this.imgHitEyes, this.eyeX, this.eyeY);
+
+        text(`${this.health}`, this.x, this.y - 20.0);
       } else {
         this.imgEyes.resize(imgSize + this.health * 2.0, 0);
         image(this.imgEyes, this.eyeX, this.eyeY);
@@ -362,7 +364,9 @@ class Enemy {
     strokeWeight(5);
     stroke(0);
 
-    text(`${this.health}`, this.x, this.y - 20.0);
+    if (this.isBeingHit){
+      text(`${this.health}`, this.x, this.y - 20.0);
+    }
   }
   hit(hitX = 0, hitY = 0, hitpoint = 1) {
     this.#lastHitTime = millis(); // record when last hit occurred
