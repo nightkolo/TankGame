@@ -129,7 +129,7 @@ function enemyDied(targetEnemy, bullet){
   Game.lastEnemyTypeHit = targetEnemy.type;
   Game.enemiesDefeated++;
 
-  animScreenShake(targetEnemy.points*1.5, targetEnemy.points*2.0);
+  animScreenShake(targetEnemy.points*2.5, targetEnemy.points*3.0);
 
   switch (targetEnemy.type) {
     case Game.EnemyTypes.EXPLODER:
@@ -612,10 +612,9 @@ function draw() {
     noStroke();
 
     let flash = 1;
-    if (timeLeft <= 3.0) {
+    if (timeLeft <= 3.0 || itemHeld === "Tank Buddy") {
       flash = map(sin(millis() * 0.015), -1, 1, 0.5, 1);
     }
-
     fill(255, 255 * flash, 255 * flash);
 
     rect(
@@ -636,27 +635,19 @@ function draw() {
       image(iconDazzle, w, h);
     } else if (itemHeld === "Tank Buddy"){
       image(iconBuddy, w, h);
+      textSize(20);
+      text('Click to\nRelease!', w, h - 75.0);
+  
+      textSize(30);
+      text(`${activeTimes[i][1]}`,w + 45.0, h + 45.0);
     } else if (itemHeld === "Inaccuracy"){
       image(iconInacc, w, h);
-    }
-
-    if (itemHeld === "Tank Buddy"){
-      textSize(20);
-      text('Click to\nRelease!',
-        w, 
-        h - 75.0
-      );
-
-      textSize(30);
-      text(`${activeTimes[i][1]}`,
-        w + 45.0, 
-        h + 45.0
-      );
     }
   }
   //
 
   strokeWeight(5);
+  textSize(25);
 
   // Handle enemyBullets
   fill(255, 175, 175);
