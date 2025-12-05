@@ -10,8 +10,6 @@ let tankBuddies = [];
 let enemies = [];
 let items = [];
 
-let playerTrail = [];
-
 // Game Loop
 let wave = 67; // Why
 let score = 0;
@@ -33,7 +31,9 @@ let curBulletDir = {
   y: -1,
 };
 
+// Juice
 let bgCol = Game.bgCols[0];
+let playerTrail = [];
 
 function handleEnemyBullets(bullet) {
   if (!bullet.alive) {
@@ -506,7 +506,7 @@ function draw() {
 
   // Handle Enemies
   enemies.forEach((e) => {
-    e.slow = slowMode;
+    e.slowMode = slowMode;
 
     if (e.spawnBullets() && e.canShoot) {
       let spd = Game.getEnemyBulletsSpeed(slowMode);

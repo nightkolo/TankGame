@@ -1,4 +1,6 @@
 class Tank {
+  #gainedLife = true;
+
   constructor() {
     this.x = 0.0;
     this.y = 0.0;
@@ -17,19 +19,29 @@ class Tank {
     this.img = loadImage('img/tank-eyes-01.svg');
     this.imgHit = loadImage('img/tank-eyes-01.svg');
     this.imgHeart = loadImage('img/heart-02.svg');
+    this.imgHeart1 = loadImage('img/heart-01.svg');
     // Audio
     this.hitSFX = new Howl({ src: "audio/tank_hit_01.ogg", volume: 0.5});
     this.criticalHealthSFX = new Howl({src: "audio/tank_hearts_critical.ogg", volume: 0.5});
 
     this.lives = 3;
-    this.newLives = 0;
+    this.floatingHearts = 0;
     this.alive = true;
     this.invincible = false;
     this.invincibilityTime = 1.0;
+    this.trail = [];
+    this.maxTrailLength = 50;
+    this.mouseDirX = 0;
+    this.mouseDirY = 0;
+    this.prevMouseX = mouseX;
+    this.prevMouseY = mouseY;
   }
   gainLives(lives = 1){
     this.lives += lives;
-    this.newLives += lives;
+    if (this.#gainedLife){
+      this.floatingHearts++;
+    }
+    this.#gainedLife = !this.#gainedLife;
   }
   gainItem(item, itemCooldown = 8.0) { // Game.Items, float
     this.powerups.push(item);
@@ -62,6 +74,7 @@ class Tank {
     this.hitSFX.play();
 
     this.lives--;
+    this.floatingHearts = 0;
 
     if (this.lives < 2){
       this.criticalHealthSFX.play();
@@ -99,8 +112,39 @@ class Tank {
   update() {
     this.x = mouseX;
     this.y = mouseY;
+
+    // Track mouse movement direction
+    let dx = mouseX - this.prevMouseX;
+    let dy = mouseY - this.prevMouseY;
+
+    this.mouseDirX = dx === 0 ? this.mouseDirX : (dx > 0 ? 1 : -1);
+    this.mouseDirY = dy === 0 ? this.mouseDirY : (dy > 0 ? 1 : -1);
+
+    this.prevMouseX = mouseX;
+    this.prevMouseY = mouseY;
+
+    // console.log(this.trail);
+    // Store trail positions
+    this.trail.push({ x: this.x, y: this.y });
+    if (this.trail.length > this.maxTrailLength) {
+      this.trail.shift();
+    }
   }
   show() {
+    // Draw following circles based on floatingHearts
+    let steps = floor(this.trail.length / max(1, this.floatingHearts * 4));
+
+    for (let i = 1; i <= min(5, this.floatingHearts); i++) {
+      let index = this.trail.length - 1 - i * steps;
+
+      if (index >= 0) {
+        let p = this.trail[index];
+        noStroke();
+        fill(255, 255, 255, 120);
+        image(this.imgHeart1, p.x + (i * 15.0 * -this.mouseDirX), p.y + (i * 5.0 * -this.mouseDirY));
+      }
+    }
+
     if (this.invincible) {
       fill(255 / 2, 125 / 2, 0 / 2);
     } else {
@@ -113,7 +157,16 @@ class Tank {
     square(this.x, this.y, this.dpSize, this.dpSize/10.0);
   
     image(this.img, this.x + 5.0, this.y)
-    image(this.imgHeart, this.x, this.y - 60.0)
+
+    let flash = 1
+    if (this.lives === 1){
+      flash = map(sin(millis() * 0.03), -1, 1, 0.5, 1);
+    } else if (this.lives === 2){
+     flash = map(sin(millis() * 0.015), -1, 1, 0.5, 1);
+    }
+    
+    tint(255 * flash, 255 * flash, 255 * flash);
+    image(this.imgHeart, this.x, this.y - 60.0);
 
     fill(255);
     stroke(0);
@@ -121,6 +174,6 @@ class Tank {
     textAlign(CENTER);
 
     text(`${this.lives}`, this.x, this.y - 54.0);
-
+    tint(255,255,255);
   }
 }
