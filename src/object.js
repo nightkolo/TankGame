@@ -1,5 +1,6 @@
 class Item {
   #openState;
+  #hitsToOpen = 15;
 
   constructor(x, y, item, player, cooldown = Game.powerupTime) {
     this.x = x;
@@ -12,8 +13,8 @@ class Item {
     this.size = 50.0;
     this.img = loadImage('img/question.svg');
     this.imgEyes = loadImage('img/bomb-eyes.svg');
+    this.imgPickup = this.getIcon();
 
-    this.hitsToOpen = 15;
     this.cooldown = cooldown;
 
     this.moveX = random() > 1 / 2;
@@ -24,17 +25,37 @@ class Item {
     this.collected = false;
 
     this.#openState = false;
+    this.openedAt = null;
+  }
+  getIcon() {
+    let img;
+    switch (this.itemType){
+      case Game.Items.COUNTER_SPIKE:
+        img = loadImage('img/item-pickup-counter-spike.svg');
+        break;
+      case Game.Items.DAZZLE:
+        img = loadImage('img/item-pickup-dazzle.svg');
+        break;
+      case Game.Items.TANK_BUDDY:
+        img = loadImage('img/item-pickup-tankbuddy.svg');
+        break;
+      case Game.Items.INACCURACY:
+        img = loadImage('img/item-pickup-inaccuracy.svg');
+        break;
+    }
+    return img;
   }
   isOpen() {
-    return this.hitsToOpen < 1;
+    return this.#hitsToOpen < 1;
   }
   hit() {
     if (this.opened) return;
 
-    this.hitsToOpen--;
+    this.#hitsToOpen--;
 
-    if (this.hitsToOpen < 1) {
+    if (this.#hitsToOpen < 1) {
       this.opened = true;
+      this.openedAt = millis();
     }
   }
   grantItem() {
@@ -52,10 +73,7 @@ class Item {
         Game.dropBomb(this.x, this.y);
       }
     }
-
     Game.itemCollected(this.itemType);
-
-    // print(`Item gained: ${Game.getItemName(this.item)}`);
 
     this.enemies.forEach((e) => {
       e.moveAwayItemCollected(this.x, this.y);
@@ -98,43 +116,49 @@ class Item {
       case Game.Items.DAZZLE:
         this.col = [255,255,255];
         break;
-      case Game.Items.BOMB:
-        // this.col = [25,25,25];
-        break;
     }
 
-    fill(this.col[0], this.col[1], this.col[2])
-    circle(this.x, this.y, this.size);
     stroke(0);
     textSize(20.0);
     textAlign(CENTER);
-
-    fill(255);
-
+    
     if (!this.opened){
+      fill(this.col[0], this.col[1], this.col[2])
+      circle(this.x, this.y, this.size);
+      
       if (this.itemType == Game.Items.BOMB){
         image(this.imgEyes, this.x, this.y);
         this.size = 60.0;
-
-        this.col[0] = (1.0 - (this.hitsToOpen / 15.0)) * 175;
+        
+        this.col[0] = (1.0 - (this.#hitsToOpen / 15.0)) * 175;
         this.col[1] = 25;
         this.col[2] = 25;
         
       } else {
         image(this.img, this.x, this.y);
-        
       }
-
-      text(`${this.hitsToOpen}`, this.x, this.y+50.0);
-
+      fill(255);
+      text(`${this.#hitsToOpen}`, this.x, this.y+50.0);
+      
     } else {
-      text("! ! !", this.x, this.y);
-    }
+      if (this.itemType !== Game.Items.BOMB){
+        image(this.imgPickup, this.x, this.y);
 
+        if (this.openedAt !== null && millis() - this.openedAt > 5.5 * 1000) {
+          let a = map(sin(millis() * 0.01), -1, 1, 80, 255);
+          noStroke();
+          fill(255, 0, 0, a);
+          circle(this.x, this.y, this.size);
+        }
+      }
+    }
+    fill(255);
+
+    // Remove item pickup after 8 seconds of laying there
     if (this.opened && !this.#openState){
       setTimeout(() => {
         this.collected = true;
-      }, this.cooldown * 1000.0);
+      }, 8.0 * 1000.0);
       this.#openState = true;
     }
   }

@@ -348,9 +348,14 @@ let iconDazzle;
 let iconCS;
 let iconBuddy;
 let iconInacc;
+let panel;
+let panel2;
 let fonts;
 
 function preload() {
+  panel = loadImage('img/panel-01.svg');
+  panel2 = loadImage('img/panel-02.svg');
+
   icon = loadImage('img/power-up-icon-def.svg');
   iconDazzle = loadImage('img/item-icon-dazzle.svg');
   iconCS = loadImage('img/item-icon-counter-spike.svg');
@@ -578,14 +583,17 @@ function draw() {
     textSize(30);
     textStyle(BOLD);
 
-    text("A Game by Night Kolo", width / 2, 100);
-    text("Made in p5.js", width / 2, 140);
-    // text("WIP", width / 2, 140);
+    text("A Demo by Night Kolo\nMade in p5.js", width / 2, 100);
+    text("Tank is Tiny", width/4, (height / 2.0) - 140.0)
+    
     strokeWeight(7.5);
     stroke(50);
-    text("Defeat the Enemies", (width / 4) * 3.0, height / 2.0);
-    text("Click to Fire\n\n\nWASD\nto change\nProjectiles", (width / 4), (height / 2.0) - 50.0);
+    image(panel, width/4, height/2);
+    text("Shoot", (width / 4), (height / 2.0) + 140.0);
+    image(panel2, (width/4) * 3.0, height/2);
   }
+
+  
 
   // Item interface
   textSize(25);
