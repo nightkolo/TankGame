@@ -41,6 +41,7 @@ class Tank {
     if (this.#gainedLife){
       this.floatingHearts++;
     }
+    this.lives = min(15, this.lives);
     this.#gainedLife = !this.#gainedLife;
   }
   gainItem(item, itemCooldown = 8.0) { // Game.Items, float
@@ -173,7 +174,12 @@ class Tank {
     textSize(25.0);
     textAlign(CENTER);
 
-    text(`${this.lives}`, this.x, this.y - 54.0);
+    if (this.lives == 15){
+      textLeading(22)
+      text(`${this.lives}\nMAX`, this.x, this.y - 54.0);
+    } else {
+      text(`${this.lives}`, this.x, this.y - 54.0);
+    }
     tint(255,255,255);
   }
 }

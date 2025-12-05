@@ -283,7 +283,7 @@ function gotoNextWave() {
 
   bgCol = Game.getWaveCol(wave);
 
-  if (random() < 1 / 1) {
+  if (random() < 1 / 3) {
     // spawnItem(Game.Items.TANK_BUDDY);
     spawnItem();
 

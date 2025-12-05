@@ -79,7 +79,13 @@ class Game {
     ],
   ]
 
+  static lastCycle = 0;
   static getWaveCol(wave){ // experimental
+    let cycle = floor(wave / 50.0);
+    if (this.lastCycle !== cycle){
+      this.lastCycle = cycle;
+      wave -= 50;
+    }
     return this.bgCols[floor(wave / 10.0)];
   }
 
