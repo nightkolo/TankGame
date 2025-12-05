@@ -5,6 +5,7 @@ class Enemy {
   #player;
   #slowState = false;
   #lastHitTime = 0.0;
+  #col = [0, 0, 0, 0];
 
   constructor({
     x = 200,
@@ -55,7 +56,7 @@ class Enemy {
     this.dirX = Math.sign(random() - 0.5);
     
     // Item
-    this.slow = false;
+    this.slowMode = false;
     
     // State
     this.canMove = false;
@@ -63,16 +64,15 @@ class Enemy {
     
     // Animation
     this.t = 1.0;
+    this.animatingBounce = false;
     this.startX = 0;
     this.startY = 0;
-    this.animatingBounce = false;
 
     this.tStart = 1.0;
     this.animatingStart = false;
     
     // Misc.
-    this.#player = player;
-    this.col = [0, 0, 0];
+    this.#player = player
     this.followPlayer = followPlayer;
     this.canShoot = false;
     this.isBeingHit = false;
@@ -81,7 +81,7 @@ class Enemy {
     this.spawned();
   }
   spawned() {
-    this.animStart();
+    this.animSpawn();
 
     switch (this.type){
       case Game.EnemyTypes.BOUNCER:
@@ -105,7 +105,7 @@ class Enemy {
     let spd = this.maxSpeed;
     let fallFactor = 1.0 / 64.0;
 
-    if (this.slow){
+    if (this.slowMode){
       spd /= 8.0;
       fallFactor /= 8.0;
       this.#slowState = true;
@@ -174,7 +174,7 @@ class Enemy {
       if (this.type == Game.EnemyTypes.SPRINTER) {
         spd *= 3.33;
       }
-      if (this.slow){
+      if (this.slowMode){
         spd /= 4.0;
       }
       this.x += dx * spd;
@@ -185,7 +185,7 @@ class Enemy {
     if (!this.canShoot && this.type != Game.EnemyTypes.SHOOTER) return false;
 
     let factor = 0.0;
-    if (this.slow){
+    if (this.slowMode){
       factor = this.shootingSpdFactor * 4.0;
     } else {
       factor = this.shootingSpdFactor;
@@ -193,9 +193,7 @@ class Enemy {
 
     if (millis() - this.#lastShotTime > factor * 1000) {
       let aud = this.shootSFXs[floor(random() * this.shootSFXs.length)];
-      // if (aud.isLoaded()){
       aud.play()
-      // }
 
       this.#lastShotTime = millis();
       return true; // ready to fire
@@ -215,7 +213,7 @@ class Enemy {
     this.t = 0;
     this.animatingBounce = true;
   }
-  animStart(){
+  animSpawn(){
     this.tStart = 0.0;
     this.animatingStart = true;
   }
@@ -247,10 +245,10 @@ class Enemy {
 
     let imgSize = 68.0;
     
-    fill(this.col[0], this.col[1], this.col[2], this.col[3]);
+    fill(this.#col[0], this.#col[1], this.#col[2], this.#col[3]);
 
     if (!this.canHurt){
-      this.col = this.getEnemyColor(5.0, 255/4);
+      this.#col = this.getEnemyColor(5.0, 255/4);
       stroke(this.getEnemyColor());
       strokeWeight(10);
 
@@ -258,7 +256,7 @@ class Enemy {
       strokeWeight(5);
 
       if (!this.isBeingHit) {
-        this.col = this.getEnemyColor();
+        this.#col = this.getEnemyColor();
         stroke(this.getEnemyColor(4.0));
       }
 
@@ -321,7 +319,7 @@ class Enemy {
 
     // Animation
     if (this.animatingStart) {
-      // TODO enemy spawn and anim not synced
+      // ISSUE enemy spawn and anim not synced
       this.tStart += deltaTime * 0.001;
 
       circle(this.x, this.y, this.dpSize * this.tStart);
@@ -372,9 +370,9 @@ class Enemy {
     this.#lastHitTime = millis(); // record when last hit occurred
     this.isBeingHit = true;
 
-    this.col[0] *= 0.65;
-    this.col[1] *= 0.65;
-    this.col[2] *= 0.65;
+    this.#col[0] *= 0.65;
+    this.#col[1] *= 0.65;
+    this.#col[2] *= 0.65;
 
     this.animBounce(hitX !== 0 && hitY == 0);
 
@@ -450,7 +448,6 @@ class Enemy {
         break;
 
       default:
-        // 
         break;
     }
   return img;

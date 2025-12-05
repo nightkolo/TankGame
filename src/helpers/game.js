@@ -10,33 +10,6 @@ class Game {
   static tankBuddyLifetime = 8.0;
   static defaultEnemySpeed = 1.35;
   static powerupTime = 8.0;
-  static bombDropped = false;
-  static bombX = 0.0;
-  static bombY = 0.0;
-  static critHitProb = 10;
-  static critHitX;
-  static critHitY;
-  static critHitScaleX;
-  static critHitScaleY;
-  static lastEnemyTypeHit;
-
-  static critHitEvent(x, y){
-    this.critHitX = x;
-    this.critHitY = y;
-    if (random() < 1/2){
-      this.critHitScaleY = 2.0;
-      this.critHitScaleX = 0.25;
-    } else {
-      this.critHitScaleX = 2.0;
-      this.critHitScaleY = 0.25;
-    }
-  }
-
-  static dropBomb(x, y){
-    this.bombDropped = true;
-    this.bombX = x;
-    this.bombY = y;
-  }
 
   static setGame(){
     clearInterval(inaccuracyInterval);
@@ -69,7 +42,6 @@ class Game {
     SPRINTER: 6, 
     SPLITTED: 99
   };
-
   static ItemType = {
     DEFAULT: 0,
     ACTIVATABLE: 1,
@@ -91,6 +63,22 @@ class Game {
     [255, 255, 105]
   ];
 
+  static enemyEncounter = [
+    [ // 1st Encounter
+      this.EnemyTypes.NORMAL,
+      this.EnemyTypes.SHOOTER,
+      this.EnemyTypes.BOUNCER
+    ],
+    [ // 2nd Encounter
+      this.EnemyTypes.SPLITTER,
+      this.EnemyTypes.REFLECTOR
+    ],
+    [ // 3rd Encounter
+      this.EnemyTypes.EXPLODER,
+      this.EnemyTypes.SPRINTER
+    ],
+  ]
+
   static getWaveCol(wave){ // experimental
     return this.bgCols[floor(wave / 10.0)];
   }
@@ -106,7 +94,6 @@ class Game {
 
     print(this.itemStats);
   }
-
 
   static setItemTimer(itemType, value){ // set by Player
     if (itemType == this.Items.BOMB) return;
@@ -189,19 +176,36 @@ class Game {
     return item;
   }
 
-  static enemyEncounter = [
-    [ // 1st Encounter
-      this.EnemyTypes.NORMAL,
-      this.EnemyTypes.SHOOTER,
-      this.EnemyTypes.BOUNCER
-    ],
-    [ // 2nd Encounter
-      this.EnemyTypes.SPLITTER,
-      this.EnemyTypes.REFLECTOR
-    ],
-    [ // 3rd Encounter
-      this.EnemyTypes.EXPLODER,
-      this.EnemyTypes.SPRINTER
-    ],
-  ]
+  // Bomb item
+  static bombDropped = false;
+  static bombX = 0.0;
+  static bombY = 0.0;
+
+  static dropBomb(x, y){
+    this.bombDropped = true;
+    this.bombX = x;
+    this.bombY = y;
+  }
+
+  // Crit Hit
+  static critHitProb = 10;
+  static critHitX;
+  static critHitY;
+  static critHitScaleX;
+  static critHitScaleY;
+
+  static critHitEvent(x, y){
+    this.critHitX = x;
+    this.critHitY = y;
+    if (random() < 1/2){
+      this.critHitScaleY = 2.0;
+      this.critHitScaleX = 0.25;
+    } else {
+      this.critHitScaleX = 2.0;
+      this.critHitScaleY = 0.25;
+    }
+  }
+
+  // Juice
+  static lastEnemyTypeHit;
 }

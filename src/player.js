@@ -48,7 +48,6 @@ class Tank {
         this.tankBuddiesOwned++;
         Game.setItemTimer(item, this.tankBuddiesOwned);
       }
-
     }
   }
   loseItem(item) {
@@ -61,7 +60,6 @@ class Tank {
     print("Ouch!");
 
     this.hitSFX.play();
-
 
     this.lives--;
 
@@ -108,26 +106,8 @@ class Tank {
     } else {
       fill(255, 125, 125);
     }
-    // Placeholder assets
-    // if (this.curBulletDir.x > 0){
-    //   image(this.imgGunR, this.x + 33.0, this.y);
-
-    // } else if (this.curBulletDir.x < 0){
-    //   image(this.imgGunL, this.x - 33.0, this.y);
-
-    // } else if (this.curBulletDir.y > 0){
-    //   image(this.imgGunD, this.x, this.y + 33.0);
-      
-    // } else if (this.curBulletDir.y < 0){
-    //   image(this.imgGunU, this.x, this.y - 33.0); 
-    // }
 
     imageMode(CENTER);
-    // image(this.img, this.x, this.y, this.size, this.size);
-    // square(this.x - (this.size/2.5), this.y, this.size/2.0);
-    // square(this.x + (this.size/2.5), this.y, this.size/2.0);
-    // square(this.x, this.y - (this.size/2.5), this.size/2.0);
-    // square(this.x, this.y + (this.size/2.5), this.size/2.0);
     
     stroke(90, 0, 0)
     square(this.x, this.y, this.dpSize, this.dpSize/10.0);

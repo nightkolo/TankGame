@@ -1,6 +1,7 @@
 class Item {
-  #openState;
+  #openState = false;
   #hitsToOpen = 15;
+  #openedAt = 0.0;
 
   constructor(x, y, item, player, cooldown = Game.powerupTime) {
     this.x = x;
@@ -23,9 +24,6 @@ class Item {
 
     this.opened = false;
     this.collected = false;
-
-    this.#openState = false;
-    this.openedAt = null;
   }
   getIcon() {
     let img;
@@ -44,9 +42,6 @@ class Item {
         break;
     }
     return img;
-  }
-  isOpen() {
-    return this.#hitsToOpen < 1;
   }
   hit() {
     if (this.opened) return;
@@ -68,7 +63,6 @@ class Item {
       this.player.gainItem(this.itemType, this.cooldown);
     } else {
       // Switch
-
       if (this.itemType == Game.Items.BOMB){
         Game.dropBomb(this.x, this.y);
       }
@@ -163,6 +157,7 @@ class Item {
     }
   }
 }
+
 class Bomb {
   constructor(x, y){
     this.x = x;
@@ -211,7 +206,7 @@ class Bomb {
 class TankBuddy{
   #start
    
-  constructor(x, y, shootSpd /*, shootingDir*/){
+  constructor(x, y, shootSpd){
     this.x = x;
     this.y = y;
     this.size = 50.0;
@@ -252,8 +247,6 @@ class TankBuddy{
     stroke(0);
     textSize(25.0);
     textAlign(CENTER);
-
-    this.timeLeft = Game.tankBuddyLifetime - ((millis() - this.start) / 1000.0)
 
     image(this.img, this.x, this.y)
 
