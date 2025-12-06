@@ -429,6 +429,7 @@ function draw() {
       bgPulseStart = null;
     } else {
       bgCol = [
+        // Cannot read properties of undefined (reading '0') @ wave 50+
         lerp(bgPulseFrom[0], bgPulseTo[0], t),
         lerp(bgPulseFrom[1], bgPulseTo[1], t),
         lerp(bgPulseFrom[2], bgPulseTo[2], t)

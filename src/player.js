@@ -1,6 +1,4 @@
 class Tank {
-  #gainedLife = true;
-
   constructor() {
     this.x = 0.0;
     this.y = 0.0;
@@ -38,11 +36,9 @@ class Tank {
   }
   gainLives(lives = 1){
     this.lives += lives;
-    if (this.#gainedLife){
-      this.floatingHearts++;
-    }
+    this.floatingHearts++;
+    
     this.lives = min(15, this.lives);
-    this.#gainedLife = !this.#gainedLife;
   }
   gainItem(item, itemCooldown = 8.0) { // Game.Items, float
     this.powerups.push(item);
@@ -175,8 +171,8 @@ class Tank {
     textAlign(CENTER);
 
     if (this.lives == 15){
-      textLeading(22)
-      text(`${this.lives}\nMAX`, this.x, this.y - 54.0);
+      textLeading(21)
+      text(`${this.lives}\nMax`, this.x, this.y - 54.0);
     } else {
       text(`${this.lives}`, this.x, this.y - 54.0);
     }

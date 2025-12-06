@@ -171,8 +171,9 @@ class Enemy {
       dx /= distance;
       dy /= distance;
       let spd = this.maxSpeed * (1.0 - (this.health / (Game.enemyHealthFactor + 10.0)));
+      
       if (this.type == Game.EnemyTypes.SPRINTER) {
-        spd *= 3.33;
+        spd = this.maxSpeed * 2.0;
       }
       if (this.slowMode){
         spd /= 4.0;
