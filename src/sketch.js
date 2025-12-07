@@ -81,22 +81,33 @@ function handlePlayerBullets(bullet) {
 }
 
 function hitEnemy(bullet, targetEnemy){
-  var sfx;
+  let sfx;
 
   // Audio
   switch (targetEnemy.type){
     case Game.EnemyTypes.SHOOTER:
-      sfx = enemyHitSFXs[floor(random(enemyHitSFXs.length))];
+      sfx = enemyHit3SFXs[floor(random(enemyHit3SFXs.length))];
       break;
-    // case Game.EnemyTypes.BOUNCER:
-    //   sfx = enemyHitCuteSFXs[floor(random(enemyHitCuteSFXs.length))];
+    case Game.EnemyTypes.BOUNCER:
+      sfx = enemyHit5SFXs[floor(random(enemyHit5SFXs.length))];
+      break;
+    case Game.EnemyTypes.REFLECTOR:
+      sfx = enemyHit1SFXs[floor(random(enemyHit1SFXs.length))];
+      break;
+    case Game.EnemyTypes.EXPLODER:
+      sfx = enemyHit4SFXs[floor(random(enemyHit4SFXs.length))];
+      break;
+    // case Game.EnemyTypes.SPLITTER:
+    //   sfx = enemyHit4SFXs[floor(random(enemyHit4SFXs.length))];
     //   break;
     default:
-      sfx = enemyHitNormalSFXs[floor(random(enemyHitNormalSFXs.length))];
+      sfx = enemyHitSFX;
+      // sfx.rate(random(0.8, 1.2));
       break;
   }
   
   sfx.stereo(map(targetEnemy.x, 0, width, -1, 1)).play();
+  sfx.rate(1.25 - (1.25 * (targetEnemy.health / targetEnemy.getInitialHealth())))
   sfx.play();
   //
 
@@ -133,8 +144,8 @@ function enemyDied(targetEnemy, bullet){
 
   switch (targetEnemy.type) {
     case Game.EnemyTypes.EXPLODER:
-      let spd = Game.getEnemyBulletsSpeed(slowMode);
-      let size = 75.0;
+      const spd = Game.getEnemyBulletsSpeed(slowMode);
+      const size = 75.0;
 
       enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 0, -1, spd, size));
       enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 0, 1, spd, size));
@@ -147,18 +158,18 @@ function enemyDied(targetEnemy, bullet){
       break;
 
     case Game.EnemyTypes.SPLITTER:
-      let lastX = targetEnemy.x;
-      let lastY = targetEnemy.y;
-      let h = ceil(targetEnemy.getInitialHealth() / 3.0);
+      const lastX = targetEnemy.x;
+      const lastY = targetEnemy.y;
+      const h = ceil(targetEnemy.getInitialHealth() / 3.0);
 
-      let enemy1 = new Enemy({
+      const enemy1 = new Enemy({
         x: lastX + (100 * -bullet.dirY),
         y: lastY + (100 * bullet.dirX),
         health: h,
         type: Game.EnemyTypes.SPLITTED,
         player: p,
       });
-      let enemy2 = new Enemy({
+      const enemy2 = new Enemy({
         x: lastX - (100 * -bullet.dirY),
         y: lastY - (100 * bullet.dirX),
         health: h,
@@ -175,13 +186,13 @@ function enemyDied(targetEnemy, bullet){
   Game.removeObject(enemies, targetEnemy);
   score += scoreGained;
 
-  // enemyDeadSFX.rate(2.0 - (enemies.length / waveEnemyCount));
+  enemyDeadSFX.rate(1.5 - ((enemies.length / waveEnemyCount) * 1.5));
   enemyDeadSFX.play();
 }
 
 function handleTankBuddies(buddy){
     if (buddy.spawnBullets()) {
-      let spd = 10.0;
+      const spd = 10.0;
 
       buddyBullets.push(new Bullet(buddy.x, buddy.y, 0, -1, spd));
       buddyBullets.push(new Bullet(buddy.x, buddy.y, 0, 1, spd));
@@ -206,10 +217,10 @@ function spawnItem(item = -1) {
     itemToSpawn = item;
   }
 
-  let spawnX = GameMath.randomFloat(200.0, width - 200);
-  let spawnY = GameMath.randomFloat(200.0, height - 200);
+  const spawnX = GameMath.randomFloat(200.0, width - 200);
+  const spawnY = GameMath.randomFloat(200.0, height - 200);
 
-  let i = new Item(spawnX, spawnY, itemToSpawn, p);
+  const i = new Item(spawnX, spawnY, itemToSpawn, p);
 
   items.push(i);
 }
@@ -219,9 +230,9 @@ let waveEnemyCount = 1;
 function spawnRandomWaveEnemies(onWave = wave) {
   let encounterSet = 0;
 
-  if (onWave > enemySetEncounters[0] && onWave <= enemySetEncounters[1]) {
+  if (onWave <= enemySetEncounters[1]) {
     encounterSet = 0;
-  } else if (onWave > enemySetEncounters[1] && onWave <= enemySetEncounters[2]) {
+  } else if (onWave <= enemySetEncounters[2]) {
     encounterSet = 1;
   } else {
     encounterSet = 2;
@@ -233,24 +244,24 @@ function spawnRandomWaveEnemies(onWave = wave) {
     currentEnemyTypes.push(randomType);
   }
 
-  let healthMin = 3 + floor(wave / 6.0);
-  let enemySpawnsMin = 2 + floor(wave / 9.0);
-  let enemySpawnsFactor = 3 + floor(wave / 9.0);
-  let enemySpeed = Game.defaultEnemySpeed + (floor(wave / 2.0) / 10.0);
+  const healthMin = 3 + floor(wave / 6.0);
+  const enemySpawnsMin = 2 + floor(wave / 9.0);
+  const enemySpawnsFactor = 3 + floor(wave / 9.0);
+  const enemySpeed = Game.defaultEnemySpeed + (floor(wave / 2.0) / 10.0);
   
-  let noOfEnemies = enemySpawnsMin + floor(random() * enemySpawnsFactor);
+  const noOfEnemies = enemySpawnsMin + floor(random() * enemySpawnsFactor);
   waveEnemyCount = noOfEnemies;
 
   for (let i = 0; i < noOfEnemies; i++) {
-    let spawnX = GameMath.randomFloat(120.0, width - 120.0);
-    let spawnY = GameMath.randomFloat(120.0, height - 120.0);
-    let health = healthMin + floor(random() * Game.enemyHealthFactor);
+    const spawnX = GameMath.randomFloat(120.0, width - 120.0);
+    const spawnY = GameMath.randomFloat(120.0, height - 120.0);
+    const health = healthMin + floor(random() * Game.enemyHealthFactor);
 
     // console.log(`Enemy (${i + 1}): ${round(spawnX)}, ${round(spawnY)}, ${health}`);
 
     const randomType = currentEnemyTypes[floor(random() * currentEnemyTypes.length)];
 
-    let newEnemy = new Enemy({
+    const newEnemy = new Enemy({
       x: spawnX,
       y: spawnY,
       health: health,
@@ -288,7 +299,7 @@ function gotoNextWave() {
     spawnItem();
 
   }
-  // let value = Game.EnemyTypes.SPLITTER;
+  // let value = Game.EnemyTypes.REFLECTOR;
 
   // spawnEnemy(value);
   spawnRandomWaveEnemies();
@@ -405,9 +416,7 @@ function draw() {
   
 
   if (screenShake) {
-    let shakeX = random(-shakeIntensity, shakeIntensity);
-    let shakeY = random(-shakeIntensity, shakeIntensity);
-    translate(shakeX, shakeY);
+    translate(random(-shakeIntensity, shakeIntensity), random(-shakeIntensity, shakeIntensity));
 
     shakeDuration--;
     if (shakeDuration <= 0) {
@@ -454,7 +463,7 @@ function draw() {
   // Spawn playerBullets
   if (isShooting && !noShoot && !gameOver) {
     if (millis() - lastSpawnTime > shootingSpdFactor * 1000.0) {
-      let size = 12.5;
+      const size = 12.5;
       let extraX = 0.0;
       let extraY = 0.0;
 
@@ -504,14 +513,13 @@ function draw() {
   fill(127, 127, 255);
   tankBuddies = tankBuddies.filter(handleTankBuddies);
 
-
   // Handle Enemies
   enemies.forEach((e) => {
     e.slowMode = slowMode;
 
     if (e.spawnBullets() && e.canShoot) {
-      let spd = Game.getEnemyBulletsSpeed(slowMode);
-      let size = 75.0;
+      const spd = Game.getEnemyBulletsSpeed(slowMode);
+      const size = 75.0;
 
       enemyBullets.push(new Bullet(e.x, e.y, 0, -1, spd, size));
       enemyBullets.push(new Bullet(e.x, e.y, 0, 1, spd, size));
@@ -594,8 +602,6 @@ function draw() {
     image(panel2, (width/4) * 3.0, height/2);
   }
 
-  
-
   // Item interface
   textSize(25);
   textAlign(CENTER);
@@ -609,31 +615,24 @@ function draw() {
   });
 
   for (let i = 0; i < activeTimes.length; i++){
-    let itemHeld = activeTimes[i][0];
+    const itemHeld = activeTimes[i][0];
+    const timeLeft = activeTimes[i][1];
 
     const w = width - 120.0 - (120.0 * i);
     const h = height - 100.0;
     
-    let timeLeft = activeTimes[i][1];
     let barHeight = 100.0 * (timeLeft / Game.powerupTime);
     
     rectMode(CORNER);
     noStroke();
 
-    let flash = 1;
+    let flash = 1.0;
     if (timeLeft <= 3.0 || itemHeld === "Tank Buddy") {
       flash = map(sin(millis() * 0.015), -1, 1, 0.5, 1);
     }
     fill(255, 255 * flash, 255 * flash);
 
-    rect(
-      w - 50.0,
-      h - barHeight + 50.0,
-      100.0,
-      barHeight,
-      10.0,
-      10.0
-    );
+    rect(w - 50.0, h - barHeight + 50.0, 100.0, barHeight, 10.0, 10.0);
     
     rectMode(CENTER);
     stroke(50);
@@ -778,7 +777,6 @@ function placeTankBuddy(){
 
 function mousePressed() {
   if (!p.alive){
-    
   } else {
     placeTankBuddy();
   }
