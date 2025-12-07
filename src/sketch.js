@@ -60,6 +60,7 @@ function handlePlayerBullets(bullet) {
     }
   });
 
+  // Item detection
   items.forEach((item) => {
     if (!item.opened && GameMath.circleCollision(
         item.x,
@@ -69,6 +70,8 @@ function handlePlayerBullets(bullet) {
         bullet.y,
         bullet.size / 2.0)
     ) {
+      itemHitSFX.rate(random(0.8, 1.2));
+      itemHitSFX.play();
       item.hit();
       removeBullet = true;
     }
@@ -182,12 +185,19 @@ function enemyDied(targetEnemy, bullet){
 
       break;
   }
+  
+  if (enemies.length === waveEnemyCount){
+    let sfx = enemyDeadSFXsFirst[floor(random() * enemyDeadSFXsFirst.length)];
+    sfx.stereo(map(targetEnemy.x, 0, width, -1, 1)).play();
+    sfx.play();  
+  } else {
+    enemyDeadSFX.rate(1.25 - ((enemies.length / waveEnemyCount) * 1.25));
+    enemyDeadSFX.stereo(map(targetEnemy.x, 0, width, -1, 1)).play();
+    enemyDeadSFX.play();
+  }
 
   Game.removeObject(enemies, targetEnemy);
   score += scoreGained;
-
-  enemyDeadSFX.rate(1.5 - ((enemies.length / waveEnemyCount) * 1.5));
-  enemyDeadSFX.play();
 }
 
 function handleTankBuddies(buddy){

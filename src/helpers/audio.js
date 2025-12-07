@@ -9,7 +9,7 @@ let nextwaveSFX = new Howl({
 });
 
 let next10waveSFX = new Howl({
-  src: ['audio/new_wave_01.ogg'],
+  src: ['audio/next_wave.wav'],
   volume: 0.5
 });
 
@@ -18,10 +18,22 @@ let enemyDeadSFX = new Howl({
   volume: 0.5
 });
 
+let critHitSFX = new Howl({
+  src: ['audio/crit_hit.wav'],
+  volume: 0.5
+});
+
+let enemyDeadSFXsFirst = [
+  new Howl({ src: ['audio/scratch_005.ogg'], volume: 0.5, stereo: 0 }),
+  new Howl({ src: ['audio/scratch_004.ogg'], volume: 0.5, stereo: 0 })
+]
+
 let shootChangeSFX = new Howl({
   src: ['audio/tank_shoot_change.wav'],
   volume: 0.375
 });
+
+let itemHitSFX = new Howl({ src: ['audio/impact/impactPlate_light_001.ogg'], volume: 0.5, stereo: 0 });
 
 let enemyHitSFX = new Howl({ src: ['audio/impact/bubble.ogg'], volume: 0.5, stereo: 0 });
 

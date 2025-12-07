@@ -14,6 +14,9 @@ class Item {
     this.size = 50.0;
     this.img = loadImage('img/question.svg');
     this.imgEyes = loadImage('img/bomb-eyes.svg');
+
+    this.openSFX = new Howl({ src: ['audio/item_open.wav'], volume: 0.5, stereo: 0 });
+    this.gainedSFX = new Howl({ src: ['audio/item_gained.wav'], volume: 0.5, stereo: 0 });
     this.imgPickup = this.getIcon();
 
     this.cooldown = cooldown;
@@ -49,12 +52,15 @@ class Item {
     this.#hitsToOpen--;
 
     if (this.#hitsToOpen < 1) {
+      this.openSFX.play();
       this.opened = true;
       this.openedAt = millis();
     }
   }
   grantItem() {
     if (this.collected) return;
+
+    this.gainedSFX.play();
 
     this.collected = true;
     this.player.gainLives();

@@ -201,6 +201,8 @@ class Game {
   static critHitScaleY;
 
   static critHitEvent(x, y){
+    critHitSFX.play();
+
     this.critHitX = x;
     this.critHitY = y;
     if (random() < 1/2){
