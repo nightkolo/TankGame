@@ -45,6 +45,7 @@ class Enemy {
       new Howl({ src: "audio/enemy_shooter_shoot_04.ogg", volume: 0.5}),
       new Howl({ src: "audio/enemy_shooter_shoot_05.ogg", volume: 0.5})
     ];
+    this.shootSFX = new Howl({ src: "audio/enemy_shooter_entered.ogg", volume: 0.5});
     this.imgEyes = this.getEnemyEyes();
     this.imgHitEyes = this.getEnemyEyesHit();
     this.eyeX = 0.0;
@@ -93,7 +94,7 @@ class Enemy {
       this.canMove = true;
       this.canHurt = true;
       this.canShoot = this.type == Game.EnemyTypes.SHOOTER;
-    }, 1000.0);
+    }, Game.enemySpawnTime * 1000.0);
   }
   bounce() {
     if (this.type != Game.EnemyTypes.BOUNCER) return;
@@ -195,6 +196,7 @@ class Enemy {
     if (millis() - this.#lastShotTime > factor * 1000) {
       let aud = this.shootSFXs[floor(random() * this.shootSFXs.length)];
       aud.play()
+      // this.shootSFX.play();
 
       this.#lastShotTime = millis();
       return true; // ready to fire
@@ -321,7 +323,7 @@ class Enemy {
     // Animation
     if (this.animatingStart) {
       // ISSUE enemy spawn and anim not synced
-      this.tStart += deltaTime * 0.001;
+      this.tStart += deltaTime * 0.001 * Game.enemySpawnTime;
 
       circle(this.x, this.y, this.dpSize * this.tStart);
 
@@ -496,6 +498,6 @@ class Enemy {
     return col;
   }
   toString(){
-    return `${round(this.x)}, ${round(this.y)}`
+    return `${this.type}`;
   }
 }

@@ -15,8 +15,10 @@ class Item {
     this.img = loadImage('img/question.svg');
     this.imgEyes = loadImage('img/bomb-eyes.svg');
 
-    this.openSFX = new Howl({ src: ['audio/item_open.wav'], volume: 0.5, stereo: 0 });
-    this.gainedSFX = new Howl({ src: ['audio/item_gained.wav'], volume: 0.5, stereo: 0 });
+    this.openSFX = new Howl({ src: ['audio/item_open.wav'], volume: 0.6, stereo: 0 });
+    this.gainedSFX = new Howl({ src: ['audio/item_gained.wav'], volume: 0.6, stereo: 0 });
+    this.dazzleSFX = new Howl({ src: ['audio/item_dazzle.wav'], volume: 0.6, stereo: 0 });
+    this.buddySFX = new Howl({ src: ['audio/item_tank_buddy.wav'], volume: 1.0, stereo: 0 });
     this.imgPickup = this.getIcon();
 
     this.cooldown = cooldown;
@@ -60,7 +62,17 @@ class Item {
   grantItem() {
     if (this.collected) return;
 
-    this.gainedSFX.play();
+    switch (this.itemType){
+      case Game.Items.DAZZLE:
+        this.dazzleSFX.play();
+        break;
+      case Game.Items.TANK_BUDDY:
+        this.buddySFX.play();
+        break;
+      default:
+        this.gainedSFX.play();
+        break;
+    }
 
     this.collected = true;
     this.player.gainLives();
@@ -174,6 +186,8 @@ class Bomb {
 
     this.hitPower = 30;
     this.lifetime = 1.0;
+
+    this.explosionSFX = new Howl({ src: ['audio/explosion.mp3'], volume: 0.05, stereo: 0 });
   }
   update(){}
   show(){
@@ -203,6 +217,7 @@ class Bomb {
   }
   explode(enemies = []){
     if (!this.isExploding){
+      this.explosionSFX.play();
       this.animExplode(enemies);
       this.isExploding = true;
     }

@@ -83,35 +83,38 @@ function handlePlayerBullets(bullet) {
   return !removeBullet && !GameMath.offScreen(bullet.x, bullet.y, canSize.x, canSize.y);
 }
 
-function hitEnemy(bullet, targetEnemy){
+function hitEnemy(bullet, targetEnemy, playAud = true){
   let sfx;
 
   // Audio
-  switch (targetEnemy.type){
-    case Game.EnemyTypes.SHOOTER:
-      sfx = enemyHit3SFXs[floor(random(enemyHit3SFXs.length))];
-      break;
-    case Game.EnemyTypes.BOUNCER:
-      sfx = enemyHit5SFXs[floor(random(enemyHit5SFXs.length))];
-      break;
-    case Game.EnemyTypes.REFLECTOR:
-      sfx = enemyHit1SFXs[floor(random(enemyHit1SFXs.length))];
-      break;
-    case Game.EnemyTypes.EXPLODER:
-      sfx = enemyHit4SFXs[floor(random(enemyHit4SFXs.length))];
-      break;
-    // case Game.EnemyTypes.SPLITTER:
-    //   sfx = enemyHit4SFXs[floor(random(enemyHit4SFXs.length))];
-    //   break;
-    default:
-      sfx = enemyHitSFX;
-      // sfx.rate(random(0.8, 1.2));
-      break;
+  if (playAud){
+    switch (targetEnemy.type){
+      case Game.EnemyTypes.SHOOTER:
+        sfx = enemyHit3SFXs[floor(random(enemyHit3SFXs.length))];
+        break;
+      case Game.EnemyTypes.BOUNCER:
+        sfx = enemyHit5SFXs[floor(random(enemyHit5SFXs.length))];
+        break;
+      case Game.EnemyTypes.REFLECTOR:
+        sfx = enemyHit1SFXs[floor(random(enemyHit1SFXs.length))];
+        break;
+      case Game.EnemyTypes.EXPLODER:
+        sfx = enemyHit4SFXs[floor(random(enemyHit4SFXs.length))];
+        break;
+      // case Game.EnemyTypes.SPLITTER:
+      //   sfx = enemyHit4SFXs[floor(random(enemyHit4SFXs.length))];
+      //   break;
+      default:
+        sfx = enemyHitSFX;
+        // sfx.rate(random(0.8, 1.2));
+        break;
+    }
+
+    sfx.stereo(map(targetEnemy.x, 0, width, -1, 1)).play();
+    sfx.rate(1.25 - (1.25 * (targetEnemy.health / targetEnemy.getInitialHealth())))
+    sfx.play();
   }
   
-  sfx.stereo(map(targetEnemy.x, 0, width, -1, 1)).play();
-  sfx.rate(1.25 - (1.25 * (targetEnemy.health / targetEnemy.getInitialHealth())))
-  sfx.play();
   //
 
   let removeBullet = false;
@@ -283,6 +286,32 @@ function spawnRandomWaveEnemies(onWave = wave) {
 
     enemies.push(newEnemy);
   }
+
+  setTimeout(enemiesSpawned, 1000.0 * Game.enemySpawnTime);
+}
+
+function enemiesSpawned(){
+  console.log("Time's Up!");
+
+  // Map enemy types to their corresponding SFX
+  const enemyTypeSFXMap = {
+    [Game.EnemyTypes.SPLITTER]: enemyReflectorEntSFX,
+    [Game.EnemyTypes.SHOOTER]: enemyShooterEntSFX,
+    [Game.EnemyTypes.BOUNCER]: enemyRBEntSFX,
+  };
+
+  // Collect unique enemy types present
+  // Set is a JavaScript data structure that stores unique values only—if you try to add a duplicate, it ignores it.
+  const presentTypes = new Set(
+    enemies
+      .map(e => e.type) // extracts all enemy types
+      .filter(type => type in enemyTypeSFXMap) // Keep only mapped types
+  );
+
+  // Play corresponding SFX for each present type
+  presentTypes.forEach((type) => {
+    enemyTypeSFXMap[type].play()
+  });
 }
 
 function gotoNextWave() {
@@ -304,7 +333,7 @@ function gotoNextWave() {
 
   bgCol = Game.getWaveCol(wave);
 
-  if (random() < 1 / 3) {
+  if (random() < 1 / 1) {
     // spawnItem(Game.Items.TANK_BUDDY);
     spawnItem();
 
@@ -506,7 +535,10 @@ function draw() {
 
     enemies.forEach((e) => {
       if (GameMath.circleCollision(b.x, b.y, b.size / 2.0, e.x, e.y, e.size / 2.0)) {
-        removeBullet = hitEnemy(b, e);
+        enemyHit2SFX.rate(random(0.8, 1.2));
+        enemyHit2SFX.play();
+
+        removeBullet = hitEnemy(b, e, false);
 
         Game.removeObject(enemyBullets, b);
       }
@@ -773,6 +805,8 @@ function draw() {
 
 function placeTankBuddy(){
   if (p.powerups.includes(Game.Items.TANK_BUDDY)){
+    tankbuddyDropSFX.play();
+
     if (p.tankBuddiesOwned >= 1){
       p.tankBuddiesOwned--;
       Game.setItemTimer(Game.Items.TANK_BUDDY, p.tankBuddiesOwned);

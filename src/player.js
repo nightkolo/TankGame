@@ -21,6 +21,14 @@ class Tank {
     // Audio
     this.hitSFX = new Howl({ src: "audio/tank_hit_01.ogg", volume: 0.5});
     this.criticalHealthSFX = new Howl({src: "audio/tank_hearts_critical.ogg", volume: 0.5});
+    this.gameoverSFX = new Howl({
+      src: ['audio/question_001.ogg'],
+      volume: 0.2
+    });
+    this.itemFinishedSFXs = [
+      new Howl({ src: ['audio/power_finished_01.ogg'], volume: 0.05, stereo: 0 }),
+      new Howl({ src: ['audio/power_finished_02.ogg'], volume: 0.05, stereo: 0 })
+    ];
 
     this.lives = 3;
     this.floatingHearts = 0;
@@ -60,8 +68,10 @@ class Tank {
     }
   }
   loseItem(item) {
+    this.itemFinishedSFXs[floor(random() * this.itemFinishedSFXs.length)].play();
+
     Game.removeObject(this.powerups, item);
-    // print(this.powerups);
+    print(this.powerups);
   }
   hit() {
     if (this.invincible || !this.alive) return;
@@ -73,11 +83,11 @@ class Tank {
     this.lives--;
     this.floatingHearts = 0;
 
-    if (this.lives < 2){
-      this.criticalHealthSFX.play();
-    }
     if (this.lives < 1) {
+      this.gameoverSFX.play();
       this.die();
+    } else if (this.lives < 2){
+      this.criticalHealthSFX.play();
     }
 
     this.invincible = true;
