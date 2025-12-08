@@ -10,7 +10,7 @@ let tankBuddies = [];
 let enemies = [];
 let items = [];
 
-// Game Loop
+// Game Loops
 let wave = 67; // Why
 let score = 0;
 let gameOver = false;
@@ -205,19 +205,19 @@ function enemyDied(targetEnemy, bullet){
 }
 
 function handleTankBuddies(buddy){
-    if (buddy.spawnBullets()) {
-      const spd = 10.0;
+  if (buddy.spawnBullets()) {
+    const spd = 10.0;
 
-      buddyBullets.push(new Bullet(buddy.x, buddy.y, 0, -1, spd));
-      buddyBullets.push(new Bullet(buddy.x, buddy.y, 0, 1, spd));
-      buddyBullets.push(new Bullet(buddy.x, buddy.y, -1, 0, spd));
-      buddyBullets.push(new Bullet(buddy.x, buddy.y, 1, 0, spd));
-    }
+    buddyBullets.push(new Bullet(buddy.x, buddy.y, 0, -1, spd));
+    buddyBullets.push(new Bullet(buddy.x, buddy.y, 0, 1, spd));
+    buddyBullets.push(new Bullet(buddy.x, buddy.y, -1, 0, spd));
+    buddyBullets.push(new Bullet(buddy.x, buddy.y, 1, 0, spd));
+  }
 
-    buddy.update();
-    buddy.show();
+  buddy.update();
+  buddy.show();
 
-    return buddy.alive;
+  return buddy.alive;
 }
 
 function spawnItem(item = -1) {
@@ -258,9 +258,9 @@ function spawnRandomWaveEnemies(onWave = wave) {
     currentEnemyTypes.push(randomType);
   }
 
-  const healthMin = 3 + floor(wave / 6.0);
-  const enemySpawnsMin = 2 + floor(wave / 9.0);
-  const enemySpawnsFactor = 3 + floor(wave / 9.0);
+  const healthMin = 3 + floor(wave / 9.0);
+  const enemySpawnsMin = 2 + floor(wave / 13.0);
+  const enemySpawnsFactor = 3 + floor(wave / 13.0);
   const enemySpeed = Game.defaultEnemySpeed + (floor(wave / 2.0) / 10.0);
   
   const noOfEnemies = enemySpawnsMin + floor(random() * enemySpawnsFactor);
@@ -335,7 +335,7 @@ function gotoNextWave() {
 
   bgCol = Game.getWaveCol(wave);
 
-  if (random() < 1 / 1) {
+  if (random() < 1 / 3) {
     // spawnItem(Game.Items.TANK_BUDDY);
     spawnItem();
 
@@ -466,6 +466,8 @@ let xBubbleDir = 0.0;
 let yBubbleAccel = 0.0;
 
 let tIntro = 0.0;
+
+let statsSet = false;
 
 function draw() {
   background(bgCol[0], bgCol[1], bgCol[2]);
@@ -810,6 +812,13 @@ function draw() {
   const hei = -150.0;
   
   if (wave === 0){
+    xText = 0.0;
+    yText = 0.0;
+
+    xBubble = 0.0;
+    yBubble = 0.0;
+    introAnimated = false
+
     tIntro += deltaTime;
     arrowIMG.resize(40.0, 25.0);
     image(arrowIMG, 0, (sin(millis() / 260.0) * 10.0) + hei + 70.0);
@@ -823,12 +832,11 @@ function draw() {
 
       introAnimated = true;
     }
-
-    yBubbleAccel += 9.8 *2.0;
+    yBubbleAccel += 9.8 * 2.0;
     yBubble += yBubbleAccel * deltaTime * 0.001;
     xBubble += xBubbleDir * deltaTime * 0.15; 
 
-    yTextAccel += 9.8 *2.0;
+    yTextAccel += 9.8 * 2.0;
     yText += yTextAccel * deltaTime * 0.001;
     xText += xTextDir * deltaTime * 0.15; 
   }
@@ -839,6 +847,10 @@ function draw() {
   pop();
   
   if (gameOver){
+    if (statsSet === false){
+
+      statsSet = true;
+    }
     cursor();
 
     noStroke();
@@ -854,7 +866,23 @@ function draw() {
     fill(255);
     stroke(20);
     text("Tank is Dead", width/2, 200.0);
-    text(`== Stats ==\nWave reached: ${wave}\nScore: ${score}\nEnemies defeated: ${Game.enemiesDefeated}\nItems collected:\n${JSON.stringify([...Game.itemStats])}`,width/2, 300.0);
+    text(`== Stats ==\nWave reached: ${wave}\nScore: ${score}\nEnemies defeated: ${Game.enemiesDefeated}\nItems collected:`,width/2, 300.0);
+    // ${JSON.stringify([...Game.itemStats])}
+
+    // const arr = Array.from(Game.itemStats);
+    let i = 0;
+
+    // const numOfStats = Game.itemStats.filter((value, key) => { 
+    //   return value !== 0
+    // }).length
+
+    Game.itemStats.forEach((value, key) => { 
+      if (value !== 0){
+        text(`${key}: ${value}`, width/2, (height / 1.5) + (40.0 * i));
+      } 
+      // console.log(i, key, value);
+      i++;
+    })
   }
 }
 

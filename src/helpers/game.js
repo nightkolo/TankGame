@@ -29,18 +29,18 @@ class Game {
     this.bubbleMessage = this.randomMsgs[floor( random() * this.randomMsgs.length )];
 
     this.itemTimes = new Map([
-      ["Counter-Spike", 0.0],
-      ["Inaccuracy", 0.0],
-      ["Dazzle", 0.0],
-      ["Tank Buddy", 0] // Activatable
+      [this.Items.COUNTER_SPIKE.name, 0.0],
+      [this.Items.INACCURACY.name, 0.0],
+      [this.Items.DAZZLE.name, 0.0],
+      [this.Items.TANK_BUDDY.name, 0] // Activatable 
     ]);
 
     this.itemStats = new Map([
-      ["Counter-Spike", 0],
-      ["Inaccuracy", 0],
-      ["Dazzle", 0],
-      ["Tank Buddy", 0],
-      ["Bomb", 0] // Instant
+      [this.Items.COUNTER_SPIKE.name, 0],
+      [this.Items.INACCURACY.name, 0],
+      [this.Items.DAZZLE.name, 0],
+      [this.Items.TANK_BUDDY.name, 0],
+      [this.Items.BOMB.name, 0] // Instant
     ])
   }
 
