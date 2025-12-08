@@ -22,12 +22,12 @@ class Tank {
     this.hitSFX = new Howl({ src: "audio/tank_hit_01.ogg", volume: 0.5});
     this.criticalHealthSFX = new Howl({src: "audio/tank_hearts_critical.ogg", volume: 0.5});
     this.gameoverSFX = new Howl({
-      src: ['audio/question_001.ogg'],
+      src: ['audio/game_end.ogg'],
       volume: 0.2
     });
     this.itemFinishedSFXs = [
-      new Howl({ src: ['audio/power_finished_01.ogg'], volume: 0.05, stereo: 0 }),
-      new Howl({ src: ['audio/power_finished_02.ogg'], volume: 0.05, stereo: 0 })
+      new Howl({ src: ['audio/item_timeout_01.ogg'], volume: 0.4, stereo: 0 }),
+      new Howl({ src: ['audio/item_timeout_02.ogg'], volume: 0.4, stereo: 0 })
     ];
 
     this.lives = 3;

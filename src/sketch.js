@@ -110,7 +110,8 @@ function hitEnemy(bullet, targetEnemy, playAud = true){
         break;
     }
 
-    sfx.stereo(map(targetEnemy.x, 0, width, -1, 1)).play();
+    // -1 * ((((width - targetEnemy.x) / width) * 2.0) - 1.0)
+    sfx.stereo(map(targetEnemy.x, 0, width, -1, 1, true)).play();
     sfx.rate(1.25 - (1.25 * (targetEnemy.health / targetEnemy.getInitialHealth())))
     sfx.play();
   }
@@ -316,7 +317,8 @@ function enemiesSpawned(){
 
 function gotoNextWave() {
    if (floor((wave + 1) / 10.0) == (wave + 1) / 10.0) {
-    next10waveSFX.play(); 
+    next10wave1SFX.play(); 
+    next10wave2SFX.play(); 
   } else if (p.lives < 2){
     p.criticalHealthSFX.play();
   } else {

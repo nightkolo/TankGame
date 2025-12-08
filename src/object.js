@@ -187,7 +187,7 @@ class Bomb {
     this.hitPower = 30;
     this.lifetime = 1.0;
 
-    this.explosionSFX = new Howl({ src: ['audio/explosion.mp3'], volume: 0.05, stereo: 0 });
+    this.explosionSFX = new Howl({ src: ['audio/bomb_exploded.mp3'], volume: 0.05, stereo: 0 });
   }
   update(){}
   show(){
