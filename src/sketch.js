@@ -402,11 +402,13 @@ let iconBuddy;
 let iconInacc;
 let panel;
 let panel2;
+let arrowIMG;
 let fonts;
 
 function preload() {
   panel = loadImage('img/panel-01.svg');
   panel2 = loadImage('img/panel-02.svg');
+  arrowIMG = loadImage('img/arrow-01.png');
 
   icon = loadImage('img/power-up-icon-def.svg');
   iconDazzle = loadImage('img/item-icon-dazzle.svg');
@@ -451,10 +453,22 @@ function setup() {
 }
 
 let bombs = [];
+let introAnimated = false;
+
+let xText = 0.0;
+let yText = 0.0;
+let xTextDir = 0.0;
+let yTextAccel = 0.0;
+
+let xBubble = 0.0;
+let yBubble = 0.0;
+let xBubbleDir = 0.0;
+let yBubbleAccel = 0.0;
+
+let tIntro = 0.0;
 
 function draw() {
   background(bgCol[0], bgCol[1], bgCol[2]);
-  
 
   if (screenShake) {
     translate(random(-shakeIntensity, shakeIntensity), random(-shakeIntensity, shakeIntensity));
@@ -784,6 +798,45 @@ function draw() {
   } else if (gameOver == false) {
     gameEnd();
   }
+
+  push();
+  translate(width/2, height/2);
+  stroke(50);
+  textAlign(CENTER);
+  textSize(35);
+  strokeWeight(4);
+  
+  rotate((PI / 28.0) * sin(tIntro / 720.0));
+  const hei = -150.0;
+  
+  if (wave === 0){
+    tIntro += deltaTime;
+    arrowIMG.resize(40.0, 25.0);
+    image(arrowIMG, 0, (sin(millis() / 260.0) * 10.0) + hei + 70.0);
+
+  } else if (wave === 1) {
+    if (introAnimated === false){
+      yBubbleAccel = random(-650.0, -450.0);
+      xBubbleDir = Math.sign(random() - 0.5);
+      yTextAccel = random(-500.0, -300.0);
+      xTextDir = -xBubbleDir;
+
+      introAnimated = true;
+    }
+
+    yBubbleAccel += 9.8 *2.0;
+    yBubble += yBubbleAccel * deltaTime * 0.001;
+    xBubble += xBubbleDir * deltaTime * 0.15; 
+
+    yTextAccel += 9.8 *2.0;
+    yText += yTextAccel * deltaTime * 0.001;
+    xText += xTextDir * deltaTime * 0.15; 
+  }
+  
+  rect(0 + xBubble, hei + yBubble, 250.0, 80.0, 30.0);
+  text(Game.bubbleMessage, 0 + xText, hei + yText);
+  
+  pop();
   
   if (gameOver){
     cursor();

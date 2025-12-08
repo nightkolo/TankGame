@@ -11,11 +11,22 @@ class Game {
   static tankBuddyLifetime = 8.0;
   static defaultEnemySpeed = 1.35;
   static powerupTime = 8.0;
+  static bubbleMessage = "";
+
+  static randomMsgs = [
+    "Shoot me",
+    "Why so round?",
+    "Msg3",
+    "Msg4",
+    "Msg5"
+  ]
 
   static setGame(){
     clearInterval(inaccuracyInterval);
     clearInterval(dazzleInterval);
     clearInterval(CSinterval);
+
+    this.bubbleMessage = this.randomMsgs[floor( random() * this.randomMsgs.length )];
 
     this.itemTimes = new Map([
       ["Counter-Spike", 0.0],
