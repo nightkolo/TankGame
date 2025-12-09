@@ -16,6 +16,7 @@ class Game {
   // Object refs
   static currentPlayer;
   static currentEnemies;
+  static slowMode = false;
 
   static randomMsgs = [
     "Shoot me",

@@ -2,19 +2,11 @@ class Enemy {
   #lastShotTime = 0.0;
   #initialY;
   #initialHealth;
-  #player;
   #slowState = false;
   #lastHitTime = 0.0;
   #col = [0, 0, 0, 0];
 
-  constructor({
-    x = 200,
-    y = 200,
-    health = 10,
-    maxSpeed = Game.defaultEnemySpeed,
-    type = Game.EnemyTypes,
-    followPlayer = true,
-    player,
+  constructor({ x = 200, y = 200, health = 10, maxSpeed = Game.defaultEnemySpeed, type = Game.EnemyTypes, followPlayer = true
   } = {}) {
     // Position
     this.x = x;
@@ -60,7 +52,7 @@ class Enemy {
     }
     
     // Power-up mods
-    this.slowMode = false;
+    Game.slowMode = false;
     
     // State
     this.canMove = false;
@@ -69,17 +61,14 @@ class Enemy {
     this.isBeingHit = false;
     
     // Animation
-
-    this.t = 1.0;
-    this.animatingBounce = false;
-    this.startX = 0;
-    this.startY = 0;
-
-    this.tStart = 1.0;
-    this.animatingStart = false;
+    this.bounceAnim = {
+      t: 1.0, playing: false, x: 0, y: 0
+    }
+    this.spawnAnim = {
+      t: 1.0, playing: false
+    }
     
     // Misc.
-    Game.currentPlayer = player
     this.followPlayer = followPlayer;
     
     this.spawned();
@@ -87,16 +76,12 @@ class Enemy {
   spawned() {
     this.animSpawn();
 
-    switch (this.type){
-      case Game.EnemyTypes.BOUNCER:
-        this.y /= 2.0;
-        break;
-    }
+    this.y = (this.type === Game.EnemyTypes.BOUNCER) ? this.#initialY / 2.0 : this.y;
 
     setTimeout(() => {
       this.canMove = true;
       this.canHurt = true;
-      this.canShoot = this.type == Game.EnemyTypes.SHOOTER;
+      this.canShoot = this.type === Game.EnemyTypes.SHOOTER;
     }, Game.enemySpawnTime * 1000.0);
   }
   bounce() {
@@ -106,16 +91,13 @@ class Enemy {
       this.rabbitball.dirX *= -1;
     }
 
-    let spd = this.maxSpeed;
-    let fallFactor = 1.0 / 64.0;
+    let spd = (Game.slowMode) ? this.maxSpeed / 8.0 : this.maxSpeed;
+    let fallFactor = (Game.slowMode) ? 0.015 / 8.0 : 0.015;
 
-    if (this.slowMode){
-      spd /= 8.0;
-      fallFactor /= 8.0;
+    if (Game.slowMode){
       this.#slowState = true;
     } else if (this.#slowState) {
-      this.exittedSlowMode();
-      
+      this.exittedSlowMode(); // Runs once in draw
       this.#slowState = false;
     }
 
@@ -179,7 +161,7 @@ class Enemy {
       if (this.type == Game.EnemyTypes.SPRINTER) {
         spd = this.maxSpeed * 2.0;
       }
-      if (this.slowMode){
+      if (Game.slowMode){
         spd /= 4.0;
       }
       this.x += dx * spd;
@@ -191,7 +173,7 @@ class Enemy {
 
     let factor = 0.0;
     const shootingSpdFactor = 1.7
-    if (this.slowMode){
+    if (Game.slowMode){
       factor = shootingSpdFactor * 4.0;
     } else {
       factor = shootingSpdFactor;
@@ -207,21 +189,21 @@ class Enemy {
     return false;
   }
   animBounce(sideHit = false){
-    if (this.t < 0.5) return;
+    if (this.bounceAnim.t < 0.5) return;
 
     if (sideHit){
-      this.startX = this.size.dpSizeX - (this.size.dpSizeX / 2.5);
-      this.startY = this.size.dpSizeY + (this.size.dpSizeY / 2.5);
+      this.bounceAnim.x = this.size.dpSizeX - (this.size.dpSizeX / 2.5);
+      this.bounceAnim.y = this.size.dpSizeY + (this.size.dpSizeY / 2.5);
     } else {
-      this.startX = this.size.dpSizeX + (this.size.dpSizeX / 2.5);
-      this.startY = this.size.dpSizeY - (this.size.dpSizeY / 2.5);
+      this.bounceAnim.x = this.size.dpSizeX + (this.size.dpSizeX / 2.5);
+      this.bounceAnim.y = this.size.dpSizeY - (this.size.dpSizeY / 2.5);
     }
-    this.t = 0;
-    this.animatingBounce = true;
+    this.bounceAnim.t = 0;
+    this.bounceAnim.playing = true;
   }
   animSpawn(){
-    this.tStart = 0.0;
-    this.animatingStart = true;
+    this.spawnAnim.t = 0.0;
+    this.spawnAnim.playing = true;
   }
   update() {
     this.size.real = this.getSize();
@@ -232,8 +214,10 @@ class Enemy {
       this.eyeX = this.x;
       this.eyeY = this.y;
     } else {
-      this.eyeX = this.x + ((Game.currentPlayer.x - this.eyeX) / 25.0);
-      this.eyeY = this.y + ((Game.currentPlayer.y - this.eyeY) / 25.0);
+      if (Game.currentPlayer !== undefined){
+        this.eyeX = this.x + ((Game.currentPlayer.x - this.eyeX) / 25.0);
+        this.eyeY = this.y + ((Game.currentPlayer.y - this.eyeY) / 25.0);
+      } 
     }
 
     if (this.isBeingHit && millis() - this.#lastHitTime > 200) {
@@ -323,31 +307,31 @@ class Enemy {
     } 
 
     // Animation
-    if (this.animatingStart) {
+    if (this.spawnAnim.playing) {
       // ISSUE enemy spawn and anim not synced
-      this.tStart += deltaTime * 0.001 * Game.enemySpawnTime;
+      this.spawnAnim.t += deltaTime * 0.001 * Game.enemySpawnTime;
 
-      ellipse(this.x, this.y, this.size.dpSizeX * this.tStart, this.size.dpSizeY * this.tStart);
+      ellipse(this.x, this.y, this.size.dpSizeX * this.spawnAnim.t, this.size.dpSizeY * this.spawnAnim.t);
 
-      if (this.tStart >= 1) {
+      if (this.spawnAnim.t >= 1) {
         this.animBounce();
-        this.animatingStart = false;
+        this.spawnAnim.playing = false;
       }
-    } else if (this.animatingBounce) {
-      this.t += deltaTime * 0.00045;
-      let eased = Anim.elasticEaseOut(constrain(this.t, 0, 1));
-      let x = lerp(this.startX, this.size.dpSizeX, eased);
-      let y = lerp(this.startY, this.size.dpSizeY, eased);
+    } else if (this.bounceAnim.playing) {
+      this.bounceAnim.t += deltaTime * 0.00045;
+      let eased = Anim.elasticEaseOut(constrain(this.bounceAnim.t, 0, 1));
+      let x = lerp(this.bounceAnim.x, this.size.dpSizeX, eased);
+      let y = lerp(this.bounceAnim.y, this.size.dpSizeY, eased);
 
       ellipse(this.x, this.y, x, y);
 
-      if (this.t >= 1) this.animatingBounce = false;
+      if (this.bounceAnim.t >= 1) this.bounceAnim.playing = false;
     } else {
       ellipse(this.x, this.y, this.size.dpSizeX, this.size.dpSizeY);
     }
 
     // TODO mask somehow
-    if (!this.animatingStart && this.imgEyes != undefined && this.imgHitEyes != undefined){
+    if (!this.spawnAnim.playing && this.imgEyes != undefined && this.imgHitEyes != undefined){
       let size = imgSize + this.health * 2.0;
 
       if (this.isBeingHit){

@@ -21,9 +21,6 @@ let lastSpawnTime = 0.0;
 let shootingSpdFactor = 0.045;
 let isShooting = false;
 
-// Items
-let slowMode = false;
-
 // Debug
 let noShoot = false;
 let curBulletDir = { x: 0, y: -1 };
@@ -37,7 +34,7 @@ function handleEnemyBullets(bullet) {
     Game.removeObject(enemyBullets, bullet);
   }
 
-  bullet.spd = Game.getEnemyBulletsSpeed(slowMode);
+  bullet.spd = Game.getEnemyBulletsSpeed(Game.slowMode);
 
   if (!p.invincible && GameMath.circleCollision(bullet.x, bullet.y, bullet.size / 2.0, p.x, p.y, p.size / 2.0)) {
     p.hit();
@@ -122,7 +119,7 @@ function enemyDied(targetEnemy, bullet){
 
   switch (targetEnemy.type) {
     case Game.EnemyTypes.EXPLODER:
-      const spd = Game.getEnemyBulletsSpeed(slowMode);
+      const spd = Game.getEnemyBulletsSpeed(Game.slowMode);
       const size = 75.0;
       const directions = [
         [0, -1], [0, 1], [-1, 0], [1, 0], [-1, -1], [1, 1], [-1, 1], [1, -1]
@@ -144,8 +141,7 @@ function enemyDied(targetEnemy, bullet){
           x: lastX + (sign * 100 * -bullet.dirY),
           y: lastY + (sign * 100 * bullet.dirX),
           health: h,
-          type: Game.EnemyTypes.SPLITTED,
-          player: p,
+          type: Game.EnemyTypes.SPLITTED
         });
 
         enemies.push(enemy1);
@@ -229,7 +225,6 @@ function spawnRandomWaveEnemies(onWave = wave) {
       x: spawnX,
       y: spawnY,
       health: health,
-      player: p,
       maxSpeed: enemySpeed,
       bulletDir: curBulletDir,
       type: randomType,
@@ -331,7 +326,7 @@ function newGame(){
 
   p = new Tank();
 
-  e1 = new Enemy({x: width / 2, y: height / 2, health: 10, player: p, type: Game.EnemyTypes.NORMAL, followPlayer: false, bulletDir: curBulletDir});
+  e1 = new Enemy({x: width / 2, y: height / 2, health: 10, type: Game.EnemyTypes.NORMAL, followPlayer: false, bulletDir: curBulletDir});
   enemies.push(e1);
 }
 
@@ -498,10 +493,10 @@ function draw() {
   Game.currentEnemies = enemies;
 
   enemies.forEach((e) => {
-    e.slowMode = slowMode;
+    // e.Game.slowMode = Game.slowMode;
 
     if (e.spawnBullets() && e.canShoot) {
-      const spd = Game.getEnemyBulletsSpeed(slowMode);
+      const spd = Game.getEnemyBulletsSpeed(Game.slowMode);
       const size = 75.0;
 
       Game.allDir.forEach((entry) => {
@@ -685,7 +680,7 @@ function draw() {
     Game.currentPlayer = p;
 
     noShoot = p.insideAnEnemy(false);
-    slowMode = p.powerups.includes(Game.Items.DAZZLE);
+    Game.slowMode = p.powerups.includes(Game.Items.DAZZLE);
 
     if (p.insideAnEnemy()) {
       if (!p.invincible){
