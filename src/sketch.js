@@ -26,10 +26,7 @@ let slowMode = false;
 
 // Debug
 let noShoot = false;
-let curBulletDir = {
-  x: 0,
-  y: -1,
-};
+let curBulletDir = { x: 0, y: -1 };
 
 // Juice
 let bgCol = Game.bgCols[0];
@@ -62,13 +59,7 @@ function handlePlayerBullets(bullet) {
 
   // Item detection
   items.forEach((item) => {
-    if (!item.opened && GameMath.circleCollision(
-        item.x,
-        item.y,
-        item.size / 2.0,
-        bullet.x,
-        bullet.y,
-        bullet.size / 2.0)
+    if (!item.opened && GameMath.circleCollision(item.x, item.y, item.size / 2.0, bullet.x, bullet.y, bullet.size / 2.0)
     ) {
       itemHitSFX.rate(random(0.8, 1.2));
       itemHitSFX.play();
@@ -88,59 +79,39 @@ function hitEnemy(bullet, targetEnemy, playAud = true){
 
   // Audio
   if (playAud){
-    switch (targetEnemy.type){
-      case Game.EnemyTypes.SHOOTER:
-        sfx = enemyHit3SFXs[floor(random(enemyHit3SFXs.length))];
-        break;
-      case Game.EnemyTypes.BOUNCER:
-        sfx = enemyHit5SFXs[floor(random(enemyHit5SFXs.length))];
-        break;
-      case Game.EnemyTypes.REFLECTOR:
-        sfx = enemyHit1SFXs[floor(random(enemyHit1SFXs.length))];
-        break;
-      case Game.EnemyTypes.EXPLODER:
-        sfx = enemyHit4SFXs[floor(random(enemyHit4SFXs.length))];
-        break;
-      // case Game.EnemyTypes.SPLITTER:
-      //   sfx = enemyHit4SFXs[floor(random(enemyHit4SFXs.length))];
-      //   break;
-      default:
-        sfx = enemyHitSFX;
-        // sfx.rate(random(0.8, 1.2));
-        break;
-    }
+    const sfxMap = { // Builds Map
+      [Game.EnemyTypes.SHOOTER]: enemyHit3SFXs,    // "shooter" → array of sounds
+      [Game.EnemyTypes.BOUNCER]: enemyHit5SFXs,    // "bouncer" → array of sounds
+      [Game.EnemyTypes.REFLECTOR]: enemyHit1SFXs,  // "reflector" → array of sounds
+      [Game.EnemyTypes.EXPLODER]: enemyHit4SFXs,   // "exploder" → array of sounds
+    };
+ 
+    // const value = primaryOption || fallbackOption;
+    // If primaryOption is truthy, use it
+    // If primaryOption is falsy (null, undefined, 0, false, "", etc.), use fallbackOption
+    const sfxArray = sfxMap[targetEnemy.type] || [enemyHitSFX]; // Looking Up the Sound Array
+    const sfx = sfxArray[floor(random(sfxArray.length))]; // Picking a Random Sound
 
     // -1 * ((((width - targetEnemy.x) / width) * 2.0) - 1.0)
-    sfx.stereo(map(targetEnemy.x, 0, width, -1, 1, true)).play();
+    sfx.stereo(map(targetEnemy.x, 0, width, -1, 1, true))
     sfx.rate(1.25 - (1.25 * (targetEnemy.health / targetEnemy.getInitialHealth())))
     sfx.play();
   }
-  
   //
-
-  let removeBullet = false;
-
-  if (bullet.hasBeenReflected) {
-    targetEnemy.hit(bullet.dirX, quad.dirY, 2);
-  } else {
-    targetEnemy.hit(bullet.dirX, bullet.dirY);
-  }
+  targetEnemy.hit(bullet.dirX, bullet.dirY, (bullet.hasBeenReflected) ? 2 : 1);
 
   targetEnemy.animBounce();
-
   enemyDied(targetEnemy, bullet);
   
-  if (targetEnemy.type == Game.EnemyTypes.REFLECTOR) {
+  if (targetEnemy.type === Game.EnemyTypes.REFLECTOR) {
     bullet.reflect();
-  } else {
-    removeBullet = true;
   }
 
-  return removeBullet;
+  return targetEnemy.type !== Game.EnemyTypes.REFLECTOR;
 }
 
 function enemyDied(targetEnemy, bullet){
-  if (targetEnemy.hasDied() == false) return;
+  if (!targetEnemy.hasDied()) return;
 
   let scoreGained = targetEnemy.points;
 
@@ -153,51 +124,43 @@ function enemyDied(targetEnemy, bullet){
     case Game.EnemyTypes.EXPLODER:
       const spd = Game.getEnemyBulletsSpeed(slowMode);
       const size = 75.0;
+      const directions = [
+        [0, -1], [0, 1], [-1, 0], [1, 0], [-1, -1], [1, 1], [-1, 1], [1, -1]
+      ]
 
-      enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 0, -1, spd, size));
-      enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 0, 1, spd, size));
-      enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, -1, 0, spd, size));
-      enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 1, 0, spd, size));
-      enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, -1, -1, spd, size));
-      enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 1, 1, spd, size));
-      enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, -1, 1, spd, size));
-      enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, 1, -1, spd, size));
+      directions.forEach((entry) => {
+        enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, entry[0], entry[1], spd, size));
+      });
       break;
 
     case Game.EnemyTypes.SPLITTER:
       const lastX = targetEnemy.x;
       const lastY = targetEnemy.y;
       const h = ceil(targetEnemy.getInitialHealth() / 3.0);
+      const variants = [-1, 1];
 
-      const enemy1 = new Enemy({
-        x: lastX + (100 * -bullet.dirY),
-        y: lastY + (100 * bullet.dirX),
-        health: h,
-        type: Game.EnemyTypes.SPLITTED,
-        player: p,
-      });
-      const enemy2 = new Enemy({
-        x: lastX - (100 * -bullet.dirY),
-        y: lastY - (100 * bullet.dirX),
-        health: h,
-        type: Game.EnemyTypes.SPLITTED,
-        player: p,
-      });
+      variants.forEach((sign) => {
+        const enemy1 = new Enemy({
+          x: lastX + (sign * 100 * -bullet.dirY),
+          y: lastY + (sign * 100 * bullet.dirX),
+          health: h,
+          type: Game.EnemyTypes.SPLITTED,
+          player: p,
+        });
 
-      enemies.push(enemy1);
-      enemies.push(enemy2);
-
+        enemies.push(enemy1);
+      })
       break;
   }
   
   if (enemies.length === waveEnemyCount){
     let sfx = enemyDeadSFXsFirst[floor(random() * enemyDeadSFXsFirst.length)];
     sfx.stereo(map(targetEnemy.x, 0, width, -1, 1)).play();
-    sfx.play();  
+    // sfx.play();  
   } else {
     enemyDeadSFX.rate(1.25 - ((enemies.length / waveEnemyCount) * 1.25));
     enemyDeadSFX.stereo(map(targetEnemy.x, 0, width, -1, 1)).play();
-    enemyDeadSFX.play();
+    // enemyDeadSFX.play();
   }
 
   Game.removeObject(enemies, targetEnemy);
@@ -208,10 +171,9 @@ function handleTankBuddies(buddy){
   if (buddy.spawnBullets()) {
     const spd = 10.0;
 
-    buddyBullets.push(new Bullet(buddy.x, buddy.y, 0, -1, spd));
-    buddyBullets.push(new Bullet(buddy.x, buddy.y, 0, 1, spd));
-    buddyBullets.push(new Bullet(buddy.x, buddy.y, -1, 0, spd));
-    buddyBullets.push(new Bullet(buddy.x, buddy.y, 1, 0, spd));
+    Game.allDir.forEach((entry) => {
+      buddyBullets.push(new Bullet(buddy.x, buddy.y, entry[0], entry[1], spd));
+    })
   }
 
   buddy.update();
@@ -221,29 +183,17 @@ function handleTankBuddies(buddy){
 }
 
 function spawnItem(item = -1) {
-  let itemToSpawn = 0;
+  const itemToSpawn = item === -1 ? random(Object.values(Game.Items)) : item;
 
-  if (item == -1){
-    const types = Object.values(Game.Items);
-
-    itemToSpawn = random(types);
-  } else {
-    itemToSpawn = item;
-  }
-
-  const spawnX = GameMath.randomFloat(200.0, width - 200);
-  const spawnY = GameMath.randomFloat(200.0, height - 200);
-
-  const i = new Item(spawnX, spawnY, itemToSpawn, p);
-
-  items.push(i);
+  items.push(new Item(GameMath.randomFloat(200.0, width - 200), GameMath.randomFloat(200.0, height - 200), itemToSpawn, p));
 }
 
 let waveEnemyCount = 1;
 
 function spawnRandomWaveEnemies(onWave = wave) {
-  let encounterSet = 0;
+  creatingEnemies = true;
 
+  let encounterSet;
   if (onWave <= enemySetEncounters[1]) {
     encounterSet = 0;
   } else if (onWave <= enemySetEncounters[2]) {
@@ -254,7 +204,7 @@ function spawnRandomWaveEnemies(onWave = wave) {
 
   const randomType = Game.pickRandomIndex(Game.enemyEncounter, currentEnemyTypes, encounterSet);
 
-  if (randomType != null) {
+  if (randomType !== null) {
     currentEnemyTypes.push(randomType);
   }
 
@@ -292,7 +242,7 @@ function spawnRandomWaveEnemies(onWave = wave) {
 }
 
 function enemiesSpawned(){
-  console.log("Time's Up!");
+  // Claude-generated
 
   // Map enemy types to their corresponding SFX
   const enemyTypeSFXMap = {
@@ -313,10 +263,16 @@ function enemiesSpawned(){
   presentTypes.forEach((type) => {
     enemyTypeSFXMap[type].play()
   });
+
+  creatingEnemies = false;
 }
 
+let creatingEnemies = false;
+
 function gotoNextWave() {
-   if (floor((wave + 1) / 10.0) == (wave + 1) / 10.0) {
+  console.log(wave);
+  
+  if (floor((wave + 1) / 10.0) == (wave + 1) / 10.0) {
     next10wave1SFX.play(); 
     next10wave2SFX.play(); 
   } else if (p.lives < 2){
@@ -324,26 +280,21 @@ function gotoNextWave() {
   } else {
     nextwaveSFX.play();
   }
-
+  
   wave++;
-  print(wave);
   animText();
-
-  if (wave > Game.bestWave){
-    Game.bestWave = wave;
-  }
-
+  
+  Game.bestWave = (wave > Game.bestWave) ? wave : Game.bestWave;
   bgCol = Game.getWaveCol(wave);
-
+  
   if (random() < 1 / 3) {
     // spawnItem(Game.Items.TANK_BUDDY);
     spawnItem();
-
   }
   // let value = Game.EnemyTypes.REFLECTOR;
-
+  
   // spawnEnemy(value);
-  spawnRandomWaveEnemies();
+  spawnRandomWaveEnemies(wave);
 }
 
 function gameEnd(){
@@ -372,38 +323,19 @@ function newGame(){
   currentEnemyTypes = [Game.EnemyTypes.NORMAL];
   lastSpawnTime = 0.0;
   shootingSpdFactor = 0.045;
-
-  Game.setGame();
-
   wave = 0;
 
+  Game.setGame();
   animText();
   bgCol = Game.getWaveCol(wave);
 
   p = new Tank();
 
-  e1 = new Enemy({
-    x: width / 2,
-    y: height / 2,
-    health: 10,
-    player: p,
-    type: Game.EnemyTypes.NORMAL,
-    followPlayer: false,
-    bulletDir: curBulletDir,
-  });
+  e1 = new Enemy({x: width / 2, y: height / 2, health: 10, player: p, type: Game.EnemyTypes.NORMAL, followPlayer: false, bulletDir: curBulletDir});
   enemies.push(e1);
 }
 
-let bgIMG;
-let icon;
-let iconDazzle;
-let iconCS;
-let iconBuddy;
-let iconInacc;
-let panel;
-let panel2;
-let arrowIMG;
-let fonts;
+let bgIMG, icon, iconDazzle, iconCS, iconBuddy, iconInacc, panel, panel2, arrowIMG, fonts;
 
 function preload() {
   panel = loadImage('img/panel-01.svg');
@@ -420,8 +352,7 @@ function preload() {
   fonts = loadFont("font/Nunito-Bold.ttf");
 }
 
-let b;
-let gui;
+let b, gui;
 
 function setup() {
   createCanvas(canSize.x, canSize.y);
@@ -453,23 +384,26 @@ function setup() {
 }
 
 let bombs = [];
-let introAnimated = false;
 
-let xText = 0.0;
-let yText = 0.0;
-let xTextDir = 0.0;
-let yTextAccel = 0.0;
-
-let xBubble = 0.0;
-let yBubble = 0.0;
-let xBubbleDir = 0.0;
-let yBubbleAccel = 0.0;
-
-let tIntro = 0.0;
+const introAnim = {
+  text: { x: 0.0, y: 0.0, dir: 0.0, accel: 0.0 },
+  bubble: { x: 0.0, y: 0.0, dir: 0.0, accel: 0.0 },
+  t: 0.0,
+  playing: false
+};
+const waveAnim = {
+  playing: false,
+  t: 1.0
+}
+const critHitAnim = {
+  playing: false,
+  t: 1.0
+}
 
 let statsSet = false;
 
 function draw() {
+  // Uncaught TypeError: Cannot read properties of undefined (reading '0')
   background(bgCol[0], bgCol[1], bgCol[2]);
 
   if (screenShake) {
@@ -513,7 +447,10 @@ function draw() {
   rectMode(CENTER);
 
   // Enemies defeated
-  if (enemies.length == 0 && !gameOver && gameStarted) {
+  if (enemies.length == 0 && !gameOver && gameStarted && !creatingEnemies) {
+    console.log(enemies.length);
+    console.log(!gameOver);
+    console.log(gameStarted);
     gotoNextWave();
   }
 
@@ -521,26 +458,17 @@ function draw() {
   if (isShooting && !noShoot && !gameOver) {
     if (millis() - lastSpawnTime > shootingSpdFactor * 1000.0) {
       const size = 12.5;
-      let extraX = 0.0;
-      let extraY = 0.0;
+      const factor = 0.045;
+      const extraX = (p.powerups.includes(Game.Items.INACCURACY)) ? (random() * 0.5) - 0.25 : 0.0;
+      const extraY = (p.powerups.includes(Game.Items.INACCURACY)) ? (random() * 0.5) - 0.25 : 0.0;
+      shootingSpdFactor = (p.powerups.includes(Game.Items.INACCURACY)) ? factor / 1.25 : factor;
 
-      if (p.powerups.includes(Game.Items.INACCURACY)){
-        extraX = (random() * 0.5) - 0.25;
-        extraY = (random() * 0.5) - 0.25;
-        shootingSpdFactor = 0.045 / 1.25;
-      } else {
-        shootingSpdFactor = 0.045;
-      }
-
-      playerBullets.push(
-        new Bullet(p.x, p.y, curBulletDir.x + extraX, curBulletDir.y + extraY, size)
-      );
+      playerBullets.push(new Bullet(p.x, p.y, curBulletDir.x + extraX, curBulletDir.y + extraY, size));
+      
       if (p.powerups.includes(Game.Items.COUNTER_SPIKE)) {
         // TODO make other axis bullets a different fill
         
-        playerBullets.push(
-          new Bullet(p.x, p.y, -curBulletDir.x + extraX, -curBulletDir.y + extraY, size)
-        );
+        playerBullets.push(new Bullet(p.x, p.y, -curBulletDir.x + extraX, -curBulletDir.y + extraY, size));
       }
       lastSpawnTime = millis();
     }
@@ -553,8 +481,7 @@ function draw() {
 
     enemies.forEach((e) => {
       if (GameMath.circleCollision(b.x, b.y, b.size / 2.0, e.x, e.y, e.size / 2.0)) {
-        enemyHit2SFX.rate(random(0.8, 1.2));
-        enemyHit2SFX.play();
+        enemyHit2SFX.rate(random(0.8, 1.2)).play();
 
         removeBullet = hitEnemy(b, e, false);
 
@@ -581,10 +508,9 @@ function draw() {
       const spd = Game.getEnemyBulletsSpeed(slowMode);
       const size = 75.0;
 
-      enemyBullets.push(new Bullet(e.x, e.y, 0, -1, spd, size));
-      enemyBullets.push(new Bullet(e.x, e.y, 0, 1, spd, size));
-      enemyBullets.push(new Bullet(e.x, e.y, -1, 0, spd, size));
-      enemyBullets.push(new Bullet(e.x, e.y, 1, 0, spd, size));
+      Game.allDir.forEach((entry) => {
+        enemyBullets.push(new Bullet(e.x, e.y, entry[0], entry[1], spd, size))
+      });
     }
 
     e.update();
@@ -631,14 +557,14 @@ function draw() {
   textAlign(CENTER);
   textSize(50);
   strokeWeight(8);
-  if (animatingBounce) {
-    tBounce += deltaTime * 0.0006;
-    let eased = Anim.elasticEaseOut(constrain(tBounce, 0, 1));
+  if (waveAnim.playing) {
+    waveAnim.t += deltaTime * 0.0006;
+    let eased = Anim.elasticEaseOut(constrain(waveAnim.t, 0, 1));
     let x = lerp(1.5, 1, eased);
     let y = lerp(0.5, 1, eased);
 
     scale([x, y]);
-    if (tBounce >= 1) animatingBounce = false;
+    if (waveAnim.t >= 1) waveAnim.playing = false;
   } else {
     scale([1, 1]);
   }
@@ -735,21 +661,21 @@ function draw() {
   textLeading(50);
   stroke(30);
   fill(255, 255, 55);
-  if (animatingCritHit) {
-    tCritHit += deltaTime * 0.00045;
-    let eased = Anim.elasticEaseOut(constrain(tCritHit, 0, 1));
+  if (critHitAnim.playing) {
+    critHitAnim.t += deltaTime * 0.00045;
+    let eased = Anim.elasticEaseOut(constrain(critHitAnim.t, 0, 1));
     let x = lerp(Game.critHitScaleX, 1, eased);
     let y = lerp(Game.critHitScaleY, 1, eased);
 
     // TODO set text color to attacked Enemy color
-    fill(255, 255, 55, 255 * (Math.min(1.0, 2.0 - (2.0 * tCritHit))));
-    stroke(30, 255 * (Math.min(1.0, 2.0 - (2.0 * tCritHit))));
+    fill(255, 255, 55, 255 * (Math.min(1.0, 2.0 - (2.0 * critHitAnim.t))));
+    stroke(30, 255 * (Math.min(1.0, 2.0 - (2.0 * critHitAnim.t))));
 
     scale([x, y]);
 
     text("Critical\nHit!", 0, 0);
 
-    if (tCritHit >= 1) animatingCritHit = false;
+    if (critHitAnim.t >= 1) critHitAnim.playing = false;
   } else {
     scale([1, 1]);
   }
@@ -808,41 +734,43 @@ function draw() {
   textSize(35);
   strokeWeight(4);
   
-  rotate((PI / 28.0) * sin(tIntro / 720.0));
+  rotate((PI / 28.0) * sin(introAnim.t / 720.0));
   const hei = -150.0;
   
   if (wave === 0){
-    xText = 0.0;
-    yText = 0.0;
+    introAnim.text.x = 0.0;
+    introAnim.text.y = 0.0;
+    introAnim.bubble.x = 0.0;
+    introAnim.bubble.y = 0.0;
+    introAnim.playing = false;
 
-    xBubble = 0.0;
-    yBubble = 0.0;
-    introAnimated = false
-
-    tIntro += deltaTime;
+    introAnim.t += deltaTime;
     arrowIMG.resize(40.0, 25.0);
     image(arrowIMG, 0, (sin(millis() / 260.0) * 10.0) + hei + 70.0);
 
   } else if (wave === 1) {
-    if (introAnimated === false){
-      yBubbleAccel = random(-650.0, -450.0);
-      xBubbleDir = Math.sign(random() - 0.5);
-      yTextAccel = random(-500.0, -300.0);
-      xTextDir = -xBubbleDir;
+    if (!introAnim.playing){
+      introAnim.bubble.accel = random(-650.0, -450.0);
+      introAnim.bubble.dir = Math.sign(random() - 0.5);
+      introAnim.text.accel = random(-500.0, -300.0);
+      introAnim.text.dir = -introAnim.bubble.dir;
 
-      introAnimated = true;
+      introAnim.playing = true;
     }
-    yBubbleAccel += 9.8 * 2.0;
-    yBubble += yBubbleAccel * deltaTime * 0.001;
-    xBubble += xBubbleDir * deltaTime * 0.15; 
+    
+    // Update bubble
+    introAnim.bubble.accel += 9.8 * 2.0;
+    introAnim.bubble.y += introAnim.bubble.accel * deltaTime * 0.001;
+    introAnim.bubble.x += introAnim.bubble.dir * deltaTime * 0.15;
 
-    yTextAccel += 9.8 * 2.0;
-    yText += yTextAccel * deltaTime * 0.001;
-    xText += xTextDir * deltaTime * 0.15; 
+    // Update text
+    introAnim.text.accel += 9.8 * 2.0;
+    introAnim.text.y += introAnim.text.accel * deltaTime * 0.001;
+    introAnim.text.x += introAnim.text.dir * deltaTime * 0.15;
   }
-  
-  rect(0 + xBubble, hei + yBubble, 250.0, 80.0, 30.0);
-  text(Game.bubbleMessage, 0 + xText, hei + yText);
+
+  rect(introAnim.bubble.x, hei + introAnim.bubble.y, 250.0, 80.0, 30.0);
+  text(Game.bubbleMessage, introAnim.text.x, hei + introAnim.text.y);
   
   pop();
   
@@ -939,22 +867,16 @@ function animBG(c1, c2, c3, dur){
   bgPulseStart = millis();
 }
 
-let animatingCritHit = false;
-let tCritHit = 1.0;
-
 function animCritHit(){
-  tCritHit = 0;
-  animatingCritHit = true;
+  critHitAnim.t = 0;
+  critHitAnim.playing = true;
 }
 
-let animatingBounce = false;
-let tBounce = 1.0;
-
 function animText(){
-  if (tBounce < 0.5) return;
+  if (waveAnim.t < 0.5) return;
 
-  tBounce = 0;
-  animatingBounce = true;
+  waveAnim.t = 0;
+  waveAnim.playing = true;
 }
 
 function keyPressed(event) {

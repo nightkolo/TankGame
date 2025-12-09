@@ -20,6 +20,9 @@ class Game {
     "Msg4",
     "Msg5"
   ]
+  static allDir = [
+    [0, -1], [0, 1], [-1, 0], [1, 0]
+  ]
 
   static setGame(){
     clearInterval(inaccuracyInterval);
