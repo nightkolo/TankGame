@@ -16,15 +16,17 @@ class Enemy {
     followPlayer = true,
     player,
   } = {}) {
+    // Position
     this.x = x;
     this.y = y;
     this.#initialY = y / 2.0;
     
-    // show
-    this.size = this.getSize();
-    this.dpSize = this.getSize(); // displaySize
-    this.dpSizeX = this.getSize();
-    this.dpSizeY = this.getSize();
+    // Size
+    this.size = {
+      real: this.getSize(),
+      dpSizeX: this.getSize(),
+      dpSizeY: this.getSize()
+    }
     
     // Stats
     this.maxSpeed = maxSpeed;
@@ -99,7 +101,7 @@ class Enemy {
   bounce() {
     if (this.type != Game.EnemyTypes.BOUNCER) return;
 
-    if (this.x > width - this.size / 2.0 || this.x < this.size / 2) {
+    if (this.x > width - this.size.real / 2.0 || this.x < this.size.real / 2) {
       this.dirX *= -1;
     }
 
@@ -120,7 +122,7 @@ class Enemy {
     this.accel += 9.8;
     this.y += this.accel * fallFactor;
 
-    if (this.y > height - (this.size / 2.0)) {
+    if (this.y > height - (this.size.real / 2.0)) {
       // this.bounceSFX.play();
       animScreenShake();
 
@@ -207,11 +209,11 @@ class Enemy {
     if (this.t < 0.5) return;
 
     if (sideHit){
-      this.startX = this.dpSizeX - (this.dpSizeX / 2.5);
-      this.startY = this.dpSizeY + (this.dpSizeY / 2.5);
+      this.startX = this.size.dpSizeX - (this.size.dpSizeX / 2.5);
+      this.startY = this.size.dpSizeY + (this.size.dpSizeY / 2.5);
     } else {
-      this.startX = this.dpSizeX + (this.dpSizeX / 2.5);
-      this.startY = this.dpSizeY - (this.dpSizeY / 2.5);
+      this.startX = this.size.dpSizeX + (this.size.dpSizeX / 2.5);
+      this.startY = this.size.dpSizeY - (this.size.dpSizeY / 2.5);
     }
     this.t = 0;
     this.animatingBounce = true;
@@ -221,10 +223,9 @@ class Enemy {
     this.animatingStart = true;
   }
   update() {
-    this.size = this.getSize();
-    this.dpSize = this.getSize();
-    this.dpSizeX = this.getSize();
-    this.dpSizeY = this.getSize();
+    this.size.real = this.getSize();
+    this.size.dpSizeX = this.getSize();
+    this.size.dpSizeY = this.getSize();
     
     if (this.isBeingHit){
       this.eyeX = this.x;
@@ -268,22 +269,22 @@ class Enemy {
           break;
 
         case Game.EnemyTypes.SPLITTER:
-          circle(this.x + (this.size/3), this.y + (this.size/4), this.size/2);
-          circle(this.x - (this.size/3), this.y + (this.size/4), this.size/2);
+          circle(this.x + (this.size.real/3), this.y + (this.size.real/4), this.size.real/2);
+          circle(this.x - (this.size.real/3), this.y + (this.size.real/4), this.size.real/2);
           break;
 
         case Game.EnemyTypes.SPLITTED:
-          circle(this.x + (this.size/3), this.y, this.size/2);
-          circle(this.x - (this.size/3), this.y, this.size/2);
+          circle(this.x + (this.size.real/3), this.y, this.size.real/2);
+          circle(this.x - (this.size.real/3), this.y, this.size.real/2);
           break;
 
         case Game.EnemyTypes.SHOOTER:
           imgSize = 92.0;
 
-          rect(this.x + this.size/3.4, this.y, this.size/2, this.size/3);
-          rect(this.x - this.size/3.4, this.y, this.size/2, this.size/3);
-          rect(this.x, this.y + this.size/3.4, this.size/3, this.size/2);
-          rect(this.x, this.y  - this.size/3.4, this.size/3, this.size/2);
+          rect(this.x + this.size.real/3.4, this.y, this.size.real/2, this.size.real/3);
+          rect(this.x - this.size.real/3.4, this.y, this.size.real/2, this.size.real/3);
+          rect(this.x, this.y + this.size.real/3.4, this.size.real/3, this.size.real/2);
+          rect(this.x, this.y  - this.size.real/3.4, this.size.real/3, this.size.real/2);
           break;
 
         case Game.EnemyTypes.EXPLODER:
@@ -292,30 +293,30 @@ class Enemy {
         case Game.EnemyTypes.BOUNCER:
           // TODO trail for Rabbitball enemy
 
-          ellipse(this.x + (this.size/3.5), this.y - (this.size/5), this.size/2, this.size);
-          ellipse(this.x - (this.size/3.5), this.y - (this.size/5), this.size/2, this.size);
+          ellipse(this.x + (this.size.real/3.5), this.y - (this.size.real/5), this.size.real/2, this.size.real);
+          ellipse(this.x - (this.size.real/3.5), this.y - (this.size.real/5), this.size.real/2, this.size.real);
           break;
 
         case Game.EnemyTypes.REFLECTOR:
           let t = millis() / 800.0;
-          let distance = this.dpSize/2.6;
+          let distance = this.size.dpSizeX/2.6;
 
           circle(
             this.x + (sin(t) * distance),
             this.y + (cos(t) * distance),
-            this.size/2.0);
+            this.size.real/2.0);
           circle(
             this.x + (sin(t + (PI / 2)) * distance),
             this.y + (cos(t + (PI / 2)) * distance),
-            this.size/2.0);
+            this.size.real/2.0);
           circle(
             this.x + (sin(t + PI) * distance),
             this.y + (cos(t + PI) * distance),
-            this.size/2.0);
+            this.size.real/2.0);
           circle(
             this.x + (sin(t + ((PI * 3) / 2)) * distance),
             this.y + (cos(t + ((PI * 3) / 2)) * distance),
-            this.size/2.0);
+            this.size.real/2.0);
           break;
       }
     } 
@@ -325,7 +326,7 @@ class Enemy {
       // ISSUE enemy spawn and anim not synced
       this.tStart += deltaTime * 0.001 * Game.enemySpawnTime;
 
-      circle(this.x, this.y, this.dpSize * this.tStart);
+      ellipse(this.x, this.y, this.size.dpSizeX * this.tStart, this.size.dpSizeY * this.tStart);
 
       if (this.tStart >= 1) {
         this.animBounce();
@@ -334,14 +335,14 @@ class Enemy {
     } else if (this.animatingBounce) {
       this.t += deltaTime * 0.00045;
       let eased = Anim.elasticEaseOut(constrain(this.t, 0, 1));
-      let x = lerp(this.startX, this.dpSizeX, eased);
-      let y = lerp(this.startY, this.dpSizeY, eased);
+      let x = lerp(this.startX, this.size.dpSizeX, eased);
+      let y = lerp(this.startY, this.size.dpSizeY, eased);
 
       ellipse(this.x, this.y, x, y);
 
       if (this.t >= 1) this.animatingBounce = false;
     } else {
-      ellipse(this.x, this.y, this.dpSizeX, this.dpSizeY);
+      ellipse(this.x, this.y, this.size.dpSizeX, this.size.dpSizeY);
     }
 
     // TODO mask somehow

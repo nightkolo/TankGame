@@ -30,7 +30,7 @@ class Tank {
       new Howl({ src: ['audio/item_timeout_02.ogg'], volume: 0.4, stereo: 0 })
     ];
 
-    this.lives = 1;
+    this.lives = 3;
     this.floatingHearts = 0;
     this.alive = true;
     this.invincible = false;
@@ -108,7 +108,7 @@ class Tank {
       GameMath.circleRectCollision(
         e.x,
         e.y,
-        e.size/2.6,
+        e.size.real/2.6,
         this.x,
         this.y,
         this.size,
