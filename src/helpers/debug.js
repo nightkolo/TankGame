@@ -16,5 +16,5 @@ function spawnEnemy(type) {
     type: type,
   });
 
-  enemies.push(newEnemy);
+  Game.currentEnemies.push(newEnemy);
 }

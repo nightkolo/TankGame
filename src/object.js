@@ -1,14 +1,11 @@
 class Item {
   #openState = false;
   #hitsToOpen = 15;
-  #openedAt = 0.0;
 
-  constructor(x, y, item, player, cooldown = Game.powerupTime) {
+  constructor(x, y, item, cooldown = Game.powerupTime) {
     this.x = x;
     this.y = y;
     this.itemType = item;
-    this.player = player;
-    // Game.currentEnemies = [];
     this.col = [];
     
     this.size = 50.0;
@@ -75,10 +72,10 @@ class Item {
     }
 
     this.collected = true;
-    this.player.gainLives();
+    Game.currentPlayer.gainLives();
 
     if (this.itemType.type != Game.ItemType.INSTANT){
-      this.player.gainItem(this.itemType, this.cooldown);
+      Game.currentPlayer.gainItem(this.itemType, this.cooldown);
     } else {
       // Switch
       if (this.itemType == Game.Items.BOMB){
@@ -105,9 +102,9 @@ class Item {
         this.x,
         this.y,
         this.size / 2,
-        this.player.x,
-        this.player.y,
-        this.player.size / 2
+        Game.currentPlayer.x,
+        Game.currentPlayer.y,
+        Game.currentPlayer.size / 2
       ) &&
       !this.collected
     ) {
@@ -195,7 +192,7 @@ class Bomb {
     circle(this.x, this.y, 2.0 * this.hitRadius);
   }
   animExplode(enemies = []){
-    // console.log(enemies);
+    // console.log(Game.currentEnemies);
     animScreenShake(2500.0, 1.0);
 
     enemies.forEach((e) => {
@@ -218,7 +215,7 @@ class Bomb {
   explode(enemies = []){
     if (!this.isExploding){
       this.explosionSFX.play();
-      this.animExplode(enemies);
+      this.animExplode(Game.currentEnemies);
       this.isExploding = true;
     }
   }

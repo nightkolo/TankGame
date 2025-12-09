@@ -7,8 +7,8 @@ let playerBullets = [];
 let enemyBullets = []; 
 let buddyBullets = [];
 let tankBuddies = [];
-let enemies = [];
 let items = [];
+let bombs = [];
 
 // Game Loops
 let wave = 67; // Why
@@ -28,6 +28,15 @@ let curBulletDir = { x: 0, y: -1 };
 // Juice
 let bgCol = Game.bgCols[0];
 let playerTrail = [];
+const introAnim = {
+  text: { x: 0.0, y: 0.0, dir: 0.0, accel: 0.0 },
+  bubble: { x: 0.0, y: 0.0, dir: 0.0, accel: 0.0 },
+  t: 0.0, playing: false
+};
+const waveAnim = { playing: false, t: 1.0 }
+const critHitAnim = { playing: false, t: 1.0 }
+const screenshakeAnim = { playing: false, dur: 0, strength: 10 }
+
 
 function handleEnemyBullets(bullet) {
   if (!bullet.alive) {
@@ -48,7 +57,7 @@ function handleEnemyBullets(bullet) {
 function handlePlayerBullets(bullet) {
   let removeBullet = false;
 
-  enemies.forEach((e) => {
+  Game.currentEnemies.forEach((e) => {
     if (GameMath.circleCollision(e.x, e.y, e.size.real / 2.0, bullet.x, bullet.y, bullet.size / 2.0)) {
       removeBullet = hitEnemy(bullet, e);
     }
@@ -144,22 +153,22 @@ function enemyDied(targetEnemy, bullet){
           type: Game.EnemyTypes.SPLITTED
         });
 
-        enemies.push(enemy1);
+        Game.currentEnemies.push(enemy1);
       })
       break;
   }
   
-  if (enemies.length === waveEnemyCount){
+  if (Game.currentEnemies.length === waveEnemyCount){
     let sfx = enemyDeadSFXsFirst[floor(random() * enemyDeadSFXsFirst.length)];
     sfx.stereo(map(targetEnemy.x, 0, width, -1, 1)).play();
     // sfx.play();  
   } else {
-    enemyDeadSFX.rate(1.25 - ((enemies.length / waveEnemyCount) * 1.25));
+    enemyDeadSFX.rate(1.25 - ((Game.currentEnemies.length / waveEnemyCount) * 1.25));
     enemyDeadSFX.stereo(map(targetEnemy.x, 0, width, -1, 1)).play();
     // enemyDeadSFX.play();
   }
 
-  Game.removeObject(enemies, targetEnemy);
+  Game.removeObject(Game.currentEnemies, targetEnemy);
   score += scoreGained;
 }
 
@@ -181,7 +190,7 @@ function handleTankBuddies(buddy){
 function spawnItem(item = -1) {
   const itemToSpawn = item === -1 ? random(Object.values(Game.Items)) : item;
 
-  items.push(new Item(GameMath.randomFloat(200.0, width - 200), GameMath.randomFloat(200.0, height - 200), itemToSpawn, p));
+  items.push(new Item(GameMath.randomFloat(200.0, width - 200), GameMath.randomFloat(200.0, height - 200), itemToSpawn));
 }
 
 let waveEnemyCount = 1;
@@ -230,7 +239,7 @@ function spawnRandomWaveEnemies(onWave = wave) {
       type: randomType,
     });
 
-    enemies.push(newEnemy);
+    Game.currentEnemies.push(newEnemy);
   }
 
   setTimeout(enemiesSpawned, 1000.0 * Game.enemySpawnTime);
@@ -249,7 +258,7 @@ function enemiesSpawned(){
   // Collect unique enemy types present
   // Set is a JavaScript data structure that stores unique values only—if you try to add a duplicate, it ignores it.
   const presentTypes = new Set(
-    enemies
+    Game.currentEnemies
       .map(e => e.type) // extracts all enemy types
       .filter(type => type in enemyTypeSFXMap) // Keep only mapped types
   );
@@ -309,7 +318,7 @@ function newGame(){
   buddyBullets = [];
   playerBullets = [];
   tankBuddies = [];
-  enemies = [];
+  Game.currentEnemies = [];
   items = [];
  
   gameStarted = true;
@@ -327,7 +336,7 @@ function newGame(){
   p = new Tank();
 
   e1 = new Enemy({x: width / 2, y: height / 2, health: 10, type: Game.EnemyTypes.NORMAL, followPlayer: false, bulletDir: curBulletDir});
-  enemies.push(e1);
+  Game.currentEnemies.push(e1);
 }
 
 let bgIMG, icon, iconDazzle, iconCS, iconBuddy, iconInacc, panel, panel2, arrowIMG, fonts;
@@ -370,28 +379,6 @@ function setup() {
 
   Game.setGame();
   newGame();
-}
-
-let bombs = [];
-
-const introAnim = {
-  text: { x: 0.0, y: 0.0, dir: 0.0, accel: 0.0 },
-  bubble: { x: 0.0, y: 0.0, dir: 0.0, accel: 0.0 },
-  t: 0.0,
-  playing: false
-};
-const waveAnim = {
-  playing: false,
-  t: 1.0
-}
-const critHitAnim = {
-  playing: false,
-  t: 1.0
-}
-const screenshakeAnim = {
-  playing: false,
-  dur: 0,
-  strength: 10
 }
 
 let statsSet = false;
@@ -439,7 +426,7 @@ function draw() {
   rectMode(CENTER);
 
   // Enemies defeated
-  if (enemies.length == 0 && !gameOver && gameStarted && !creatingEnemies) {
+  if (Game.currentEnemies.length == 0 && !gameOver && gameStarted && !creatingEnemies) {
     gotoNextWave();
   }
 
@@ -468,7 +455,7 @@ function draw() {
   buddyBullets = buddyBullets.filter((b) => {
     let removeBullet = false;
 
-    enemies.forEach((e) => {
+    Game.currentEnemies.forEach((e) => {
       if (GameMath.circleCollision(b.x, b.y, b.size / 2.0, e.x, e.y, e.size.real / 2.0)) {
         enemyHit2SFX.rate(random(0.8, 1.2)).play();
 
@@ -490,9 +477,7 @@ function draw() {
   tankBuddies = tankBuddies.filter(handleTankBuddies);
 
   // Handle Enemies
-  Game.currentEnemies = enemies;
-
-  enemies.forEach((e) => {
+  Game.currentEnemies.forEach((e) => {
     // e.Game.slowMode = Game.slowMode;
 
     if (e.spawnBullets() && e.canShoot) {
@@ -514,8 +499,6 @@ function draw() {
   // Handle Items
   fill(GRAY);
   items = items.filter((i) => {
-    i.enemies = enemies;
-
     i.update();
     i.show();
     return !i.collected && !GameMath.offScreen(i.x, i.y, canSize.x, canSize.y);
@@ -532,7 +515,7 @@ function draw() {
     b.update();
     b.show();
 
-    b.explode(enemies);
+    b.explode(Game.currentEnemies);
 
     return !b.hasExploded;
   });
@@ -675,7 +658,6 @@ function draw() {
 
   // Handle Player
   if (p.alive) {
-    p.enemies = enemies;
     p.curBulletDir = curBulletDir;
     Game.currentPlayer = p;
 
