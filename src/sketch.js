@@ -368,15 +368,9 @@ function setup() {
       rounding: 5,
       textSize: 2,
       textSize: 24,
-      // fillBg p5.Color: default background color
       fillBgHover: color("#ffffffff"),
       fillBgActive: color("#000000ff"),
-      // fillLabel p5.Color: default label color
-      // fillLabelHover p5.Color: hover label color
       fillLabelActive: color("#ffffffff")
-      // strokeBg p5.Color: default stroke color
-      // strokeBgHover p5.Color: hover stroke color
-      // strokeBgActive
   });
 
   Game.setGame();
@@ -399,6 +393,11 @@ const critHitAnim = {
   playing: false,
   t: 1.0
 }
+const screenshakeAnim = {
+  playing: false,
+  dur: 0,
+  strength: 10
+}
 
 let statsSet = false;
 
@@ -406,12 +405,12 @@ function draw() {
   // Uncaught TypeError: Cannot read properties of undefined (reading '0')
   background(bgCol[0], bgCol[1], bgCol[2]);
 
-  if (screenShake) {
-    translate(random(-shakeIntensity, shakeIntensity), random(-shakeIntensity, shakeIntensity));
+  if (screenshakeAnim.playing) {
+    translate(random(-screenshakeAnim.strength, screenshakeAnim.strength), random(-screenshakeAnim.strength, screenshakeAnim.strength));
 
-    shakeDuration--;
-    if (shakeDuration <= 0) {
-      screenShake = false;
+    screenshakeAnim.dur--;
+    if (screenshakeAnim.dur <= 0) {
+      screenshakeAnim.playing = false;
     }
   }
 
@@ -837,17 +836,11 @@ function mousePressed() {
   }
 }
 
-let screenShake = false;
-let shakeDuration = 0;
-let shakeIntensity = 10;
-let overrideScreenshake = false;
-
 function animScreenShake(shake = 10.0, dur = 5.0){
   // TODO fix screenshake
-  screenShake = true;
-  shakeDuration = dur; // Shake for 30 frames
-  shakeIntensity = shake; // Reset intensity
-  // overrideScreenshake = override;
+  screenshakeAnim.playing = true;
+  screenshakeAnim.dur = dur; // Shake for 30 frames
+  screenshakeAnim.strength = shake; // Reset intensity
 }
 
 let bgPulseStart = null;
