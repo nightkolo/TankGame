@@ -408,7 +408,7 @@ function draw() {
   if (screenshakeAnim.playing) {
     translate(random(-screenshakeAnim.strength, screenshakeAnim.strength), random(-screenshakeAnim.strength, screenshakeAnim.strength));
 
-    screenshakeAnim.dur--;
+    screenshakeAnim.dur -= deltaTime / 16.0;
     screenshakeAnim.playing = screenshakeAnim.dur > 0;
   }
 
@@ -698,7 +698,7 @@ function draw() {
     // Draw player trail
     for (let i = playerTrail.length - 1; i >= 0; i--) {
       let t = playerTrail[i];
-      t.life -= 0.04;
+      t.life -= deltaTime * 0.0025;
       
       if (t.life <= 0) {
         playerTrail.splice(i, 1);
@@ -737,7 +737,7 @@ function draw() {
     arrowIMG.resize(40.0, 25.0);
     image(arrowIMG, 0, (sin(millis() / 260.0) * 10.0) + hei + 70.0);
 
-  } else if (wave === 1) {
+  } else if (wave < 4) {
     if (!introAnim.playing){
       introAnim.bubble.accel = random(-650.0, -450.0);
       introAnim.bubble.dir = Math.sign(random() - 0.5);
@@ -747,13 +747,11 @@ function draw() {
       introAnim.playing = true;
     }
     
-    // Update bubble
-    introAnim.bubble.accel += 9.8 * 2.0;
+    introAnim.bubble.accel += deltaTime * 9.8 * 0.075;
     introAnim.bubble.y += introAnim.bubble.accel * deltaTime * 0.001;
     introAnim.bubble.x += introAnim.bubble.dir * deltaTime * 0.15;
 
-    // Update text
-    introAnim.text.accel += 9.8 * 2.0;
+    introAnim.text.accel += deltaTime * 9.8 * 0.075;
     introAnim.text.y += introAnim.text.accel * deltaTime * 0.001;
     introAnim.text.x += introAnim.text.dir * deltaTime * 0.15;
   }
@@ -765,6 +763,7 @@ function draw() {
   
   if (gameOver){
     if (!statsSet){
+      // TODO
       statsSet = true;
     }
     cursor();
@@ -819,14 +818,11 @@ function placeTankBuddy(){
 }
 
 function mousePressed() {
-  if (!p.alive){
-  } else {
+  if (p.alive){
     placeTankBuddy();
   }
 
-  if (gameStarted){
-    isShooting = true;
-  }
+  isShooting = gameStarted;
 }
 
 function animScreenShake(shake = 10.0, dur = 5.0){
@@ -856,7 +852,6 @@ function animCritHit(){
 
 function animText(){
   if (waveAnim.t < 0.5) return;
-
   waveAnim.t = 0;
   waveAnim.playing = true;
 }
