@@ -31,12 +31,12 @@ class Enemy {
     // Stats
     this.maxSpeed = maxSpeed;
     this.health = health;
-    this.points = round(health / 4.0); // experimental
-    this.critHitThres = floor(random(5, 10));
+    this.points = round(health / 4.0);
     this.#initialHealth = health;
     
-    // Type
-    this.type = type;
+    // Properties
+    this.type = type; // Enemy type based on enum
+    this.critHitPoint = floor(random(5, 10));
     
     // Assets
     this.bounceSFX = new Howl({ src: "audio/enemy_rabbitball_bounce.ogg", volume: 0.5});
@@ -47,25 +47,29 @@ class Enemy {
       new Howl({ src: "audio/enemy_shooter_shoot_04.ogg", volume: 0.5}),
       new Howl({ src: "audio/enemy_shooter_shoot_05.ogg", volume: 0.5})
     ];
-    this.shootSFX = new Howl({ src: "audio/enemy_shooter_entered.ogg", volume: 0.5});
     this.imgEyes = this.getEnemyEyes();
     this.imgHitEyes = this.getEnemyEyesHit();
     this.eyeX = 0.0;
     this.eyeY = 0.0;
     
-    // Bouncer
-    this.accel = 0.0;
-    this.grav = 9.8;
-    this.dirX = Math.sign(random() - 0.5);
+    // Types
+    // Rabbitball
+    this.rabbitball = {
+      accel: 0.0,
+      dirX: Math.sign(random() - 0.5)
+    }
     
-    // Item
+    // Power-up mods
     this.slowMode = false;
     
     // State
     this.canMove = false;
     this.canHurt = false;
+    this.canShoot = false;
+    this.isBeingHit = false;
     
     // Animation
+
     this.t = 1.0;
     this.animatingBounce = false;
     this.startX = 0;
@@ -77,9 +81,7 @@ class Enemy {
     // Misc.
     this.#player = player
     this.followPlayer = followPlayer;
-    this.canShoot = false;
-    this.isBeingHit = false;
-    this.shootingSpdFactor = 1.7;
+    // this.shootingSpdFactor = 1.7;
     
     this.spawned();
   }
@@ -102,7 +104,7 @@ class Enemy {
     if (this.type != Game.EnemyTypes.BOUNCER) return;
 
     if (this.x > width - this.size.real / 2.0 || this.x < this.size.real / 2) {
-      this.dirX *= -1;
+      this.rabbitball.dirX *= -1;
     }
 
     let spd = this.maxSpeed;
@@ -118,22 +120,22 @@ class Enemy {
       this.#slowState = false;
     }
 
-    this.x += this.dirX * spd;
-    this.accel += 9.8;
-    this.y += this.accel * fallFactor;
+    this.x += this.rabbitball.dirX * spd;
+    this.rabbitball.accel += 9.8;
+    this.y += this.rabbitball.accel * fallFactor;
 
     if (this.y > height - (this.size.real / 2.0)) {
       // this.bounceSFX.play();
       animScreenShake();
 
       // TODO issue, make a fixed calculated value
-      this.accel -= this.accel * 2.0;
+      this.rabbitball.accel -= this.rabbitball.accel * 2.0;
     }
   }
   exittedSlowMode(){
     if (this.type == Game.EnemyTypes.BOUNCER) {
       this.y = this.#initialY;
-      this.accel = 0.0;
+      this.rabbitball.accel = 0.0;
       this.canMove = true;
       this.canHurt = false;
 
@@ -189,16 +191,16 @@ class Enemy {
     if (!this.canShoot && this.type != Game.EnemyTypes.SHOOTER) return false;
 
     let factor = 0.0;
+    const shootingSpdFactor = 1.7
     if (this.slowMode){
-      factor = this.shootingSpdFactor * 4.0;
+      factor = shootingSpdFactor * 4.0;
     } else {
-      factor = this.shootingSpdFactor;
+      factor = shootingSpdFactor;
     }
 
     if (millis() - this.#lastShotTime > factor * 1000) {
       let aud = this.shootSFXs[floor(random() * this.shootSFXs.length)];
       aud.play()
-      // this.shootSFX.play();
 
       this.#lastShotTime = millis();
       return true; // ready to fire
@@ -382,7 +384,8 @@ class Enemy {
 
     this.health -= hitpoint;
 
-    if (random() < 1 / Game.critHitProb && this.health == this.critHitThres){
+    // Critical hit detection
+    if (random() < 1 / Game.critHitProb && this.health == this.critHitPoint){
       console.log("Critical Hit!");
       Game.critHitEvent(this.x, this.y);
       animCritHit();
