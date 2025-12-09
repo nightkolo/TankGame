@@ -16,7 +16,7 @@ class Item {
     this.gainedSFX = new Howl({ src: ['audio/item_gained.wav'], volume: 0.6, stereo: 0 });
     this.dazzleSFX = new Howl({ src: ['audio/item_dazzle.wav'], volume: 0.6, stereo: 0 });
     this.buddySFX = new Howl({ src: ['audio/item_tank_buddy.wav'], volume: 1.0, stereo: 0 });
-    this.imgPickup = this.getIcon();
+    this.imgPickup = this.getPickupIcon();
 
     this.cooldown = cooldown;
 
@@ -27,23 +27,15 @@ class Item {
     this.opened = false;
     this.collected = false;
   }
-  getIcon() {
-    let img;
-    switch (this.itemType){
-      case Game.Items.COUNTER_SPIKE:
-        img = loadImage('img/item-pickup-counter-spike.svg');
-        break;
-      case Game.Items.DAZZLE:
-        img = loadImage('img/item-pickup-dazzle.svg');
-        break;
-      case Game.Items.TANK_BUDDY:
-        img = loadImage('img/item-pickup-tankbuddy.svg');
-        break;
-      case Game.Items.INACCURACY:
-        img = loadImage('img/item-pickup-inaccuracy.svg');
-        break;
+  getPickupIcon() {
+    const imgMap = {
+      [Game.Items.COUNTER_SPIKE.id]: 'img/item-pickup-counter-spike.svg',
+      [Game.Items.DAZZLE.id]: 'img/item-pickup-dazzle.svg',
+      [Game.Items.TANK_BUDDY.id]: 'img/item-pickup-tankbuddy.svg',
+      [Game.Items.INACCURACY.id]: 'img/item-pickup-inaccuracy.svg'
     }
-    return img;
+    const path = imgMap[this.itemType.id];
+    return path ? loadImage(path) : undefined;
   }
   hit() {
     if (this.opened) return;
@@ -59,34 +51,30 @@ class Item {
   grantItem() {
     if (this.collected) return;
 
-    switch (this.itemType){
-      case Game.Items.DAZZLE:
-        this.dazzleSFX.play();
-        break;
-      case Game.Items.TANK_BUDDY:
-        this.buddySFX.play();
-        break;
-      default:
-        this.gainedSFX.play();
-        break;
+    const sfxMap = {
+      [Game.Items.DAZZLE.id]: this.dazzleSFX,
+      [Game.Items.TANK_BUDDY.id]: this.buddySFX
     }
+    const sfx = sfxMap[this.itemType.id] || this.gainedSFX;
+    sfx.play();
 
-    this.collected = true;
-    Game.currentPlayer.gainLives();
-
-    if (this.itemType.type != Game.ItemType.INSTANT){
+    Game.currentPlayer.gainLives(1);
+    
+    if (this.itemType.type !== Game.ItemType.INSTANT){
       Game.currentPlayer.gainItem(this.itemType, this.cooldown);
     } else {
-      // Switch
-      if (this.itemType == Game.Items.BOMB){
-        Game.dropBomb(this.x, this.y);
+      switch (this.itemType){
+        case Game.Items.BOMB:
+          Game.dropBomb(this.x, this.y);
+          break;
       }
     }
     Game.itemCollected(this.itemType);
-
     Game.currentEnemies.forEach((e) => {
       e.moveAwayItemCollected(this.x, this.y);
     })
+
+    this.collected = true;
   }
   update() {
     if (!this.opened) {
@@ -95,38 +83,27 @@ class Item {
       } else {
         this.y += this.spd * this.dir;
       }
-    } else if( this.itemType.type == Game.ItemType.INSTANT ) {
+    } else if (this.itemType.type == Game.ItemType.INSTANT) {
       this.grantItem();
     } else if (
-      GameMath.circleCollision(
-        this.x,
-        this.y,
-        this.size / 2,
-        Game.currentPlayer.x,
-        Game.currentPlayer.y,
-        Game.currentPlayer.size / 2
-      ) &&
-      !this.collected
+      GameMath.circleCollision(this.x, this.y, this.size / 2, Game.currentPlayer.x, Game.currentPlayer.y, Game.currentPlayer.size / 2)
+      && !this.collected
     ) {
       this.grantItem();
     }
   }
+  getColor(){
+    const colorMap = {
+      [Game.Items.COUNTER_SPIKE.id]: [255, 0, 0],
+      [Game.Items.INACCURACY.id]: [0, 255, 0],
+      [Game.Items.TANK_BUDDY.id]: [255, 0, 255],
+      [Game.Items.DAZZLE.id]: [255, 255, 255]
+    };
+    const baseColor = colorMap[this.itemType.id] || [128, 128, 128];
+    return baseColor;
+  }
   show() {
-    switch (this.itemType){
-      case Game.Items.COUNTER_SPIKE:
-        this.col = [255,0,0];
-        break;
-      case Game.Items.INACCURACY:
-        this.col = [0,255,0];
-        break;
-      case Game.Items.TANK_BUDDY:
-        this.col = [255,0,255];
-        break;
-      case Game.Items.DAZZLE:
-        this.col = [255,255,255];
-        break;
-    }
-
+    
     stroke(0);
     textSize(20.0);
     textAlign(CENTER);
@@ -135,22 +112,21 @@ class Item {
       fill(this.col[0], this.col[1], this.col[2])
       circle(this.x, this.y, this.size);
       
-      if (this.itemType == Game.Items.BOMB){
+      if (this.itemType === Game.Items.BOMB){
         image(this.imgEyes, this.x, this.y);
         this.size = 60.0;
         
         this.col[0] = (1.0 - (this.#hitsToOpen / 15.0)) * 175;
         this.col[1] = 25;
         this.col[2] = 25;
-        
       } else {
+        this.col = this.getColor();
         image(this.img, this.x, this.y);
       }
       fill(255);
       text(`${this.#hitsToOpen}`, this.x, this.y+50.0);
-      
     } else {
-      if (this.itemType !== Game.Items.BOMB){
+      if (this.itemType.type !== Game.ItemType.INSTANT){
         image(this.imgPickup, this.x, this.y);
 
         if (this.openedAt !== null && millis() - this.openedAt > 5.5 * 1000) {
@@ -191,15 +167,13 @@ class Bomb {
     fill(125, 125, 125, 50);
     circle(this.x, this.y, 2.0 * this.hitRadius);
   }
-  animExplode(enemies = []){
-    // console.log(Game.currentEnemies);
+  animExplode(enemies = Game.currentEnemies){
     animScreenShake(2500.0, 1.0);
 
     enemies.forEach((e) => {
       if (GameMath.circleCollision(this.x, this.y, this.hitRadius, e.x, e.y, e.size.real)){
         const hitStrength = 1.0 - (GameMath.distance(this.x, this.y, e.x, e.y) / (2.0 * this.hitRadius));
-        // console.log(hitStrength);
-
+        
         e.hit(0, 0, floor(this.hitPower * hitStrength));
 
         if (e.hasDied()){
@@ -212,10 +186,10 @@ class Bomb {
       this.hasExploded = true;
     }, this.lifetime * 1000.0);
   }
-  explode(enemies = []){
+  explode(enemies = Game.currentEnemies){
     if (!this.isExploding){
       this.explosionSFX.play();
-      this.animExplode(Game.currentEnemies);
+      this.animExplode(enemies);
       this.isExploding = true;
     }
   }

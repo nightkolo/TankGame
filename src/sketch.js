@@ -292,8 +292,8 @@ function gotoNextWave() {
   bgCol = Game.getWaveCol(wave);
   
   if (random() < 1 / 1) {
-    spawnItem(Game.Items.DAZZLE);
-    // spawnItem();
+    // spawnItem(Game.Items.DAZZLE);
+    spawnItem();
   }
   // let value = Game.EnemyTypes.REFLECTOR;
   
