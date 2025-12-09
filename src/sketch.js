@@ -435,13 +435,13 @@ function draw() {
     if (millis() - lastSpawnTime > shootingSpdFactor * 1000.0) {
       const size = 12.5;
       const factor = 0.045;
-      const extraX = (p.powerups.includes(Game.Items.INACCURACY)) ? (random() * 0.5) - 0.25 : 0.0;
-      const extraY = (p.powerups.includes(Game.Items.INACCURACY)) ? (random() * 0.5) - 0.25 : 0.0;
-      shootingSpdFactor = (p.powerups.includes(Game.Items.INACCURACY)) ? factor / 1.25 : factor;
+      const extraX = (p.activePowerups.includes(Game.Items.INACCURACY)) ? (random() * 0.5) - 0.25 : 0.0;
+      const extraY = (p.activePowerups.includes(Game.Items.INACCURACY)) ? (random() * 0.5) - 0.25 : 0.0;
+      shootingSpdFactor = (p.activePowerups.includes(Game.Items.INACCURACY)) ? factor / 1.25 : factor;
 
       playerBullets.push(new Bullet(p.x, p.y, curBulletDir.x + extraX, curBulletDir.y + extraY, size));
       
-      if (p.powerups.includes(Game.Items.COUNTER_SPIKE)) {
+      if (p.activePowerups.includes(Game.Items.COUNTER_SPIKE)) {
         // TODO make other axis bullets a different fill
         
         playerBullets.push(new Bullet(p.x, p.y, -curBulletDir.x + extraX, -curBulletDir.y + extraY, size));
@@ -662,7 +662,7 @@ function draw() {
     Game.currentPlayer = p;
 
     noShoot = p.insideAnEnemy(false);
-    Game.slowMode = p.powerups.includes(Game.Items.DAZZLE);
+    Game.slowMode = p.activePowerups.includes(Game.Items.DAZZLE);
 
     if (p.insideAnEnemy()) {
       if (!p.invincible){
@@ -782,7 +782,7 @@ function draw() {
 }
 
 function placeTankBuddy(){
-  if (p.powerups.includes(Game.Items.TANK_BUDDY)){
+  if (p.activePowerups.includes(Game.Items.TANK_BUDDY)){
     tankbuddyDropSFX.play();
 
     if (p.tankBuddiesOwned >= 1){
@@ -793,7 +793,7 @@ function placeTankBuddy(){
     let s = new TankBuddy(p.x, p.y, shootingSpdFactor * 2.0);
     tankBuddies.push(s);
 
-    Game.removeObject(p.powerups, Game.Items.TANK_BUDDY);
+    Game.removeObject(p.activePowerups, Game.Items.TANK_BUDDY);
   }
 }
 

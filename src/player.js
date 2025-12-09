@@ -5,36 +5,34 @@ class Tank {
     this.size = 50.0;
     this.dpSize = 50.0;
     
-    // Game.currentEnemies = [];
-    this.powerups = [];
+    this.activePowerups = []; // Used by sketch for powerups
     this.tankBuddiesOwned = 0;
-    this.curBulletDir = {
-      x: 0,
-      y: -1,
-    }
+    this.curBulletDir = { x: 0, y: -1 }
 
     // Assets
     this.img = loadImage('img/tank-eyes-01.svg');
-    this.imgHit = loadImage('img/tank-eyes-01.svg');
+    this.imgHit = loadImage('img/tank-eyes-02.svg');
     this.imgHeart = loadImage('img/heart-02.svg');
     this.imgHeart1 = loadImage('img/heart-01.svg');
     // Audio
     this.hitSFX = new Howl({ src: "audio/tank_hit_01.ogg", volume: 0.5});
     this.criticalHealthSFX = new Howl({src: "audio/tank_hearts_critical.ogg", volume: 0.5});
-    this.gameoverSFX = new Howl({
-      src: ['audio/game_end.ogg'],
-      volume: 0.2
-    });
+    this.gameoverSFX = new Howl({src: ['audio/game_end.ogg'], volume: 0.2 });
     this.itemFinishedSFXs = [
       new Howl({ src: ['audio/item_timeout_01.ogg'], volume: 0.4, stereo: 0 }),
       new Howl({ src: ['audio/item_timeout_02.ogg'], volume: 0.4, stereo: 0 })
     ];
 
+    // Stats
     this.lives = 3;
     this.floatingHearts = 0;
+
+    // State
     this.alive = true;
     this.invincible = false;
     this.invincibilityTime = 1.0;
+
+    // Juice
     this.trail = [];
     this.maxTrailLength = 50;
     this.mouseDirX = 0;
@@ -49,9 +47,7 @@ class Tank {
     this.lives = min(15, this.lives);
   }
   gainItem(item, itemCooldown = 8.0) { // Game.Items, float
-    this.powerups.push(item);
-    
-    // print(this.powerups);
+    this.activePowerups.push(item);
 
     if (item.type == Game.ItemType.DEFAULT){
       Game.startItemTimer(item, itemCooldown);
@@ -60,7 +56,7 @@ class Tank {
       this.loseItem(item);
       }, itemCooldown * 1000.0);
     } else {
-
+      // Tank Buddy special case
       if (item == Game.Items.TANK_BUDDY){
         this.tankBuddiesOwned++;
         Game.setItemTimer(item, this.tankBuddiesOwned);
@@ -70,8 +66,8 @@ class Tank {
   loseItem(item) {
     this.itemFinishedSFXs[floor(random() * this.itemFinishedSFXs.length)].play();
 
-    Game.removeObject(this.powerups, item);
-    print(this.powerups);
+    Game.removeObject(this.activePowerups, item);
+    print(this.activePowerups);
   }
   hit() {
     if (this.invincible || !this.alive) return;
@@ -105,24 +101,15 @@ class Tank {
     if (!Game.currentEnemies[0].canHurt && checkForSpawn) return false;
 
     return Game.currentEnemies.some((e) =>
-      GameMath.circleRectCollision(
-        e.x,
-        e.y,
-        e.size.real/2.6,
-        this.x,
-        this.y,
-        this.size,
-        this.size
-      )
+      GameMath.circleRectCollision(e.x, e.y, e.size.real/2.6, this.x, this.y, this.size, this.size)
     );
   }
   update() {
     this.x = mouseX;
     this.y = mouseY;
 
-    // Track mouse movement direction
-    let dx = mouseX - this.prevMouseX;
-    let dy = mouseY - this.prevMouseY;
+    const dx = mouseX - this.prevMouseX;
+    const dy = mouseY - this.prevMouseY;
 
     this.mouseDirX = dx === 0 ? this.mouseDirX : (dx > 0 ? 1 : -1);
     this.mouseDirY = dy === 0 ? this.mouseDirY : (dy > 0 ? 1 : -1);
@@ -130,8 +117,6 @@ class Tank {
     this.prevMouseX = mouseX;
     this.prevMouseY = mouseY;
 
-    // console.log(this.trail);
-    // Store trail positions
     this.trail.push({ x: this.x, y: this.y });
     if (this.trail.length > this.maxTrailLength) {
       this.trail.shift();
@@ -152,24 +137,25 @@ class Tank {
       }
     }
 
+    stroke(90, 0, 0)
+    
     if (this.invincible) {
       fill(255 / 2, 125 / 2, 0 / 2);
+      square(this.x, this.y, this.dpSize, this.dpSize/10.0);
+      image(this.imgHit, this.x + 5.0, this.y)
     } else {
       fill(255, 125, 125);
+      square(this.x, this.y, this.dpSize, this.dpSize/10.0);
+      image(this.img, this.x + 5.0, this.y)
     }
-
-    imageMode(CENTER);
     
-    stroke(90, 0, 0)
-    square(this.x, this.y, this.dpSize, this.dpSize/10.0);
-  
-    image(this.img, this.x + 5.0, this.y)
+    imageMode(CENTER);
 
     let flash = 1
     if (this.lives === 1){
       flash = map(sin(millis() * 0.03), -1, 1, 0.5, 1);
     } else if (this.lives === 2){
-     flash = map(sin(millis() * 0.015), -1, 1, 0.5, 1);
+      flash = map(sin(millis() * 0.015), -1, 1, 0.5, 1);
     }
     
     tint(255 * flash, 255 * flash, 255 * flash);
