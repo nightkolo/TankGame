@@ -409,9 +409,7 @@ function draw() {
     translate(random(-screenshakeAnim.strength, screenshakeAnim.strength), random(-screenshakeAnim.strength, screenshakeAnim.strength));
 
     screenshakeAnim.dur--;
-    if (screenshakeAnim.dur <= 0) {
-      screenshakeAnim.playing = false;
-    }
+    screenshakeAnim.playing = screenshakeAnim.dur > 0;
   }
 
   // Handle BG
@@ -601,9 +599,8 @@ function draw() {
     const timeLeft = activeTimes[i][1];
 
     const w = width - 120.0 - (120.0 * i);
-    const h = height - 100.0;
-    
-    let barHeight = 100.0 * (timeLeft / Game.powerupTime);
+    const h = height - 100.0; 
+    const barHeight = 100.0 * (timeLeft / Game.powerupTime);
     
     rectMode(CORNER);
     noStroke();
@@ -619,18 +616,18 @@ function draw() {
     rectMode(CENTER);
     stroke(50);
     
-    if (itemHeld === "Counter-Spike"){
+    if (itemHeld === Game.Items.COUNTER_SPIKE.name){
       image(iconCS, w, h);
-    } else if (itemHeld === "Dazzle"){
+    } else if (itemHeld === Game.Items.DAZZLE.name){
       image(iconDazzle, w, h);
-    } else if (itemHeld === "Tank Buddy"){
+    } else if (itemHeld === Game.Items.TANK_BUDDY.name){
       image(iconBuddy, w, h);
       textSize(20);
       text('Click to\nRelease!', w, h - 75.0);
   
       textSize(30);
       text(`${activeTimes[i][1]}`,w + 45.0, h + 45.0);
-    } else if (itemHeld === "Inaccuracy"){
+    } else if (itemHeld === Game.Items.INACCURACY.name){
       image(iconInacc, w, h);
     }
   }
@@ -697,21 +694,17 @@ function draw() {
 
     p.update();
     // Add player trail point
-    playerTrail.push({
-      x: p.x,
-      y: p.y,
-      life: 1.0
-    });
+    playerTrail.push({x: p.x,y: p.y,life: 1.0});
     // Draw player trail
     for (let i = playerTrail.length - 1; i >= 0; i--) {
       let t = playerTrail[i];
       t.life -= 0.04;
-
+      
       if (t.life <= 0) {
         playerTrail.splice(i, 1);
         continue;
       }
-
+      
       push();
       noStroke();
       fill(255, (125/2) * t.life);  // fading alpha
