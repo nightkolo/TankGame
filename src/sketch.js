@@ -448,9 +448,6 @@ function draw() {
 
   // Enemies defeated
   if (enemies.length == 0 && !gameOver && gameStarted && !creatingEnemies) {
-    console.log(enemies.length);
-    console.log(!gameOver);
-    console.log(gameStarted);
     gotoNextWave();
   }
 
@@ -775,8 +772,7 @@ function draw() {
   pop();
   
   if (gameOver){
-    if (statsSet === false){
-
+    if (!statsSet){
       statsSet = true;
     }
     cursor();
