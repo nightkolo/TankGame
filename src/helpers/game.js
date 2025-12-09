@@ -18,6 +18,8 @@ class Game {
   static currentEnemies;
   static slowMode = false;
 
+  static GRAV = 9.8;
+
   static randomMsgs = [
     "Shoot me",
     "Why so round?",

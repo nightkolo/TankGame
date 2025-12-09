@@ -84,9 +84,14 @@ class Enemy {
       this.canShoot = this.type === Game.EnemyTypes.SHOOTER;
     }, Game.enemySpawnTime * 1000.0);
   }
-  bounce() {
-    if (this.type != Game.EnemyTypes.BOUNCER) return;
-
+  move(){
+    if (this.type === Game.EnemyTypes.BOUNCER){
+      this.moveRabbitball();    
+    } else {
+      this.moveTowardPlayer();
+    }
+  }
+  moveRabbitball() {
     if (this.x > width - this.size.real / 2.0 || this.x < this.size.real / 2) {
       this.rabbitball.dirX *= -1;
     }
@@ -97,13 +102,21 @@ class Enemy {
     if (Game.slowMode){
       this.#slowState = true;
     } else if (this.#slowState) {
-      this.exittedSlowMode(); // Runs once in draw
+      this.y = this.#initialY;
+      this.rabbitball.accel = 0.0;
+      this.canMove = true;
+      this.canHurt = false;
+
+      setTimeout(() => {
+        this.canHurt = true;
+      }, 1000.0);
+
       this.#slowState = false;
     }
 
-    this.x += this.rabbitball.dirX * spd;
-    this.rabbitball.accel += 9.8;
-    this.y += this.rabbitball.accel * fallFactor;
+    this.x += deltaTime * this.rabbitball.dirX * spd * 0.06;
+    this.rabbitball.accel += deltaTime * Game.GRAV * 0.06;
+    this.y += deltaTime * this.rabbitball.accel * fallFactor  * 0.06;
 
     if (this.y > height - (this.size.real / 2.0)) {
       // this.bounceSFX.play();
@@ -113,71 +126,31 @@ class Enemy {
       this.rabbitball.accel -= this.rabbitball.accel * 2.0;
     }
   }
-  exittedSlowMode(){
-    if (this.type == Game.EnemyTypes.BOUNCER) {
-      this.y = this.#initialY;
-      this.rabbitball.accel = 0.0;
-      this.canMove = true;
-      this.canHurt = false;
-
-      setTimeout(() => {
-        this.canHurt = true;
-      }, 1000.0);
-    }
-  }
-  moveAwayItemCollected(x, y){
-    if (this.type == Game.EnemyTypes.BOUNCER) return;
-    let dx = x - this.x;
-    let dy = y - this.y;
-    let distance = sqrt(dx * dx + dy * dy);
-
-    if (distance > 0){
-      dx /= distance;
-      dy /= distance;
-
-      let spd = 80.0;
-
-      this.x -= dx * spd;
-      this.y -= dy * spd;
-    }
-  }
   moveTowardPlayer() {
-    if (
-      Game.currentPlayer == null ||
-      !this.followPlayer ||
-      this.type == Game.EnemyTypes.BOUNCER
-    )
-      return;
-
+    if (Game.currentPlayer == null || !this.followPlayer) return;
+    
     let dx = Game.currentPlayer.x - this.x;
     let dy = Game.currentPlayer.y - this.y;
-    let distance = sqrt(dx * dx + dy * dy);
-
+    const distance = sqrt(dx * dx + dy * dy);
+    
     if (distance > 0) {
       dx /= distance;
       dy /= distance;
-      let spd = this.maxSpeed * (1.0 - (this.health / (Game.enemyHealthFactor + 10.0)));
+      let spd = (this.type !== Game.EnemyTypes.SPRINTER)
+      ? this.maxSpeed * (1.0 - (this.health / (Game.enemyHealthFactor + 10.0)))
+      : this.maxSpeed * 2.0;
       
-      if (this.type == Game.EnemyTypes.SPRINTER) {
-        spd = this.maxSpeed * 2.0;
-      }
-      if (Game.slowMode){
-        spd /= 4.0;
-      }
+      if (Game.slowMode){ spd /= 4.0; }
+
       this.x += dx * spd;
       this.y += dy * spd;
     }
   }
-  spawnBullets() {
+  spawnBullets() { // Called by sketch.js
     if (!this.canShoot && this.type != Game.EnemyTypes.SHOOTER) return false;
-
-    let factor = 0.0;
-    const shootingSpdFactor = 1.7
-    if (Game.slowMode){
-      factor = shootingSpdFactor * 4.0;
-    } else {
-      factor = shootingSpdFactor;
-    }
+    
+    const shootingSpdFactor = 1.7;
+    const factor = (Game.slowMode) ? shootingSpdFactor * 4.0 : shootingSpdFactor;
 
     if (millis() - this.#lastShotTime > factor * 1000) {
       let aud = this.shootSFXs[floor(random() * this.shootSFXs.length)];
@@ -188,17 +161,28 @@ class Enemy {
     }
     return false;
   }
+  moveAwayItemCollected(x, y){
+    if (this.type == Game.EnemyTypes.BOUNCER) return;
+    
+    let dx = x - this.x;
+    let dy = y - this.y;
+    const distance = sqrt(dx * dx + dy * dy);
+
+    if (distance > 0){
+      dx /= distance;
+      dy /= distance;
+      const spd = 80.0;
+
+      this.x -= dx * spd;
+      this.y -= dy * spd;
+    }
+  }
   animBounce(sideHit = false){
     if (this.bounceAnim.t < 0.5) return;
 
-    if (sideHit){
-      this.bounceAnim.x = this.size.dpSizeX - (this.size.dpSizeX / 2.5);
-      this.bounceAnim.y = this.size.dpSizeY + (this.size.dpSizeY / 2.5);
-    } else {
-      this.bounceAnim.x = this.size.dpSizeX + (this.size.dpSizeX / 2.5);
-      this.bounceAnim.y = this.size.dpSizeY - (this.size.dpSizeY / 2.5);
-    }
-    this.bounceAnim.t = 0;
+    this.bounceAnim.x = (sideHit) ? this.size.dpSizeX - (this.size.dpSizeX / 2.5) : this.size.dpSizeX + (this.size.dpSizeX / 2.5);
+    this.bounceAnim.y = (sideHit) ? this.size.dpSizeY + (this.size.dpSizeY / 2.5) : this.size.dpSizeY - (this.size.dpSizeY / 2.5);
+    this.bounceAnim.t = 0.0;
     this.bounceAnim.playing = true;
   }
   animSpawn(){
@@ -226,8 +210,7 @@ class Enemy {
 
     if (!this.canMove) return;
 
-    this.bounce();
-    this.moveTowardPlayer();
+    this.move();
   }
   show() {
     rectMode(CENTER);

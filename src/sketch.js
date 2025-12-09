@@ -282,9 +282,9 @@ function gotoNextWave() {
   Game.bestWave = (wave > Game.bestWave) ? wave : Game.bestWave;
   bgCol = Game.getWaveCol(wave);
   
-  if (random() < 1 / 3) {
-    // spawnItem(Game.Items.TANK_BUDDY);
-    spawnItem();
+  if (random() < 1 / 1) {
+    spawnItem(Game.Items.DAZZLE);
+    // spawnItem();
   }
   // let value = Game.EnemyTypes.REFLECTOR;
   
@@ -745,11 +745,11 @@ function draw() {
       introAnim.playing = true;
     }
     
-    introAnim.bubble.accel += deltaTime * 9.8 * 0.075;
+    introAnim.bubble.accel += deltaTime * Game.GRAV * 0.075;
     introAnim.bubble.y += introAnim.bubble.accel * deltaTime * 0.001;
     introAnim.bubble.x += introAnim.bubble.dir * deltaTime * 0.15;
 
-    introAnim.text.accel += deltaTime * 9.8 * 0.075;
+    introAnim.text.accel += deltaTime * Game.GRAV * 0.075;
     introAnim.text.y += introAnim.text.accel * deltaTime * 0.001;
     introAnim.text.x += introAnim.text.dir * deltaTime * 0.15;
   }
