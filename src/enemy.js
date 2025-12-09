@@ -6,7 +6,7 @@ class Enemy {
   #lastHitTime = 0.0;
   #col = [0, 0, 0, 0];
 
-  constructor({ x = 200, y = 200, health = 10, maxSpeed = Game.defaultEnemySpeed, type = Game.EnemyTypes, followPlayer = true
+  constructor({ x = 200, y = 200, health = 10, maxSpeed = Game.DEFAULT_ENEMY_SPEED, type = Game.EnemyTypes, followPlayer = true
   } = {}) {
     // Position
     this.x = x;
@@ -51,7 +51,7 @@ class Enemy {
     }
     
     // Power-up mods
-    Game.slowMode = false;
+    Game.isSlowMode = false;
     
     // State
     this.canMove = false;
@@ -81,7 +81,7 @@ class Enemy {
       this.canMove = true;
       this.canHurt = true;
       this.canShoot = this.type === Game.EnemyTypes.SHOOTER;
-    }, Game.enemySpawnTime * 1000.0);
+    }, Game.ENEMY_SPAWN_TIME * 1000.0);
   }
   move(){
     if (!this.canMove) return;
@@ -97,10 +97,10 @@ class Enemy {
       this.rabbitball.dirX *= -1;
     }
 
-    let spd = (Game.slowMode) ? this.maxSpeed / 8.0 : this.maxSpeed;
-    let fallFactor = (Game.slowMode) ? 0.015 / 8.0 : 0.015;
+    let spd = (Game.isSlowMode) ? this.maxSpeed / 8.0 : this.maxSpeed;
+    let fallFactor = (Game.isSlowMode) ? 0.015 / 8.0 : 0.015;
 
-    if (Game.slowMode){
+    if (Game.isSlowMode){
       this.#slowState = true;
     } else if (this.#slowState) {
       this.y = this.#initialY;
@@ -138,10 +138,10 @@ class Enemy {
       dx /= distance;
       dy /= distance;
       let spd = (this.type !== Game.EnemyTypes.SPRINTER)
-      ? this.maxSpeed * (1.0 - (this.health / (Game.enemyHealthFactor + 10.0)))
+      ? this.maxSpeed * (1.0 - (this.health / (Game.ENEMIES_HEALTH_MAX + 10.0)))
       : this.maxSpeed * 2.0;
       
-      if (Game.slowMode){ spd /= 4.0; }
+      if (Game.isSlowMode){ spd /= 4.0; }
 
       this.x += dx * spd;
       this.y += dy * spd;
@@ -151,7 +151,7 @@ class Enemy {
     if (!this.canShoot && this.type != Game.EnemyTypes.SHOOTER) return false;
     
     const shootingSpdFactor = 1.7;
-    const factor = (Game.slowMode) ? shootingSpdFactor * 4.0 : shootingSpdFactor;
+    const factor = (Game.isSlowMode) ? shootingSpdFactor * 4.0 : shootingSpdFactor;
 
     if (millis() - this.#lastShotTime > factor * 1000) {
       let aud = this.shootSFXs[floor(random() * this.shootSFXs.length)];
@@ -274,7 +274,7 @@ class Enemy {
 
     // Animation
     if (this.spawnAnim.playing) {
-      this.spawnAnim.t += deltaTime * 0.001 * Game.enemySpawnTime;
+      this.spawnAnim.t += deltaTime * 0.001 * Game.ENEMY_SPAWN_TIME;
 
       circle(this.x, this.y, this.size.dpSize * this.spawnAnim.t);
 

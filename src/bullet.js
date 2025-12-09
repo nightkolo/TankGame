@@ -25,8 +25,8 @@ class Bullet {
     this.dirY *= -1
   }
   update(){
-    this.x += this.dirX * this.spd;
-    this.y += this.dirY * this.spd;
+    this.x += 0.05 * deltaTime * this.dirX * this.spd;
+    this.y += 0.05 * deltaTime * this.dirY * this.spd;
   }
   show(){
     circle(this.x, this.y, this.size);

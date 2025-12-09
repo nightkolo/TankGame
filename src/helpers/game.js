@@ -3,30 +3,35 @@ let dazzleInterval;
 let inaccuracyInterval;
 let bestWave = 0;
 
-// const itemNames = {};
-
 class Game {
-  static enemyHealthFactor = 20.0;
-  static enemySpawnTime = 1.0;
-  static tankBuddyLifetime = 8.0;
-  static defaultEnemySpeed = 1.35;
-  static powerupTime = 8.0;
-  static bubbleMessage = "";
+  static ENEMIES_HEALTH_MAX = 20.0;
+  static ENEMY_SPAWN_TIME = 1.0;
+  static TANK_BUDDY_LIFETIME = 8.0;
+  static POWERUP_LIFETIME = 8.0;
+  static DEFAULT_ENEMY_SPEED = 1.35;
+  static GRAV = 9.8;
+  static BUBBLE_MESSAGE = "";
 
   // Object refs
   static currentPlayer;
   static currentEnemies;
-  static slowMode = false;
 
-  static GRAV = 9.8;
-
+  // States
+  static isSlowMode = false;
+  
+  // Data
+  static enemiesDefeated = 0;
+  static itemStats;
+  static itemTimes;
   static randomMsgs = [
     "Shoot me",
     "Why so round?",
     "Msg3",
     "Msg4",
     "Msg5"
-  ]
+  ];
+
+  // Helpers
   static allDir = [
     [0, -1], [0, 1], [-1, 0], [1, 0]
   ]
@@ -36,7 +41,7 @@ class Game {
     clearInterval(dazzleInterval);
     clearInterval(CSinterval);
 
-    this.bubbleMessage = this.randomMsgs[floor( random() * this.randomMsgs.length )];
+    this.BUBBLE_MESSAGE = this.randomMsgs[floor( random() * this.randomMsgs.length )];
 
     this.itemTimes = new Map([
       [this.Items.COUNTER_SPIKE.name, 0.0],
@@ -101,19 +106,9 @@ class Game {
     ],
   ]
 
-  static lastCycle = 0;
   static getWaveCol(wave){ // experimental
-    let cycle = floor(wave / 50.0);
-    if (this.lastCycle !== cycle){
-      this.lastCycle = cycle;
-      wave -= 50;
-    }
-    return this.bgCols[floor(wave / 10.0)];
+    return this.bgCols[min(4 , floor(wave / 10.0))];
   }
-
-  static enemiesDefeated = 0;
-  static itemStats;
-  static itemTimes;
 
   static itemCollected(item){
     let name = item.name;
@@ -168,11 +163,7 @@ class Game {
   }
 
   static getEnemyBulletsSpeed(isSlow = false){
-    if (isSlow){
-      return 2.6 / 4.0;
-    } else {
-      return 2.6;
-    }
+    return (isSlow) ? 2.6 / 4.0 : 2.6;
   }
 
   static removeObject(objs, obj) {

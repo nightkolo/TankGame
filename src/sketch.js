@@ -1,8 +1,7 @@
 const canSize = { x: 900, y: 720 }; // 5:4
 
 // Objects
-let p;
-let e1;
+let p, e1;
 let playerBullets = []; 
 let enemyBullets = []; 
 let buddyBullets = [];
@@ -24,6 +23,7 @@ let isShooting = false;
 // Debug
 let noShoot = false;
 let curBulletDir = { x: 0, y: -1 };
+let creatingEnemies = false;
 
 // Juice
 let bgCol = Game.bgCols[0];
@@ -43,7 +43,7 @@ function handleEnemyBullets(bullet) {
     Game.removeObject(enemyBullets, bullet);
   }
 
-  bullet.spd = Game.getEnemyBulletsSpeed(Game.slowMode);
+  bullet.spd = Game.getEnemyBulletsSpeed(Game.isSlowMode);
 
   if (!p.invincible && GameMath.circleCollision(bullet.x, bullet.y, bullet.size / 2.0, p.x, p.y, p.size / 2.0)) {
     p.hit();
@@ -128,7 +128,7 @@ function enemyDied(targetEnemy, bullet){
 
   switch (targetEnemy.type) {
     case Game.EnemyTypes.EXPLODER:
-      const spd = Game.getEnemyBulletsSpeed(Game.slowMode);
+      const spd = Game.getEnemyBulletsSpeed(Game.isSlowMode);
       const size = 75.0;
       const directions = [
         [0, -1], [0, 1], [-1, 0], [1, 0], [-1, -1], [1, 1], [-1, 1], [1, -1]
@@ -216,7 +216,7 @@ function spawnRandomWaveEnemies(onWave = wave) {
   const healthMin = 3 + floor(wave / 9.0);
   const enemySpawnsMin = 2 + floor(wave / 13.0);
   const enemySpawnsFactor = 3 + floor(wave / 13.0);
-  const enemySpeed = Game.defaultEnemySpeed + (floor(wave / 2.0) / 10.0);
+  const enemySpeed = Game.DEFAULT_ENEMY_SPEED + (floor(wave / 2.0) / 10.0);
   
   const noOfEnemies = enemySpawnsMin + floor(random() * enemySpawnsFactor);
   waveEnemyCount = noOfEnemies;
@@ -224,7 +224,7 @@ function spawnRandomWaveEnemies(onWave = wave) {
   for (let i = 0; i < noOfEnemies; i++) {
     const spawnX = GameMath.randomFloat(120.0, width - 120.0);
     const spawnY = GameMath.randomFloat(120.0, height - 120.0);
-    const health = healthMin + floor(random() * Game.enemyHealthFactor);
+    const health = healthMin + floor(random() * Game.ENEMIES_HEALTH_MAX);
 
     // console.log(`Enemy (${i + 1}): ${round(spawnX)}, ${round(spawnY)}, ${health}`);
 
@@ -242,7 +242,7 @@ function spawnRandomWaveEnemies(onWave = wave) {
     Game.currentEnemies.push(newEnemy);
   }
 
-  setTimeout(enemiesSpawned, 1000.0 * Game.enemySpawnTime);
+  setTimeout(enemiesSpawned, 1000.0 * Game.ENEMY_SPAWN_TIME);
 }
 
 function enemiesSpawned(){
@@ -270,8 +270,6 @@ function enemiesSpawned(){
 
   creatingEnemies = false;
 }
-
-let creatingEnemies = false;
 
 function gotoNextWave() {
   console.log(wave);
@@ -435,9 +433,9 @@ function draw() {
     if (millis() - lastSpawnTime > shootingSpdFactor * 1000.0) {
       const size = 12.5;
       const factor = 0.045;
-      const extraX = (p.activePowerups.includes(Game.Items.INACCURACY)) ? (random() * 0.5) - 0.25 : 0.0;
-      const extraY = (p.activePowerups.includes(Game.Items.INACCURACY)) ? (random() * 0.5) - 0.25 : 0.0;
-      shootingSpdFactor = (p.activePowerups.includes(Game.Items.INACCURACY)) ? factor / 1.25 : factor;
+      const extraX = (p.activePowerups.includes(Game.Items.INACCURACY)) ? random(-0.3, 0.3) : random(-0.075, 0.075);
+      const extraY = (p.activePowerups.includes(Game.Items.INACCURACY)) ? random(-0.3, 0.3) : random(-0.075, 0.075);
+      shootingSpdFactor = (p.activePowerups.includes(Game.Items.INACCURACY)) ? factor / 1.5 : factor;
 
       playerBullets.push(new Bullet(p.x, p.y, curBulletDir.x + extraX, curBulletDir.y + extraY, size));
       
@@ -478,10 +476,10 @@ function draw() {
 
   // Handle Enemies
   Game.currentEnemies.forEach((e) => {
-    // e.Game.slowMode = Game.slowMode;
+    // e.Game.isSlowMode = Game.isSlowMode;
 
     if (e.spawnBullets() && e.canShoot) {
-      const spd = Game.getEnemyBulletsSpeed(Game.slowMode);
+      const spd = Game.getEnemyBulletsSpeed(Game.isSlowMode);
       const size = 75.0;
 
       Game.allDir.forEach((entry) => {
@@ -580,7 +578,7 @@ function draw() {
 
     const w = width - 120.0 - (120.0 * i);
     const h = height - 100.0; 
-    const barHeight = 100.0 * (timeLeft / Game.powerupTime);
+    const barHeight = 100.0 * (timeLeft / Game.POWERUP_LIFETIME);
     
     rectMode(CORNER);
     noStroke();
@@ -662,7 +660,7 @@ function draw() {
     Game.currentPlayer = p;
 
     noShoot = p.insideAnEnemy(false);
-    Game.slowMode = p.activePowerups.includes(Game.Items.DAZZLE);
+    Game.isSlowMode = p.activePowerups.includes(Game.Items.DAZZLE);
 
     if (p.insideAnEnemy()) {
       if (!p.invincible){
@@ -737,7 +735,7 @@ function draw() {
   }
 
   rect(introAnim.bubble.x, hei + introAnim.bubble.y, 250.0, 80.0, 30.0);
-  text(Game.bubbleMessage, introAnim.text.x, hei + introAnim.text.y);
+  text(Game.BUBBLE_MESSAGE, introAnim.text.x, hei + introAnim.text.y);
   
   pop();
   

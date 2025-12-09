@@ -2,7 +2,7 @@ class Item {
   #openState = false;
   #hitsToOpen = 15;
 
-  constructor(x, y, item, cooldown = Game.powerupTime) {
+  constructor(x, y, item, cooldown = Game.POWERUP_LIFETIME) {
     this.x = x;
     this.y = y;
     this.itemType = item;
@@ -79,9 +79,9 @@ class Item {
   update() {
     if (!this.opened) {
       if (this.moveX) {
-        this.x += this.spd * this.dir;
+        this.x += 0.05 * deltaTime * this.spd * this.dir;
       } else {
-        this.y += this.spd * this.dir;
+        this.y += 0.05 * deltaTime * this.spd * this.dir;
       }
     } else if (this.itemType.type == Game.ItemType.INSTANT) {
       this.grantItem();
@@ -205,7 +205,7 @@ class TankBuddy{
 
     this.shootingSpdFactor = shootSpd;
     this.lastShotTime = 0.0;
-    this.lifetime = Game.tankBuddyLifetime;
+    this.lifetime = Game.TANK_BUDDY_LIFETIME;
     this.#start = 0.0;
     this.alive = true;
 
@@ -228,7 +228,7 @@ class TankBuddy{
     return false;
   }
   getTimeLeft(){
-    return Game.tankBuddyLifetime - ((millis() - this.#start) / 1000.0);
+    return Game.TANK_BUDDY_LIFETIME - ((millis() - this.#start) / 1000.0);
   }
   update(){
   }
