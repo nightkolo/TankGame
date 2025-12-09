@@ -8,7 +8,7 @@ class Item {
     this.y = y;
     this.itemType = item;
     this.player = player;
-    this.enemies = [];
+    // Game.currentEnemies = [];
     this.col = [];
     
     this.size = 50.0;
@@ -87,7 +87,7 @@ class Item {
     }
     Game.itemCollected(this.itemType);
 
-    this.enemies.forEach((e) => {
+    Game.currentEnemies.forEach((e) => {
       e.moveAwayItemCollected(this.x, this.y);
     })
   }

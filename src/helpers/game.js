@@ -13,6 +13,10 @@ class Game {
   static powerupTime = 8.0;
   static bubbleMessage = "";
 
+  // Object refs
+  static currentPlayer;
+  static currentEnemies;
+
   static randomMsgs = [
     "Shoot me",
     "Why so round?",

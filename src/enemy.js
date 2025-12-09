@@ -79,9 +79,8 @@ class Enemy {
     this.animatingStart = false;
     
     // Misc.
-    this.#player = player
+    Game.currentPlayer = player
     this.followPlayer = followPlayer;
-    // this.shootingSpdFactor = 1.7;
     
     this.spawned();
   }
@@ -162,14 +161,14 @@ class Enemy {
   }
   moveTowardPlayer() {
     if (
-      this.#player == null ||
+      Game.currentPlayer == null ||
       !this.followPlayer ||
       this.type == Game.EnemyTypes.BOUNCER
     )
       return;
 
-    let dx = this.#player.x - this.x;
-    let dy = this.#player.y - this.y;
+    let dx = Game.currentPlayer.x - this.x;
+    let dy = Game.currentPlayer.y - this.y;
     let distance = sqrt(dx * dx + dy * dy);
 
     if (distance > 0) {
@@ -233,8 +232,8 @@ class Enemy {
       this.eyeX = this.x;
       this.eyeY = this.y;
     } else {
-      this.eyeX = this.x + ((this.#player.x - this.eyeX) / 25.0);
-      this.eyeY = this.y + ((this.#player.y - this.eyeY) / 25.0);
+      this.eyeX = this.x + ((Game.currentPlayer.x - this.eyeX) / 25.0);
+      this.eyeY = this.y + ((Game.currentPlayer.y - this.eyeY) / 25.0);
     }
 
     if (this.isBeingHit && millis() - this.#lastHitTime > 200) {

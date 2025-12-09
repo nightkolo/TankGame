@@ -5,7 +5,7 @@ class Tank {
     this.size = 50.0;
     this.dpSize = 50.0;
     
-    this.enemies = [];
+    // Game.currentEnemies = [];
     this.powerups = [];
     this.tankBuddiesOwned = 0;
     this.curBulletDir = {
@@ -100,11 +100,11 @@ class Tank {
     print("Game over!");
   }
   insideAnEnemy(checkForSpawn = true) {
-    if (this.enemies.length == 0) return false;
+    if (Game.currentEnemies.length == 0) return false;
 
-    if (!this.enemies[0].canHurt && checkForSpawn) return false;
+    if (!Game.currentEnemies[0].canHurt && checkForSpawn) return false;
 
-    return this.enemies.some((e) =>
+    return Game.currentEnemies.some((e) =>
       GameMath.circleRectCollision(
         e.x,
         e.y,

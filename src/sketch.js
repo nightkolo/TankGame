@@ -495,6 +495,8 @@ function draw() {
   tankBuddies = tankBuddies.filter(handleTankBuddies);
 
   // Handle Enemies
+  Game.currentEnemies = enemies;
+
   enemies.forEach((e) => {
     e.slowMode = slowMode;
 
@@ -680,6 +682,7 @@ function draw() {
   if (p.alive) {
     p.enemies = enemies;
     p.curBulletDir = curBulletDir;
+    Game.currentPlayer = p;
 
     noShoot = p.insideAnEnemy(false);
     slowMode = p.powerups.includes(Game.Items.DAZZLE);
