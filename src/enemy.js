@@ -16,8 +16,7 @@ class Enemy {
     // Size
     this.size = {
       real: this.getSize(),
-      dpSizeX: this.getSize(),
-      dpSizeY: this.getSize()
+      dpSize: this.getSize()
     }
     
     // Stats
@@ -180,8 +179,8 @@ class Enemy {
   animBounce(sideHit = false){
     if (this.bounceAnim.t < 0.5) return;
 
-    this.bounceAnim.x = (sideHit) ? this.size.dpSizeX - (this.size.dpSizeX / 2.5) : this.size.dpSizeX + (this.size.dpSizeX / 2.5);
-    this.bounceAnim.y = (sideHit) ? this.size.dpSizeY + (this.size.dpSizeY / 2.5) : this.size.dpSizeY - (this.size.dpSizeY / 2.5);
+    this.bounceAnim.x = (sideHit) ? this.size.dpSize - (this.size.dpSize / 2.5) : this.size.dpSize + (this.size.dpSize / 2.5);
+    this.bounceAnim.y = (sideHit) ? this.size.dpSize + (this.size.dpSize / 2.5) : this.size.dpSize - (this.size.dpSize / 2.5);
     this.bounceAnim.t = 0.0;
     this.bounceAnim.playing = true;
   }
@@ -191,8 +190,7 @@ class Enemy {
   }
   update() {
     this.size.real = this.getSize();
-    this.size.dpSizeX = this.getSize();
-    this.size.dpSizeY = this.getSize();
+    this.size.dpSize = this.getSize();
     
     if (this.isBeingHit){
       this.eyeX = this.x;
@@ -267,7 +265,7 @@ class Enemy {
 
         case Game.EnemyTypes.REFLECTOR:
           let t = millis() / 800.0;
-          let distance = this.size.dpSizeX/2.6;
+          let distance = this.size.dpSize/2.6;
 
           circle(
             this.x + (sin(t) * distance),
@@ -291,10 +289,9 @@ class Enemy {
 
     // Animation
     if (this.spawnAnim.playing) {
-      // ISSUE enemy spawn and anim not synced
       this.spawnAnim.t += deltaTime * 0.001 * Game.enemySpawnTime;
 
-      ellipse(this.x, this.y, this.size.dpSizeX * this.spawnAnim.t, this.size.dpSizeY * this.spawnAnim.t);
+      circle(this.x, this.y, this.size.dpSize * this.spawnAnim.t);
 
       if (this.spawnAnim.t >= 1) {
         this.animBounce();
@@ -303,14 +300,14 @@ class Enemy {
     } else if (this.bounceAnim.playing) {
       this.bounceAnim.t += deltaTime * 0.00045;
       let eased = Anim.elasticEaseOut(constrain(this.bounceAnim.t, 0, 1));
-      let x = lerp(this.bounceAnim.x, this.size.dpSizeX, eased);
-      let y = lerp(this.bounceAnim.y, this.size.dpSizeY, eased);
+      let x = lerp(this.bounceAnim.x, this.size.dpSize, eased);
+      let y = lerp(this.bounceAnim.y, this.size.dpSize, eased);
 
       ellipse(this.x, this.y, x, y);
 
       if (this.bounceAnim.t >= 1) this.bounceAnim.playing = false;
     } else {
-      ellipse(this.x, this.y, this.size.dpSizeX, this.size.dpSizeY);
+      circle(this.x, this.y, this.size.dpSize);
     }
 
     // TODO mask somehow
