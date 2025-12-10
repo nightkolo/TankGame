@@ -132,7 +132,7 @@ function enemyDied(targetEnemy, bullet){
       const size = 75.0;
       const directions = [
         [0, -1], [0, 1], [-1, 0], [1, 0], [-1, -1], [1, 1], [-1, 1], [1, -1]
-      ]
+      ];
 
       directions.forEach((entry) => {
         enemyBullets.push(new Bullet(targetEnemy.x, targetEnemy.y, entry[0], entry[1], spd, size));
@@ -406,7 +406,6 @@ function draw() {
       bgPulseStart = null;
     } else {
       bgCol = [
-        // Cannot read properties of undefined (reading '0') @ wave 50+
         lerp(bgPulseFrom[0], bgPulseTo[0], t),
         lerp(bgPulseFrom[1], bgPulseTo[1], t),
         lerp(bgPulseFrom[2], bgPulseTo[2], t)
@@ -433,8 +432,8 @@ function draw() {
     if (millis() - lastSpawnTime > shootingSpdFactor * 1000.0) {
       const size = 12.5;
       const factor = 0.045;
-      const extraX = (p.activePowerups.includes(Game.Items.INACCURACY)) ? random(-0.3, 0.3) : random(-0.075, 0.075);
-      const extraY = (p.activePowerups.includes(Game.Items.INACCURACY)) ? random(-0.3, 0.3) : random(-0.075, 0.075);
+      const extraX = (p.activePowerups.includes(Game.Items.INACCURACY)) ? random(-0.3, 0.3) : random(-0.06, 0.06);
+      const extraY = (p.activePowerups.includes(Game.Items.INACCURACY)) ? random(-0.3, 0.3) : random(-0.06, 0.06);
       shootingSpdFactor = (p.activePowerups.includes(Game.Items.INACCURACY)) ? factor / 1.5 : factor;
 
       playerBullets.push(new Bullet(p.x, p.y, curBulletDir.x + extraX, curBulletDir.y + extraY, size));
@@ -777,6 +776,8 @@ function draw() {
       i++;
     })
   }
+
+  console.log(shootX, shootY);
 }
 
 function placeTankBuddy(){
@@ -834,18 +835,44 @@ function animText(){
   waveAnim.playing = true;
 }
 
-function keyPressed(event) {
-  if (event.key === "ArrowUp" || event.key.toLowerCase() == "w") {
-    curBulletDir.x = 0; curBulletDir.y = -1;
-    shootChangeSFX.play();
-  } else if (event.key === "ArrowDown" || event.key.toLowerCase() == "s") {
-    curBulletDir.x = 0; curBulletDir.y = 1;
-    shootChangeSFX.play();
-  } else if (event.key === "ArrowLeft" || event.key.toLowerCase() == "a") {
-    curBulletDir.x = -1; curBulletDir.y = 0;
-    shootChangeSFX.play();
-  } else if (event.key === "ArrowRight" || event.key.toLowerCase() == "d") {
-    curBulletDir.x = 1; curBulletDir.y = 0;
-    shootChangeSFX.play();
+let shootX, shootY;
+
+let upHeld = false;
+let downHeld = false;
+let leftHeld = false;
+let rightHeld = false;
+
+function updateAxes() {
+  shootX = (rightHeld ? 1 : 0) + (leftHeld ? -1 : 0);
+  shootY = (downHeld ? 1 : 0) + (upHeld ? -1 : 0);
+
+  isShooting = shootX !== 0 || shootY !== 0;
+
+  if (shootX !== 0 || shootY !== 0) {
+    const mag = Math.hypot(shootX, shootY);
+    curBulletDir.x = shootX / (mag || 1);
+    curBulletDir.y = shootY / (mag || 1);
   }
+}
+
+function keyPressed(e) {
+  const k = e.key.toLowerCase();
+
+  if (k === "w" || k === "arrowup")    upHeld = true;
+  if (k === "s" || k === "arrowdown")  downHeld = true;
+  if (k === "a" || k === "arrowleft")  leftHeld = true;
+  if (k === "d" || k === "arrowright") rightHeld = true;
+
+  updateAxes();
+}
+
+function keyReleased(e) {
+  const k = e.key.toLowerCase();
+
+  if (k === "w" || k === "arrowup")    upHeld = false;
+  if (k === "s" || k === "arrowdown")  downHeld = false;
+  if (k === "a" || k === "arrowleft")  leftHeld = false;
+  if (k === "d" || k === "arrowright") rightHeld = false;
+
+  updateAxes();
 }
