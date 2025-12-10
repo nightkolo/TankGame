@@ -29,6 +29,16 @@ class Bullet {
     this.y += 0.05 * deltaTime * this.dirY * this.spd;
   }
   show(){
-    circle(this.x, this.y, this.size);
+    if (Game.Debug.showHitboxes){
+      stroke(0);
+      fill(255, 255, 255);
+      circle(this.x, this.y, this.size);
+
+      stroke(255, 0, 0);
+      fill(0, 0, 0, 0);
+      circle(this.x, this.y, this.size / Game.ENEMY_BULLETS_HITBOX_SIZE_DIVISOR);
+    } else {
+      circle(this.x, this.y, this.size);
+    }
   }
 }

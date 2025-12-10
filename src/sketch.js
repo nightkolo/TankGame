@@ -48,7 +48,7 @@ function handleEnemyBullets(bullet) {
 
   bullet.spd = Game.getEnemyBulletsSpeed(Game.isSlowMode);
 
-  if (!p.invincible && GameMath.circleCollision(bullet.x, bullet.y, bullet.size / 2.0, p.x, p.y, p.size / 2.0)) {
+  if (!p.invincible && GameMath.circleCollision(bullet.x, bullet.y, (bullet.size / 2.0) / Game.ENEMY_BULLETS_HITBOX_SIZE_DIVISOR, p.x, p.y, p.size / 2.0)) {
     p.hit();
     Game.removeObject(enemyBullets, bullet);
   }
@@ -61,7 +61,7 @@ function handlePlayerBullets(bullet) {
   let removeBullet = false;
 
   Game.currentEnemies.forEach((e) => {
-    if (GameMath.circleCollision(e.x, e.y, e.size / 2.0, bullet.x, bullet.y, bullet.size / 2.0)) {
+    if (GameMath.circleCollision(e.x, e.y, (e.size / 2.0) * Game.ENEMY_HURTBOX_SIZE_FACTOR, bullet.x, bullet.y, bullet.size / 2.0)) {
       removeBullet = hitEnemy(bullet, e);
     }
   });
@@ -84,6 +84,8 @@ function handlePlayerBullets(bullet) {
 }
 
 function hitEnemy(bullet, targetEnemy, playAud = true){
+  if (gameOver) return;
+
   let sfx;
 
   // Audio
@@ -321,6 +323,7 @@ function newGame(){
   tankBuddies = [];
   Game.currentEnemies = [];
   items = [];
+  statsSet = false;
  
   gameStarted = true;
   gameOver = false;
@@ -499,7 +502,7 @@ function draw() {
   items = items.filter((i) => {
     i.update();
     i.show();
-    return !i.collected && !GameMath.offScreen(i.x, i.y, canSize.x, canSize.y);
+    return !i.collected && !GameMath.offScreen(i.x, i.y, canSize.x, canSize.y, i.size);
   });
   fill(255);
   //
@@ -603,6 +606,7 @@ function draw() {
     } else if (itemHeld === Game.Items.TANK_BUDDY.name){
       image(iconBuddy, w, h);
       textSize(20);
+      textLeading(25);
       text('Click to\nRelease!', w, h - 75.0);
   
       textSize(30);
@@ -761,35 +765,45 @@ function draw() {
 
     fill(255);
     stroke(20);
+    textLeading(33);
+    strokeWeight(10);
+    textSize(60);
     text("Tank is Dead", width/2, 200.0);
-    text(`== Stats ==\nWave reached: ${wave}\nScore: ${score}\nEnemies defeated: ${Game.enemiesDefeated}\nItems collected:`,width/2, 285.0);
+
+    strokeWeight(5);
+    textSize(25);
+    text(`== Stats ==\nWave reached: ${wave}\nScore: ${score}\nEnemies defeated: ${Game.enemiesDefeated}`,width/2, 285.0);
 
     let i = 0;
-    currentItemStats.forEach((entry) => { 
-      const name = entry[0];
-      const amount = entry[1];
+    if (currentItemStats.length > 0){
+      text("Items collected:", width/2, 420.0);
 
-      const mult = 120.0;
-      const w = (width / 2) + (mult * i) - ((currentItemStats.length - 1) * mult * 0.5);
-      const h = height - 250.0;
-
-      if (name === Game.Items.COUNTER_SPIKE.name){
-        image(iconCS, w, h);
-      } else if (name === Game.Items.INACCURACY.name){
-        image(iconInacc, w, h);
-      } else if (name === Game.Items.DAZZLE.name){
-        image(iconDazzle, w, h);
-      } else if (name === Game.Items.TANK_BUDDY.name){
-        image(iconBuddy, w, h);
-      } else if (name === Game.Items.BOMB.name){
-        image(icon, w, h);
-      }
-
-      strokeWeight(8);
-      textSize(45);
-      text(`${amount}`, w + 40.0, h + 40.0);
-      i++;
-    })
+      currentItemStats.forEach((entry) => { 
+        const name = entry[0];
+        const amount = entry[1];
+  
+        const mult = 120.0;
+        const w = (width / 2) + (mult * i) - ((currentItemStats.length - 1) * mult * 0.5);
+        const h = height - 250.0;
+  
+        if (name === Game.Items.COUNTER_SPIKE.name){
+          image(iconCS, w, h);
+        } else if (name === Game.Items.INACCURACY.name){
+          image(iconInacc, w, h);
+        } else if (name === Game.Items.DAZZLE.name){
+          image(iconDazzle, w, h);
+        } else if (name === Game.Items.TANK_BUDDY.name){
+          image(iconBuddy, w, h);
+        } else if (name === Game.Items.BOMB.name){
+          image(icon, w, h);
+        }
+  
+        strokeWeight(8);
+        textSize(45);
+        text(`${amount}`, w + 40.0, h + 40.0);
+        i++;
+      })
+    }
   }
 }
 

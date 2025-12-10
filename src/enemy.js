@@ -315,6 +315,12 @@ class Enemy {
     if (this.isBeingHit){
       text(`${this.health}`, this.x, this.y - 20.0);
     }
+
+    if (Game.Debug.showHitboxes){
+      stroke(255, 0, 0);
+      fill(0, 0, 0, 0);
+      circle(this.x, this.y, this.size / Game.ENEMY_HITBOX_SIZE_DIVISOR);
+    }
   }
   hit(hitX = 0, hitY = 0, hitpoint = 1) {
     this.#lastHitTime = millis(); // record when last hit occurred

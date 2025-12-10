@@ -4,7 +4,14 @@ let inaccuracyInterval;
 let bestWave = 0;
 
 class Game {
+  static Debug = {
+    showHitboxes: true
+  };
+
   static ENEMIES_HEALTH_MAX = 20.0;
+  static ENEMY_HITBOX_SIZE_DIVISOR = 1.8;
+  static ENEMY_BULLETS_HITBOX_SIZE_DIVISOR = 1.8;
+  static ENEMY_HURTBOX_SIZE_FACTOR = 1.2;
   static ENEMY_SPAWN_TIME = 1.0;
   static TANK_BUDDY_LIFETIME = 8.0;
   static POWERUP_LIFETIME = 8.0;

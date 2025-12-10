@@ -1,6 +1,8 @@
 class GameMath {
-  static offScreen(x, y, canSizeX = 900.0, canSizeY = 720.0) {
-    return x > canSizeX || x < 0.0 || y > canSizeY || y < 0.0;
+  static offScreen(x, y, canSizeX = 900.0, canSizeY = 720.0, size = -1) {
+    return (size === -1) 
+    ? (x > canSizeX || x < 0.0 || y > canSizeY || y < 0.0)
+    : (x > canSizeX + (size/2) || x < -size/2 || y > canSizeY + (size/2)  || y < -size/2);
   }
   static randomFloat(min, max) {
     return Math.random() * (max - min) + min;

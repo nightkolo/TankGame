@@ -101,7 +101,7 @@ class Tank {
     if (!Game.currentEnemies[0].canHurt && checkForSpawn) return false;
 
     return Game.currentEnemies.some((e) =>
-      GameMath.circleRectCollision(e.x, e.y, e.size/2.6, this.x, this.y, this.size, this.size)
+      GameMath.circleRectCollision(e.x, e.y, (e.size/2.0) / Game.ENEMY_HITBOX_SIZE_DIVISOR, this.x, this.y, this.size, this.size)
     );
   }
   update() {
