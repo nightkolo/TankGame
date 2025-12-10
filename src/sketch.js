@@ -704,7 +704,8 @@ function draw() {
   translate(width/2, height/2);
   stroke(50);
   textAlign(CENTER);
-  textSize(35);
+  textLeading(28);
+  textSize(Game.BUBBLE_MESSAGE[1]);
   strokeWeight(4);
   
   rotate((PI / 28.0) * sin(introAnim.t / 720.0));
@@ -714,7 +715,7 @@ function draw() {
     introAnim.text.x = 0.0;
     introAnim.text.y = 0.0;
     introAnim.bubble.x = 0.0;
-    introAnim.bubble.y = 0.0;
+    introAnim.bubble.y = (Game.BUBBLE_MESSAGE[0].includes("\n")) ? 15.0 : -5.0;
     introAnim.playing = false;
 
     introAnim.t += deltaTime;
@@ -740,8 +741,8 @@ function draw() {
     introAnim.text.x += introAnim.text.dir * deltaTime * 0.15;
   }
 
-  rect(introAnim.bubble.x, hei + introAnim.bubble.y, 250.0, 80.0, 30.0);
-  text(Game.BUBBLE_MESSAGE, introAnim.text.x, hei + introAnim.text.y);
+  rect(introAnim.bubble.x, hei + introAnim.bubble.y, 320.0, 100.0, 30.0);
+  text(Game.BUBBLE_MESSAGE[0], introAnim.text.x, hei + introAnim.text.y);
   
   pop();
   

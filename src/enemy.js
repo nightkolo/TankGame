@@ -320,6 +320,9 @@ class Enemy {
       stroke(255, 0, 0);
       fill(0, 0, 0, 0);
       circle(this.x, this.y, this.size / Game.ENEMY_HITBOX_SIZE_DIVISOR);
+
+      stroke(255, 255, 0);
+      circle(this.x, this.y, this.size * Game.ENEMY_HURTBOX_SIZE_FACTOR);
     }
   }
   hit(hitX = 0, hitY = 0, hitpoint = 1) {
@@ -335,7 +338,7 @@ class Enemy {
     this.health -= hitpoint;
 
     // Critical hit detection
-    if (random() < 1 / Game.critHitProb && this.health == this.critHitPoint){
+    if (random() < 1 / Game.CRIT_HIT_PROBABILITY && this.health == this.critHitPoint){
       console.log("Critical Hit!");
       Game.critHitEvent(this.x, this.y);
       animCritHit();

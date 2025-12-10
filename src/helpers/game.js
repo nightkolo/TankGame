@@ -5,17 +5,21 @@ let bestWave = 0;
 
 class Game {
   static Debug = {
-    showHitboxes: true
+    showHitboxes: false
   };
 
   static ENEMIES_HEALTH_MAX = 20.0;
   static ENEMY_HITBOX_SIZE_DIVISOR = 1.8;
   static ENEMY_BULLETS_HITBOX_SIZE_DIVISOR = 1.8;
-  static ENEMY_HURTBOX_SIZE_FACTOR = 1.2;
+  static ENEMY_HURTBOX_SIZE_FACTOR = 1.22;
+  
   static ENEMY_SPAWN_TIME = 1.0;
   static TANK_BUDDY_LIFETIME = 8.0;
   static POWERUP_LIFETIME = 8.0;
+  
+  static CRIT_HIT_PROBABILITY = 10;
   static DEFAULT_ENEMY_SPEED = 1.35;
+  
   static GRAV = 9.8;
   static BUBBLE_MESSAGE = "";
 
@@ -30,12 +34,30 @@ class Game {
   static enemiesDefeated = 0;
   static itemStats;
   static itemTimes;
+  static noOfMsgs = 22;
   static randomMsgs = [
-    "Shoot me",
-    "Why so round?",
-    "Msg3",
-    "Msg4",
-    "Msg5"
+    ["Shoot me", 35],
+    ["Why so round?", 30],
+    ["Another whirl?", 30],
+    ["Why so square...", 30],
+    ["I got no mouth,\nso I won't bite", 25],
+    ["zzZZZ...", 30],
+    ["Wha- Huh?", 30],
+    ["Hold WASD to Shoot!", 28],
+    ["Kolo was here...", 30],
+    ["Hello there", 30],
+    ["Fun fact: This message box is not large enough", 23],
+    ["Tip:\nTry stacking Tank Buddies", 25],
+    ["Tip:\nHold two keys for\ndiagonal shooting!", 23],
+    ["Tip:\nTry stacking powerups\n for cool synergies", 25],
+    ["Tip:\nEnemies are predictable...\nLearn their patterns", 25],
+    ["Tip:\nBullets that bounce off\nenemies have more hitpoints", 22],
+    ["Tip:\n15 is the maximum amount\nof health you can have", 22],
+    ["Tip:\nSome enemies explode upon\ndeath, be careful", 22],
+    ["Tip:\nDon't eat my\nsandwich", 25],
+    [`Tip:\nCritical Hits have a ${this.CRIT_HIT_PROBABILITY}% chance\n of occuring`, 22],
+    ["Tip:\nSometimes standing still\nhelps", 25],
+    ["Tip:\nTake a break", 28],
   ];
 
   // Helpers
@@ -49,7 +71,6 @@ class Game {
     clearInterval(CSinterval);
 
     this.BUBBLE_MESSAGE = this.randomMsgs[floor( random() * this.randomMsgs.length )];
-
     this.itemTimes = new Map([
       [this.Items.COUNTER_SPIKE.name, 0.0],
       [this.Items.INACCURACY.name, 0.0],
@@ -214,7 +235,6 @@ class Game {
   }
 
   // Crit Hit
-  static critHitProb = 10;
   static critHitX;
   static critHitY;
   static critHitScaleX;
