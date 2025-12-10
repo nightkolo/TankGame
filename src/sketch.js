@@ -163,12 +163,12 @@ function enemyDied(targetEnemy, bullet){
   
   if (Game.currentEnemies.length === waveEnemyCount){
     let sfx = enemyDeadSFXsFirst[floor(random() * enemyDeadSFXsFirst.length)];
-    sfx.stereo(map(targetEnemy.x, 0, width, -1, 1)).play();
-    // sfx.play();  
+    sfx.stereo(map(targetEnemy.x, 0, width, -1, 1))
+    sfx.play();  
   } else {
     enemyDeadSFX.rate(1.25 - ((Game.currentEnemies.length / waveEnemyCount) * 1.25));
-    enemyDeadSFX.stereo(map(targetEnemy.x, 0, width, -1, 1)).play();
-    // enemyDeadSFX.play();
+    enemyDeadSFX.stereo(map(targetEnemy.x, 0, width, -1, 1))
+    enemyDeadSFX.play();
   }
 
   Game.removeObject(Game.currentEnemies, targetEnemy);
@@ -292,7 +292,7 @@ function gotoNextWave() {
   Game.bestWave = (wave > Game.bestWave) ? wave : Game.bestWave;
   bgCol = Game.getWaveCol(wave);
   
-  if (random() < 1 / 1) {
+  if (random() < 1 / 3) {
     // spawnItem(Game.Items.DAZZLE);
     spawnItem();
   }
@@ -550,13 +550,15 @@ function draw() {
     textSize(30);
     textStyle(BOLD);
 
-    text("A Demo by Night Kolo\nMade in p5.js", width / 2, 100);
-    text("Tank is Tiny", width/4, (height / 2.0) - 140.0)
+    textLeading(40);
+    text("A Game by Night Kolo\nMade in p5.js", width / 2, 100);
+    text("Tank is Tiny", width/4, (height / 2.0) - 140.0);
     
     strokeWeight(7.5);
     stroke(50);
+    textLeading(33);
     image(panel, width/4, height/2);
-    text("Shoot", (width / 4), (height / 2.0) + 140.0);
+    text("Hold to\nShoot", (width / 4), (height / 2.0) + 140.0);
     image(panel2, (width/4) * 3.0, height/2);
   }
 
@@ -568,7 +570,7 @@ function draw() {
   fill(255);
 
   // Obtain only active times from itemTimes Map
-  let activeTimes = Array.from(Game.itemTimes.entries()).filter(([key, value]) => {
+  const activeTimes = Array.from(Game.itemTimes.entries()).filter(([key, value]) => {
     return value !== 0.0;
   });
 
@@ -584,7 +586,7 @@ function draw() {
     noStroke();
 
     let flash = 1.0;
-    if (timeLeft <= 3.0 || itemHeld === "Tank Buddy") {
+    if (timeLeft <= 3.0 || itemHeld === Game.Items.TANK_BUDDY.name) {
       flash = map(sin(millis() * 0.015), -1, 1, 0.5, 1);
     }
     fill(255, 255 * flash, 255 * flash);
@@ -634,9 +636,9 @@ function draw() {
   fill(255, 255, 55);
   if (critHitAnim.playing) {
     critHitAnim.t += deltaTime * 0.00045;
-    let eased = Anim.elasticEaseOut(constrain(critHitAnim.t, 0, 1));
-    let x = lerp(Game.critHitScaleX, 1, eased);
-    let y = lerp(Game.critHitScaleY, 1, eased);
+    const eased = Anim.elasticEaseOut(constrain(critHitAnim.t, 0, 1));
+    const x = lerp(Game.critHitScaleX, 1, eased);
+    const y = lerp(Game.critHitScaleY, 1, eased);
 
     // TODO set text color to attacked Enemy color
     fill(255, 255, 55, 255 * (Math.min(1.0, 2.0 - (2.0 * critHitAnim.t))));
@@ -739,60 +741,43 @@ function draw() {
   
   pop();
   
+  // Game over screen
   if (gameOver){
     if (!statsSet){
       currentItemStats = [];
-
+      
       Game.itemStats.forEach((value, key) => {
         if (value > 0) currentItemStats.push([key, value]);
       });
-
-      console.log(currentItemStats);
       statsSet = true;
     }
     cursor();
-
     noStroke();
     fill(255,255,255,127);
     rect(0,0,width*2.0,height*2.0);
     
     drawGui();
-    
-    if (b.isReleased){
-      newGame();
-    }
+    if (b.isReleased) newGame();
 
     fill(255);
     stroke(20);
     text("Tank is Dead", width/2, 200.0);
     text(`== Stats ==\nWave reached: ${wave}\nScore: ${score}\nEnemies defeated: ${Game.enemiesDefeated}\nItems collected:`,width/2, 285.0);
+
     let i = 0;
     currentItemStats.forEach((entry) => { 
-      // console.log(i, key, entry);
       const name = entry[0];
-      const value = entry[1];
+      const amount = entry[1];
 
       const mult = 120.0;
-
-      // (120.0 * i)
-
-      const w = (width/2) + (mult * i) - ((currentItemStats.length - 1) * mult * 0.5);
+      const w = (width / 2) + (mult * i) - ((currentItemStats.length - 1) * mult * 0.5);
       const h = height - 250.0;
-      console.log(w);
-
-
-      console.log(entry);
-      // console.log(value);
-
-      // rect(width/2, height - 250.0, 200.0, 50.0);
 
       if (name === Game.Items.COUNTER_SPIKE.name){
         image(iconCS, w, h);
       } else if (name === Game.Items.INACCURACY.name){
-        // console.log("display!")
         image(iconInacc, w, h);
       } else if (name === Game.Items.DAZZLE.name){
-        // console.log("display!")
         image(iconDazzle, w, h);
       } else if (name === Game.Items.TANK_BUDDY.name){
         image(iconBuddy, w, h);
@@ -802,7 +787,7 @@ function draw() {
 
       strokeWeight(8);
       textSize(45);
-      text(`${value}`, w + 40.0, h + 40.0);
+      text(`${amount}`, w + 40.0, h + 40.0);
       i++;
     })
   }
