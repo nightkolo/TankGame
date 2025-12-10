@@ -40,9 +40,9 @@ class Tank {
     this.prevMouseX = mouseX;
     this.prevMouseY = mouseY;
   }
-  gainLives(lives = 1){
+  gainLives(lives = 1, gainBlueHearts = true){
     this.lives += lives;
-    this.floatingHearts++;
+    if (gainBlueHearts) this.floatingHearts++;
     
     this.lives = min(15, this.lives);
   }

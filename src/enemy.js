@@ -341,6 +341,7 @@ class Enemy {
     if (random() < 1 / Game.CRIT_HIT_PROBABILITY && this.health == this.critHitPoint){
       console.log("Critical Hit!");
       Game.critHitEvent(this.x, this.y);
+      Game.currentPlayer.gainLives(1, false);
       animCritHit();
       this.health = 0;
     }

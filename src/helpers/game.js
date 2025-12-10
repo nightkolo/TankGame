@@ -56,6 +56,7 @@ class Game {
     ["Tip:\nSome enemies explode upon\ndeath, be careful", 22],
     ["Tip:\nDon't eat my\nsandwich", 25],
     [`Tip:\nCritical Hits have a ${this.CRIT_HIT_PROBABILITY}% chance\n of occuring`, 22],
+    [`Tip:\nCritical Hits and Item Pickups\nare two ways to gain Hearts`, 22],
     ["Tip:\nSometimes standing still\nhelps", 25],
     ["Tip:\nTake a break", 28],
   ];
@@ -114,8 +115,8 @@ class Game {
     [255, 255, 155],
     [185, 185, 255],
     [255, 155, 185],
-    [205, 105, 255],
-    [255, 255, 105]
+    [255, 125, 125],
+    [205, 105, 255]
   ];
 
   static enemyEncounter = [

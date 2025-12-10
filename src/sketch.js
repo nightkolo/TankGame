@@ -555,7 +555,7 @@ function draw() {
 
     textLeading(40);
     text("A Game by Night Kolo\nMade in p5.js", width / 2, 100);
-    text("Tank is Tiny", width/4, (height / 2.0) - 140.0);
+    // text("Tank is Tiny", width/4, (height / 2.0) - 140.0);
     
     strokeWeight(7.5);
     stroke(50);
