@@ -51,11 +51,11 @@ class Game {
     ]);
 
     this.itemStats = new Map([
-      [this.Items.COUNTER_SPIKE.name, 0],
-      [this.Items.INACCURACY.name, 0],
-      [this.Items.DAZZLE.name, 0],
-      [this.Items.TANK_BUDDY.name, 0],
-      [this.Items.BOMB.name, 0] // Instant
+      [this.Items.COUNTER_SPIKE.name, 5],
+      [this.Items.INACCURACY.name, 2],
+      [this.Items.DAZZLE.name, 1],
+      [this.Items.TANK_BUDDY.name, 9],
+      [this.Items.BOMB.name, 2] // Instant
     ])
   }
 

@@ -95,8 +95,8 @@ class Enemy {
       this.rabbitball.dirX *= -1;
     }
 
-    let spd = (Game.isSlowMode) ? this.maxSpeed / 8.0 : this.maxSpeed;
-    let fallFactor = (Game.isSlowMode) ? 0.015 / 8.0 : 0.015;
+    const spd = (Game.isSlowMode) ? this.maxSpeed / 8.0 : this.maxSpeed;
+    const fallFactor = (Game.isSlowMode) ? 0.015 / 8.0 : 0.015;
 
     if (Game.isSlowMode) {
       this.#slowState = true;

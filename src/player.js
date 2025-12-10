@@ -24,7 +24,7 @@ class Tank {
     ];
 
     // Stats
-    this.lives = 3;
+    this.lives = 1;
     this.floatingHearts = 0;
 
     // State

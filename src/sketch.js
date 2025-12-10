@@ -19,6 +19,8 @@ const enemySetEncounters = [0, 5, 13];
 let lastSpawnTime = 0.0;
 let shootingSpdFactor = 0.045;
 let isShooting = false;
+let statsSet = false;
+let currentItemStats = [];
 
 // Debug
 let noShoot = false;
@@ -33,9 +35,10 @@ const introAnim = {
   bubble: { x: 0.0, y: 0.0, dir: 0.0, accel: 0.0 },
   t: 0.0, playing: false
 };
-const waveAnim = { playing: false, t: 1.0 }
-const critHitAnim = { playing: false, t: 1.0 }
-const screenshakeAnim = { playing: false, dur: 0, strength: 10 }
+const waveAnim = { playing: false, t: 1.0 };
+const critHitAnim = { playing: false, t: 1.0 };
+const screenshakeAnim = { playing: false, dur: 0, strength: 10 };
+const bgAnim = { bgPulseStart: null, bgPulseDuration: 0, bgPulseFrom: null, bgPulseTo: null };
 
 
 function handleEnemyBullets(bullet) {
@@ -363,7 +366,7 @@ function setup() {
   textFont("Nunito");
   textStyle(BOLD);
 
-  b = createButton("Another whirl?", width/2 - 100, height - 200.0, 200, 50);
+  b = createButton("Another whirl?", width/2 - 100, height - 180.0, 200, 50);
   b.setStyle({
       fillBg: color("#fbbfbfff"),
       font: fonts,
@@ -378,8 +381,6 @@ function setup() {
   Game.setGame();
   newGame();
 }
-
-let statsSet = false;
 
 function draw() {
   // Uncaught TypeError: Cannot read properties of undefined (reading '0')
@@ -398,17 +399,17 @@ function draw() {
   rotate(millis() * (1 / 18000));
   imageMode(CENTER);
 
-  if (bgPulseStart !== null) {
-    let t = (millis() - bgPulseStart) / bgPulseDuration;
+  if (bgAnim.bgPulseStart !== null) {
+    let t = (millis() - bgAnim.bgPulseStart) / bgAnim.bgPulseDuration;
 
     if (t >= 1) {
       bgCol = Game.getWaveCol(wave);
-      bgPulseStart = null;
+      bgAnim.bgPulseStart = null;
     } else {
       bgCol = [
-        lerp(bgPulseFrom[0], bgPulseTo[0], t),
-        lerp(bgPulseFrom[1], bgPulseTo[1], t),
-        lerp(bgPulseFrom[2], bgPulseTo[2], t)
+        lerp(bgAnim.bgPulseFrom[0], bgAnim.bgPulseTo[0], t),
+        lerp(bgAnim.bgPulseFrom[1], bgAnim.bgPulseTo[1], t),
+        lerp(bgAnim.bgPulseFrom[2], bgAnim.bgPulseTo[2], t)
       ];
     }
   }
@@ -740,7 +741,13 @@ function draw() {
   
   if (gameOver){
     if (!statsSet){
-      // TODO
+      currentItemStats = [];
+
+      Game.itemStats.forEach((value, key) => {
+        if (value > 0) currentItemStats.push([key, value]);
+      });
+
+      console.log(currentItemStats);
       statsSet = true;
     }
     cursor();
@@ -758,26 +765,47 @@ function draw() {
     fill(255);
     stroke(20);
     text("Tank is Dead", width/2, 200.0);
-    text(`== Stats ==\nWave reached: ${wave}\nScore: ${score}\nEnemies defeated: ${Game.enemiesDefeated}\nItems collected:`,width/2, 300.0);
-    // ${JSON.stringify([...Game.itemStats])}
-
-    // const arr = Array.from(Game.itemStats);
+    text(`== Stats ==\nWave reached: ${wave}\nScore: ${score}\nEnemies defeated: ${Game.enemiesDefeated}\nItems collected:`,width/2, 285.0);
     let i = 0;
+    currentItemStats.forEach((entry) => { 
+      // console.log(i, key, entry);
+      const name = entry[0];
+      const value = entry[1];
 
-    // const numOfStats = Game.itemStats.filter((value, key) => { 
-    //   return value !== 0
-    // }).length
+      const mult = 120.0;
 
-    Game.itemStats.forEach((value, key) => { 
-      if (value !== 0){
-        text(`${key}: ${value}`, width/2, (height / 1.5) + (40.0 * i));
-      } 
-      // console.log(i, key, value);
+      // (120.0 * i)
+
+      const w = (width/2) + (mult * i) - ((currentItemStats.length - 1) * mult * 0.5);
+      const h = height - 250.0;
+      console.log(w);
+
+
+      console.log(entry);
+      // console.log(value);
+
+      // rect(width/2, height - 250.0, 200.0, 50.0);
+
+      if (name === Game.Items.COUNTER_SPIKE.name){
+        image(iconCS, w, h);
+      } else if (name === Game.Items.INACCURACY.name){
+        // console.log("display!")
+        image(iconInacc, w, h);
+      } else if (name === Game.Items.DAZZLE.name){
+        // console.log("display!")
+        image(iconDazzle, w, h);
+      } else if (name === Game.Items.TANK_BUDDY.name){
+        image(iconBuddy, w, h);
+      } else if (name === Game.Items.BOMB.name){
+        image(icon, w, h);
+      }
+
+      strokeWeight(8);
+      textSize(45);
+      text(`${value}`, w + 40.0, h + 40.0);
       i++;
     })
   }
-
-  console.log(shootX, shootY);
 }
 
 function placeTankBuddy(){
@@ -796,32 +824,20 @@ function placeTankBuddy(){
   }
 }
 
-function mousePressed() {
-  if (p.alive){
-    placeTankBuddy();
-  }
-
-  isShooting = gameStarted;
-}
+function mousePressed() { if (p.alive) placeTankBuddy(); }
 
 function animScreenShake(shake = 10.0, dur = 5.0){
-  // TODO fix screenshake
   screenshakeAnim.playing = true;
-  screenshakeAnim.dur = dur; // Shake for 30 frames
-  screenshakeAnim.strength = shake; // Reset intensity
+  screenshakeAnim.dur = dur;
+  screenshakeAnim.strength = shake;
 }
 
-let bgPulseStart = null;
-let bgPulseDuration = 0;
-let bgPulseFrom = null;
-let bgPulseTo = null;
-
 function animBG(c1, c2, c3, dur){
-  bgPulseFrom = [c1, c2, c3]; // we start at the flash color
-  bgPulseTo = Game.getWaveCol(wave); // we fade back to normal
-  bgCol = [...bgPulseFrom]; // immediate flash
-  bgPulseDuration = dur * 1000.0; // ms
-  bgPulseStart = millis();
+  bgAnim.bgPulseFrom = [c1, c2, c3];
+  bgAnim.bgPulseTo = Game.getWaveCol(wave);
+  bgCol = [...bgAnim.bgPulseFrom]; 
+  bgAnim.bgPulseDuration = dur * 1000.0;
+  bgAnim.bgPulseStart = millis();
 }
 
 function animCritHit(){
@@ -834,8 +850,6 @@ function animText(){
   waveAnim.t = 0;
   waveAnim.playing = true;
 }
-
-let shootX, shootY;
 
 let upHeld = false;
 let downHeld = false;
