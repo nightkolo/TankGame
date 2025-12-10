@@ -171,7 +171,7 @@ class Bomb {
     animScreenShake(2500.0, 1.0);
 
     enemies.forEach((e) => {
-      if (GameMath.circleCollision(this.x, this.y, this.hitRadius, e.x, e.y, e.size.real)){
+      if (GameMath.circleCollision(this.x, this.y, this.hitRadius, e.x, e.y, e.size)){
         const hitStrength = 1.0 - (GameMath.distance(this.x, this.y, e.x, e.y) / (2.0 * this.hitRadius));
         
         e.hit(0, 0, floor(this.hitPower * hitStrength));

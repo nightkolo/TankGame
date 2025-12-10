@@ -58,7 +58,7 @@ function handlePlayerBullets(bullet) {
   let removeBullet = false;
 
   Game.currentEnemies.forEach((e) => {
-    if (GameMath.circleCollision(e.x, e.y, e.size.real / 2.0, bullet.x, bullet.y, bullet.size / 2.0)) {
+    if (GameMath.circleCollision(e.x, e.y, e.size / 2.0, bullet.x, bullet.y, bullet.size / 2.0)) {
       removeBullet = hitEnemy(bullet, e);
     }
   });
@@ -453,7 +453,7 @@ function draw() {
     let removeBullet = false;
 
     Game.currentEnemies.forEach((e) => {
-      if (GameMath.circleCollision(b.x, b.y, b.size / 2.0, e.x, e.y, e.size.real / 2.0)) {
+      if (GameMath.circleCollision(b.x, b.y, b.size / 2.0, e.x, e.y, e.size / 2.0)) {
         enemyHit2SFX.rate(random(0.8, 1.2)).play();
 
         removeBullet = hitEnemy(b, e, false);

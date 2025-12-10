@@ -14,10 +14,8 @@ class Enemy {
     this.#initialY = y / 2.0;
     
     // Size
-    this.size = {
-      real: this.getSize(),
-      dpSize: this.getSize()
-    }
+    this.size = this.getSize();
+    this.dpSize = this.getSize();
     
     // Stats
     this.maxSpeed = maxSpeed;
@@ -93,14 +91,14 @@ class Enemy {
     }
   }
   moveRabbitball() {
-    if (this.x > width - this.size.real / 2.0 || this.x < this.size.real / 2) {
+    if (this.x > width - this.size / 2.0 || this.x < this.size / 2) {
       this.rabbitball.dirX *= -1;
     }
 
     let spd = (Game.isSlowMode) ? this.maxSpeed / 8.0 : this.maxSpeed;
     let fallFactor = (Game.isSlowMode) ? 0.015 / 8.0 : 0.015;
 
-    if (Game.isSlowMode){
+    if (Game.isSlowMode) {
       this.#slowState = true;
     } else if (this.#slowState) {
       this.y = this.#initialY;
@@ -108,25 +106,25 @@ class Enemy {
       this.canMove = true;
       this.canHurt = false;
 
-      setTimeout(() => {
-        this.canHurt = true;
-      }, 1000.0);
-
+      setTimeout(() => this.canHurt = true, 1000.0);
       this.#slowState = false;
     }
 
     this.x += deltaTime * this.rabbitball.dirX * spd * 0.06;
     this.rabbitball.accel += deltaTime * Game.GRAV * 0.06;
-    this.y += deltaTime * this.rabbitball.accel * fallFactor  * 0.06;
 
-    if (this.y > height - (this.size.real / 2.0)) {
-      // this.bounceSFX.play();
+    let newY = this.y + deltaTime * this.rabbitball.accel * fallFactor * 0.06;
+    const ground = height - (this.size / 2.0);
+
+    // Did we cross the ground this frame?
+    if (newY > ground) {
+      newY = ground;              // clamp
+      this.rabbitball.accel *= -1; // invert velocity (proper bounce)
       animScreenShake();
-
-      // TODO issue, make a fixed calculated value
-      this.rabbitball.accel -= this.rabbitball.accel * 2.0;
     }
-  }
+
+    this.y = newY;
+}
   moveTowardPlayer() {
     if (Game.currentPlayer == null || !this.followPlayer) return;
     
@@ -179,8 +177,8 @@ class Enemy {
     }
   }
   update() {
-    this.size.real = this.getSize();
-    this.size.dpSize = this.getSize();
+    this.size = this.getSize();
+    this.dpSize = this.getSize();
     
     if (this.isBeingHit){
       this.eyeX = this.x;
@@ -218,21 +216,21 @@ class Enemy {
 
       switch (this.type) {
         case Game.EnemyTypes.SPLITTER:
-          circle(this.x + (this.size.real/3), this.y + (this.size.real/4), this.size.real/2);
-          circle(this.x - (this.size.real/3), this.y + (this.size.real/4), this.size.real/2);
+          circle(this.x + (this.size/3), this.y + (this.size/4), this.size/2);
+          circle(this.x - (this.size/3), this.y + (this.size/4), this.size/2);
           break;
 
         case Game.EnemyTypes.SPLITTED:
-          circle(this.x + (this.size.real/3), this.y, this.size.real/2);
-          circle(this.x - (this.size.real/3), this.y, this.size.real/2);
+          circle(this.x + (this.size/3), this.y, this.size/2);
+          circle(this.x - (this.size/3), this.y, this.size/2);
           break;
 
         case Game.EnemyTypes.SHOOTER:
           imgSize = 92.0;
-          rect(this.x + this.size.real/3.4, this.y, this.size.real/2, this.size.real/3);
-          rect(this.x - this.size.real/3.4, this.y, this.size.real/2, this.size.real/3);
-          rect(this.x, this.y + this.size.real/3.4, this.size.real/3, this.size.real/2);
-          rect(this.x, this.y  - this.size.real/3.4, this.size.real/3, this.size.real/2);
+          rect(this.x + this.size/3.4, this.y, this.size/2, this.size/3);
+          rect(this.x - this.size/3.4, this.y, this.size/2, this.size/3);
+          rect(this.x, this.y + this.size/3.4, this.size/3, this.size/2);
+          rect(this.x, this.y  - this.size/3.4, this.size/3, this.size/2);
           break;
 
         case Game.EnemyTypes.EXPLODER:
@@ -241,30 +239,30 @@ class Enemy {
         case Game.EnemyTypes.BOUNCER:
           // TODO trail for Rabbitball enemy
 
-          ellipse(this.x + (this.size.real/3.5), this.y - (this.size.real/5), this.size.real/2, this.size.real);
-          ellipse(this.x - (this.size.real/3.5), this.y - (this.size.real/5), this.size.real/2, this.size.real);
+          ellipse(this.x + (this.size/3.5), this.y - (this.size/5), this.size/2, this.size);
+          ellipse(this.x - (this.size/3.5), this.y - (this.size/5), this.size/2, this.size);
           break;
 
         case Game.EnemyTypes.REFLECTOR:
           let t = millis() / 800.0;
-          let distance = this.size.dpSize/2.6;
+          let distance = this.dpSize/2.6;
 
           circle(
             this.x + (sin(t) * distance),
             this.y + (cos(t) * distance),
-            this.size.real/2.0);
+            this.size/2.0);
           circle(
             this.x + (sin(t + (PI / 2)) * distance),
             this.y + (cos(t + (PI / 2)) * distance),
-            this.size.real/2.0);
+            this.size/2.0);
           circle(
             this.x + (sin(t + PI) * distance),
             this.y + (cos(t + PI) * distance),
-            this.size.real/2.0);
+            this.size/2.0);
           circle(
             this.x + (sin(t + ((PI * 3) / 2)) * distance),
             this.y + (cos(t + ((PI * 3) / 2)) * distance),
-            this.size.real/2.0);
+            this.size/2.0);
           break;
 
         default:
@@ -276,7 +274,7 @@ class Enemy {
     if (this.spawnAnim.playing) {
       this.spawnAnim.t += deltaTime * 0.001 * Game.ENEMY_SPAWN_TIME;
 
-      circle(this.x, this.y, this.size.dpSize * this.spawnAnim.t);
+      circle(this.x, this.y, this.dpSize * this.spawnAnim.t);
 
       if (this.spawnAnim.t >= 1) {
         this.animBounce();
@@ -285,14 +283,14 @@ class Enemy {
     } else if (this.bounceAnim.playing) {
       this.bounceAnim.t += deltaTime * 0.00045;
       let eased = Anim.elasticEaseOut(constrain(this.bounceAnim.t, 0, 1));
-      let x = lerp(this.bounceAnim.x, this.size.dpSize, eased);
-      let y = lerp(this.bounceAnim.y, this.size.dpSize, eased);
+      let x = lerp(this.bounceAnim.x, this.dpSize, eased);
+      let y = lerp(this.bounceAnim.y, this.dpSize, eased);
 
       ellipse(this.x, this.y, x, y);
 
       if (this.bounceAnim.t >= 1) this.bounceAnim.playing = false;
     } else {
-      circle(this.x, this.y, this.size.dpSize);
+      circle(this.x, this.y, this.dpSize);
     }
 
     // TODO mask somehow
@@ -351,8 +349,8 @@ class Enemy {
   animBounce(sideHit = false){
     if (this.bounceAnim.t < 0.5) return;
 
-    this.bounceAnim.x = (sideHit) ? this.size.dpSize - (this.size.dpSize / 2.5) : this.size.dpSize + (this.size.dpSize / 2.5);
-    this.bounceAnim.y = (sideHit) ? this.size.dpSize + (this.size.dpSize / 2.5) : this.size.dpSize - (this.size.dpSize / 2.5);
+    this.bounceAnim.x = (sideHit) ? this.dpSize - (this.dpSize / 2.5) : this.dpSize + (this.dpSize / 2.5);
+    this.bounceAnim.y = (sideHit) ? this.dpSize + (this.dpSize / 2.5) : this.dpSize - (this.dpSize / 2.5);
     this.bounceAnim.t = 0.0;
     this.bounceAnim.playing = true;
   }
