@@ -39,6 +39,7 @@ const waveAnim = { playing: false, t: 1.0 };
 const critHitAnim = { playing: false, t: 1.0 };
 const screenshakeAnim = { playing: false, dur: 0, strength: 10 };
 const bgAnim = { bgPulseStart: null, bgPulseDuration: 0, bgPulseFrom: null, bgPulseTo: null };
+const bgZoomAnim = { playing: false, t: 1.0, to: 0.0 };
 
 
 function handleEnemyBullets(bullet) {
@@ -124,12 +125,16 @@ function hitEnemy(bullet, targetEnemy, playAud = true){
 function enemyDied(targetEnemy, bullet){
   if (!targetEnemy.hasDied()) return;
 
-  let scoreGained = targetEnemy.points;
+  const scoreGained = targetEnemy.points;
+  const lastEnemy = Game.currentEnemies.length === 1;
 
   Game.lastEnemyTypeHit = targetEnemy.type;
   Game.enemiesDefeated++;
 
   animScreenShake(targetEnemy.points*2.5, targetEnemy.points*3.0);
+  if (lastEnemy) animBG(55, 55, 55, 0.5);
+  else animBG(215, 215, 215, 0.5);
+  animBGzoom(1.0 + (targetEnemy.getInitialHealth() / (lastEnemy ? 80.0 : 200.0)));
 
   switch (targetEnemy.type) {
     case Game.EnemyTypes.EXPLODER:
@@ -204,33 +209,27 @@ function spawnRandomWaveEnemies(onWave = wave) {
   creatingEnemies = true;
 
   let encounterSet;
-  if (onWave <= enemySetEncounters[1]) {
-    encounterSet = 0;
-  } else if (onWave <= enemySetEncounters[2]) {
-    encounterSet = 1;
-  } else {
-    encounterSet = 2;
-  }
+  if (onWave <= enemySetEncounters[1]) encounterSet = 0;
+  else if (onWave <= enemySetEncounters[2]) encounterSet = 1;
+  else encounterSet = 2;
 
   const randomType = Game.pickRandomIndex(Game.enemyEncounter, currentEnemyTypes, encounterSet);
 
-  if (randomType !== null) {
-    currentEnemyTypes.push(randomType);
-  }
+  if (randomType !== null) currentEnemyTypes.push(randomType);
 
   const threshold = 50;
   const healthMin = (wave < threshold) 
-  ? 3 + floor(wave / 9.0)
-  : 8 + floor((wave-threshold) / 13.0);
+    ? 3 + floor(wave / 9.0)
+    : 8 + floor((wave-threshold) / 13.0);
   const enemySpawnsMin = (wave < threshold) 
-  ? 2 + floor(wave / 13.0)
-  : 5 + floor((wave-threshold) / 19.0);
+    ? 2 + floor(wave / 13.0)
+    : 5 + floor((wave-threshold) / 19.0);
   const enemySpawnsFactor = (wave < threshold) 
-  ? 3 + floor(wave / 13.0)
-  : 6 + floor((wave-threshold) / 19.0);;
+    ? 3 + floor(wave / 13.0)
+    : 6 + floor((wave-threshold) / 19.0);;
   const enemySpeed = (wave < threshold) 
-  ? Game.DEFAULT_ENEMY_SPEED + (floor(wave / 2.0) / 10.0)
-  : 3.85;
+    ? Game.DEFAULT_ENEMY_SPEED + (floor(wave / 2.0) / 10.0)
+    : 3.85;
   
   const noOfEnemies = enemySpawnsMin + floor(random() * enemySpawnsFactor);
   waveEnemyCount = noOfEnemies;
@@ -239,12 +238,9 @@ function spawnRandomWaveEnemies(onWave = wave) {
     const spawnX = GameMath.randomFloat(120.0, width - 120.0);
     const spawnY = GameMath.randomFloat(120.0, height - 120.0);
     const health = healthMin + floor(random() * Game.ENEMIES_HEALTH_MAX);
-
-    // console.log(`Enemy (${i + 1}): ${round(spawnX)}, ${round(spawnY)}, ${health}`);
-
     const randomType = currentEnemyTypes[floor(random() * currentEnemyTypes.length)];
 
-    const newEnemy = new Enemy({
+    const e = new Enemy({
       x: spawnX,
       y: spawnY,
       health: health,
@@ -253,7 +249,7 @@ function spawnRandomWaveEnemies(onWave = wave) {
       type: randomType,
     });
 
-    Game.currentEnemies.push(newEnemy);
+    Game.currentEnemies.push(e);
   }
 
   setTimeout(enemiesSpawned, 1000.0 * Game.ENEMY_SPAWN_TIME);
@@ -307,10 +303,10 @@ function gotoNextWave() {
     // spawnItem(Game.Items.DAZZLE);
     spawnItem();
   }
-  let value = Game.EnemyTypes.EXPLODER;
+  // let value = Game.EnemyTypes.EXPLODER;
   
-  spawnEnemy(value);
-  // spawnRandomWaveEnemies(wave);
+  // spawnEnemy(value);
+  spawnRandomWaveEnemies(wave);
 }
 
 function gameEnd(){
@@ -367,7 +363,7 @@ function preload() {
   iconBuddy = loadImage('img/item-icon-tankbuddy.svg');
   iconInacc = loadImage('img/item-icon-inaccuracy-01.svg');
  
-  bgIMG = loadImage("img/bg-main-03.png");
+  bgIMG = loadImage("img/bg-main-04.png");
   fonts = loadFont("font/Nunito-Bold.ttf");
 }
 
@@ -397,7 +393,6 @@ function setup() {
 }
 
 function draw() {
-  // Uncaught TypeError: Cannot read properties of undefined (reading '0')
   background(bgCol[0], bgCol[1], bgCol[2]);
 
   if (screenshakeAnim.playing) {
@@ -409,12 +404,27 @@ function draw() {
 
   // Handle BG
   push();
-  translate(width / 2, height / 2);
-  rotate(millis() * (1 / 18000));
+  translate(
+    (width / 2) + ((mouseX-(width/2)) / 35.0),
+    (height / 2) + ((mouseY-(height/2)) / 35.0)
+  );
+  rotate(millis() * (1 / (Game.isSlowMode ? 36000 : 18000)) * ((floor(wave/10.0) % 2 === 0) ? 1 : -1));
+
   imageMode(CENTER);
+  
+  if (bgZoomAnim.playing) {
+    bgZoomAnim.t += deltaTime * (Game.isSlowMode ? 0.0006 / 4 : 0.0006);
+    const eased = Anim.elasticEaseOut(constrain(bgZoomAnim.t, 0, 1));
+    const x = lerp(bgZoomAnim.to, 1, eased);
+
+    scale([x, x]);
+    if (waveAnim.t >= 1) waveAnim.playing = false;
+  } else {
+    scale([1, 1]);
+  }
 
   if (bgAnim.bgPulseStart !== null) {
-    let t = (millis() - bgAnim.bgPulseStart) / bgAnim.bgPulseDuration;
+    const t = (millis() - bgAnim.bgPulseStart) / bgAnim.bgPulseDuration;
 
     if (t >= 1) {
       bgCol = Game.getWaveCol(wave);
@@ -538,16 +548,16 @@ function draw() {
   push();
   translate(width / 4.75, height / 1.1);
   stroke(50);
-  rotate((PI / 28.0) * sin(millis() / 360.0));
+  rotate((PI / 28.0) * sin(millis() / ((Game.isSlowMode) ? 1440.0 : 360.0)));
 
   textAlign(CENTER);
   textSize(50);
   strokeWeight(8);
   if (waveAnim.playing) {
-    waveAnim.t += deltaTime * 0.0006;
-    let eased = Anim.elasticEaseOut(constrain(waveAnim.t, 0, 1));
-    let x = lerp(1.5, 1, eased);
-    let y = lerp(0.5, 1, eased);
+    waveAnim.t += deltaTime * ((Game.isSlowMode) ? 0.0006 / 4 : 0.0006);
+    const eased = Anim.elasticEaseOut(constrain(waveAnim.t, 0, 1));
+    const x = lerp(1.5, 1, eased);
+    const y = lerp(0.5, 1, eased);
 
     scale([x, y]);
     if (waveAnim.t >= 1) waveAnim.playing = false;
@@ -599,10 +609,9 @@ function draw() {
     rectMode(CORNER);
     noStroke();
 
-    let flash = 1.0;
-    if (timeLeft <= 3.0 || itemHeld === Game.Items.TANK_BUDDY.name) {
-      flash = map(sin(millis() * 0.015), -1, 1, 0.5, 1);
-    }
+    const flash = (timeLeft <= 3.0 || itemHeld === Game.Items.TANK_BUDDY.name)
+      ? map(sin(millis() * 0.015), -1, 1, 0.5, 1)
+      : 1.0;
     fill(255, 255 * flash, 255 * flash);
 
     rect(w - 50.0, h - barHeight + 50.0, 100.0, barHeight, 10.0, 10.0);
@@ -642,7 +651,7 @@ function draw() {
   // Critical Hit Anim
   push();
   translate(Game.critHitX, Game.critHitY);
-  rotate((PI / 28.0) * sin(millis() / 720.0));
+  rotate((PI / 28.0) * sin(millis() / (Game.isSlowMode ? 720.0 * 4 : 720.0)));
 
   strokeWeight(10);
   textSize(50);
@@ -650,7 +659,7 @@ function draw() {
   stroke(30);
   fill(255, 255, 55);
   if (critHitAnim.playing) {
-    critHitAnim.t += deltaTime * 0.00045;
+    critHitAnim.t += deltaTime * (Game.isSlowMode ? 0.00045 / 4 : 0.00045);
     const eased = Anim.elasticEaseOut(constrain(critHitAnim.t, 0, 1));
     const x = lerp(Game.critHitScaleX, 1, eased);
     const y = lerp(Game.critHitScaleY, 1, eased);
@@ -671,6 +680,13 @@ function draw() {
   pop();
   //
 
+  if (Game.isSlowMode){
+    fill(127, 127, 255, 255/5);
+    noStroke()
+    rect(width/2, height/2, width, height);
+    stroke(30);
+  }
+
   // Handle Player
   if (p.alive) {
     p.curBulletDir = curBulletDir;
@@ -681,8 +697,9 @@ function draw() {
 
     if (p.insideAnEnemy()) {
       if (!p.invincible){
-        animBG(255, 125, 125, 0.35);
+        animBG(255, 0, 0, 1.2);
         animScreenShake(5.0,3.0);
+        animBGzoom(1.25);
       }
       p.hit();
     }
@@ -692,7 +709,7 @@ function draw() {
     playerTrail.push({x: p.x,y: p.y,life: 1.0});
     // Draw player trail
     for (let i = playerTrail.length - 1; i >= 0; i--) {
-      let t = playerTrail[i];
+      const t = playerTrail[i];
       t.life -= deltaTime * 0.0025;
       
       if (t.life <= 0) {
@@ -841,6 +858,12 @@ function animScreenShake(shake = 10.0, dur = 5.0){
   screenshakeAnim.playing = true;
   screenshakeAnim.dur = dur;
   screenshakeAnim.strength = shake;
+}
+
+function animBGzoom(to){
+  bgZoomAnim.t = 0.0;
+  bgZoomAnim.playing = true;
+  bgZoomAnim.to = to;
 }
 
 function animBG(c1, c2, c3, dur){
