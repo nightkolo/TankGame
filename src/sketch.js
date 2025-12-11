@@ -92,7 +92,7 @@ function hitEnemy(bullet, targetEnemy, playAud = true){
   if (playAud){
     const sfxMap = { // Builds Map
       [Game.EnemyTypes.SHOOTER]: enemyHit3SFXs,    // "shooter" → array of sounds
-      [Game.EnemyTypes.BOUNCER]: enemyHit5SFXs,    // "bouncer" → array of sounds
+      [Game.EnemyTypes.RABBITBALL]: enemyHit5SFXs,    // "bouncer" → array of sounds
       [Game.EnemyTypes.REFLECTOR]: enemyHit1SFXs,  // "reflector" → array of sounds
       [Game.EnemyTypes.EXPLODER]: enemyHit4SFXs,   // "exploder" → array of sounds
     };
@@ -266,7 +266,7 @@ function enemiesSpawned(){
   const enemyTypeSFXMap = {
     [Game.EnemyTypes.SPLITTER]: enemyReflectorEntSFX,
     [Game.EnemyTypes.SHOOTER]: enemyShooterEntSFX,
-    [Game.EnemyTypes.BOUNCER]: enemyRBEntSFX,
+    [Game.EnemyTypes.RABBITBALL]: enemyRBEntSFX,
   };
 
   // Collect unique enemy types present

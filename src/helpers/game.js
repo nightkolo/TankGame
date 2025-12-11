@@ -91,7 +91,7 @@ class Game {
   static EnemyTypes = { 
     NORMAL: 0, 
     SHOOTER: 1, 
-    BOUNCER: 2, // RABBITBALL
+    RABBITBALL: 2, // RABBITBALL
     REFLECTOR: 3,
     SPLITTER: 4,
     EXPLODER: 5, 
@@ -123,7 +123,7 @@ class Game {
     [ // 1st Encounter
       this.EnemyTypes.NORMAL,
       this.EnemyTypes.SHOOTER,
-      this.EnemyTypes.BOUNCER
+      this.EnemyTypes.RABBITBALL
     ],
     [ // 2nd Encounter
       this.EnemyTypes.SPLITTER,

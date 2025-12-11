@@ -73,7 +73,7 @@ class Enemy {
   spawned() {
     this.animSpawn();
 
-    this.y = (this.type === Game.EnemyTypes.BOUNCER) ? this.#initialY / 2.0 : this.y;
+    this.y = (this.type === Game.EnemyTypes.RABBITBALL) ? this.#initialY / 2.0 : this.y;
 
     setTimeout(() => {
       this.canMove = true;
@@ -84,7 +84,7 @@ class Enemy {
   move(){
     if (!this.canMove) return;
 
-    if (this.type === Game.EnemyTypes.BOUNCER){
+    if (this.type === Game.EnemyTypes.RABBITBALL){
       this.moveRabbitball();    
     } else {
       this.moveTowardPlayer();
@@ -161,7 +161,7 @@ class Enemy {
     return false;
   }
   moveAwayItemCollected(x, y){ // Called by Item
-    if (this.type == Game.EnemyTypes.BOUNCER) return;
+    if (this.type == Game.EnemyTypes.RABBITBALL) return;
     
     let dx = x - this.x;
     let dy = y - this.y;
@@ -236,7 +236,7 @@ class Enemy {
         case Game.EnemyTypes.EXPLODER:
           break;
 
-        case Game.EnemyTypes.BOUNCER:
+        case Game.EnemyTypes.RABBITBALL:
           // TODO trail for Rabbitball enemy
 
           ellipse(this.x + (this.size/3.5), this.y - (this.size/5), this.size/2, this.size);
@@ -350,7 +350,7 @@ class Enemy {
     this.knockback(hitX, hitY);
   }
   knockback(hitX, hitY) {
-    if (this.type == Game.EnemyTypes.BOUNCER) return;
+    if (this.type == Game.EnemyTypes.RABBITBALL) return;
     this.x += 6.0 * hitX;
     this.y += 6.0 * hitY;
   }
@@ -396,7 +396,7 @@ class Enemy {
       [Game.EnemyTypes.SPLITTER]: "img/enemy-eyes-splitter-01.svg",
       [Game.EnemyTypes.SPLITTED]: "img/enemy-eyes-splitted-01.svg",
       [Game.EnemyTypes.SHOOTER]: "img/enemy-eyes-deadpan-01.svg",
-      [Game.EnemyTypes.BOUNCER]: "img/enemy-eyes-rabbitball-01.svg"
+      [Game.EnemyTypes.RABBITBALL]: "img/enemy-eyes-rabbitball-01.svg"
     };
     
     const path = eyeMap[this.type];
@@ -408,7 +408,7 @@ class Enemy {
       [Game.EnemyTypes.SPLITTER]: [0, 255, 0],
       [Game.EnemyTypes.SPLITTED]: [64, 64, 64],
       [Game.EnemyTypes.SHOOTER]: [255, 0, 0],
-      [Game.EnemyTypes.BOUNCER]: [0, 0, 255],
+      [Game.EnemyTypes.RABBITBALL]: [0, 0, 255],
       [Game.EnemyTypes.REFLECTOR]: [100, 255, 100],
       [Game.EnemyTypes.SPRINTER]: [255, 255, 255]
     };
