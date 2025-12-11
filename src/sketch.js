@@ -218,10 +218,19 @@ function spawnRandomWaveEnemies(onWave = wave) {
     currentEnemyTypes.push(randomType);
   }
 
-  const healthMin = 3 + floor(wave / 9.0);
-  const enemySpawnsMin = 2 + floor(wave / 13.0);
-  const enemySpawnsFactor = 3 + floor(wave / 13.0);
-  const enemySpeed = Game.DEFAULT_ENEMY_SPEED + (floor(wave / 2.0) / 10.0);
+  const threshold = 50;
+  const healthMin = (wave < threshold) 
+  ? 3 + floor(wave / 9.0)
+  : 8 + floor((wave-threshold) / 13.0);
+  const enemySpawnsMin = (wave < threshold) 
+  ? 2 + floor(wave / 13.0)
+  : 5 + floor((wave-threshold) / 19.0);
+  const enemySpawnsFactor = (wave < threshold) 
+  ? 3 + floor(wave / 13.0)
+  : 6 + floor((wave-threshold) / 19.0);;
+  const enemySpeed = (wave < threshold) 
+  ? Game.DEFAULT_ENEMY_SPEED + (floor(wave / 2.0) / 10.0)
+  : 3.85;
   
   const noOfEnemies = enemySpawnsMin + floor(random() * enemySpawnsFactor);
   waveEnemyCount = noOfEnemies;

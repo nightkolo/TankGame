@@ -95,7 +95,7 @@ class Enemy {
       this.rabbitball.dirX *= -1;
     }
 
-    const spd = (Game.isSlowMode) ? this.maxSpeed / 8.0 : this.maxSpeed;
+    const spd = (Game.isSlowMode) ? this.maxSpeed / 8.0 : this.maxSpeed / 1.5;
     const fallFactor = (Game.isSlowMode) ? 0.015 / 8.0 : 0.015;
 
     if (Game.isSlowMode) {
@@ -341,7 +341,8 @@ class Enemy {
     if (random() < 1 / Game.CRIT_HIT_PROBABILITY && this.health == this.critHitPoint){
       console.log("Critical Hit!");
       Game.critHitEvent(this.x, this.y);
-      Game.currentPlayer.gainLives(1, false);
+
+      if (Game.currentPlayer.lives === 1) Game.currentPlayer.gainLives(1, false);
       animCritHit();
       this.health = 0;
     }
