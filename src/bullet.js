@@ -1,7 +1,8 @@
 class Bullet {
   constructor(px, py, dirX = 0, dirY = -1, spd = 10.0, size = 25.0){
-    this.dirX = dirX;
-    this.dirY = dirY;
+    const mag = Math.sqrt((dirX * dirX) + (dirY * dirY)) || 0;
+    this.dirX = dirX / mag;
+    this.dirY = dirY / mag;
     this.x = px;
     this.y = py;
     this.spd = spd;

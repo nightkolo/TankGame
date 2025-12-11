@@ -307,10 +307,10 @@ function gotoNextWave() {
     // spawnItem(Game.Items.DAZZLE);
     spawnItem();
   }
-  // let value = Game.EnemyTypes.REFLECTOR;
+  let value = Game.EnemyTypes.EXPLODER;
   
-  // spawnEnemy(value);
-  spawnRandomWaveEnemies(wave);
+  spawnEnemy(value);
+  // spawnRandomWaveEnemies(wave);
 }
 
 function gameEnd(){
