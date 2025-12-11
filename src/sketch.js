@@ -334,6 +334,8 @@ function newGame(){
   items = [];
   statsSet = false;
  
+  // bgCol = Game.getWaveCol(31);
+
   gameStarted = true;
   gameOver = false;
   isShooting = false;

@@ -115,8 +115,8 @@ class Game {
     [255, 255, 155],
     [185, 185, 255],
     [255, 155, 185],
-    [255, 125, 125],
-    [205, 105, 255]
+    [205, 105, 255],
+    [255, 125, 125]
   ];
 
   static enemyEncounter = [
@@ -135,8 +135,8 @@ class Game {
     ],
   ]
 
-  static getWaveCol(wave){ // experimental
-    return this.bgCols[min(4 , floor(wave / 10.0))];
+  static getWaveCol(wave){
+    return this.bgCols[floor(wave / 10.0) % this.bgCols.length];
   }
 
   static itemCollected(item){
