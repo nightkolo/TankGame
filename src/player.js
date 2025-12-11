@@ -44,7 +44,7 @@ class Tank {
     this.lives += lives;
     if (gainBlueHearts) this.floatingHearts++;
     
-    this.lives = min(15, this.lives);
+    this.lives = min(Game.MAX_HEARTS, this.lives);
   }
   gainItem(item, itemCooldown = 8.0) { // Game.Items, float
     this.activePowerups.push(item);

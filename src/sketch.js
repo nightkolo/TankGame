@@ -17,7 +17,7 @@ let gameStarted = false;
 let currentEnemyTypes = [Game.EnemyTypes.NORMAL];
 const enemySetEncounters = [0, 5, 13];
 let lastSpawnTime = 0.0;
-let shootingSpdFactor = 0.045;
+let shootingSpdFactor = 0.0225  ;
 let isShooting = false;
 let statsSet = false;
 let currentItemStats = [];
@@ -187,7 +187,7 @@ function handleTankBuddies(buddy){
     const spd = 10.0;
 
     Game.allDir.forEach((entry) => {
-      buddyBullets.push(new Bullet(buddy.x, buddy.y, entry[0], entry[1], spd));
+      buddyBullets.push(new Bullet(buddy.x, buddy.y, entry[0], entry[1], spd, 25.0, [200, 200, 255]));
     })
   }
 
@@ -300,7 +300,7 @@ function gotoNextWave() {
   bgCol = Game.getWaveCol(wave);
   
   if (random() < 1 / 3) {
-    // spawnItem(Game.Items.DAZZLE);
+    // spawnItem(Game.Items.TANK_BUDDY);
     spawnItem();
   }
   // let value = Game.EnemyTypes.EXPLODER;
@@ -329,8 +329,6 @@ function newGame(){
   Game.currentEnemies = [];
   items = [];
   statsSet = false;
- 
-  // bgCol = Game.getWaveCol(31);
 
   gameStarted = true;
   gameOver = false;
@@ -353,7 +351,7 @@ function newGame(){
 let bgIMG, iconBomb, iconDazzle, iconCS, iconBuddy, iconInacc, panel, panel2, arrowIMG, fonts;
 
 function preload() {
-  panel = loadImage('img/panel-01.svg');
+  panel = loadImage('img/panel-05.svg');
   panel2 = loadImage('img/panel-02.svg');
   arrowIMG = loadImage('img/arrow-01.png');
 
@@ -393,7 +391,7 @@ function setup() {
 }
 
 function draw() {
-  background(bgCol[0], bgCol[1], bgCol[2]);
+  background(bgCol[0] / 2.0, bgCol[1] / 2.0, bgCol[2] / 2.0);
 
   if (screenshakeAnim.playing) {
     translate(random(-screenshakeAnim.strength, screenshakeAnim.strength), random(-screenshakeAnim.strength, screenshakeAnim.strength));
@@ -454,26 +452,22 @@ function draw() {
 
   // Spawn playerBullets
   if (isShooting && !noShoot && !gameOver) {
-    if (millis() - lastSpawnTime > shootingSpdFactor * 1000.0) {
-      const size = 12.5;
-      const factor = 0.045;
+    if (millis() - lastSpawnTime > (shootingSpdFactor * 1000.0)) {
+      const spd = 12.5 + (p.floatingHearts / 4);
+      const factor = 0.0375 / ((p.floatingHearts / 12) + 1);
       const extraX = (p.activePowerups.includes(Game.Items.INACCURACY)) ? random(-0.3, 0.3) : random(-0.06, 0.06);
       const extraY = (p.activePowerups.includes(Game.Items.INACCURACY)) ? random(-0.3, 0.3) : random(-0.06, 0.06);
       shootingSpdFactor = (p.activePowerups.includes(Game.Items.INACCURACY)) ? factor / 1.5 : factor;
 
-      playerBullets.push(new Bullet(p.x, p.y, curBulletDir.x + extraX, curBulletDir.y + extraY, size));
+      playerBullets.push(new Bullet(p.x, p.y, curBulletDir.x + extraX, curBulletDir.y + extraY, spd, 25.0, [255,255,255]));
       
-      if (p.activePowerups.includes(Game.Items.COUNTER_SPIKE)) {
-        // TODO make other axis bullets a different fill
-        
-        playerBullets.push(new Bullet(p.x, p.y, -curBulletDir.x + extraX, -curBulletDir.y + extraY, size));
-      }
+      if (p.activePowerups.includes(Game.Items.COUNTER_SPIKE)) playerBullets.push(new Bullet(p.x, p.y, -curBulletDir.x + extraX, -curBulletDir.y + extraY, spd, 25.0, [166,166,166]));
+      
       lastSpawnTime = millis();
     }
   }
   
   // Handle buddyBullets
-  fill(200, 200, 255);
   buddyBullets = buddyBullets.filter((b) => {
     let removeBullet = false;
 
@@ -495,13 +489,10 @@ function draw() {
   fill(255);
 
   // Handle tankBuddies
-  fill(127, 127, 255);
   tankBuddies = tankBuddies.filter(handleTankBuddies);
 
   // Handle Enemies
   Game.currentEnemies.forEach((e) => {
-    // e.Game.isSlowMode = Game.isSlowMode;
-
     if (e.spawnBullets() && e.canShoot) {
       const spd = Game.getEnemyBulletsSpeed(Game.isSlowMode);
       const size = 75.0;
@@ -576,7 +567,6 @@ function draw() {
 
     textLeading(40);
     text("A Game by Night Kolo\nMade in p5.js", width / 2, 100);
-    // text("Tank is Tiny", width/4, (height / 2.0) - 140.0);
     
     strokeWeight(7.5);
     stroke(50);

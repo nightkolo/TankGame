@@ -121,6 +121,7 @@ class Enemy {
       newY = ground;              // clamp
       this.rabbitball.accel *= -1; // invert velocity (proper bounce)
       animScreenShake();
+      // this.bounceSFX.play();
     }
 
     this.y = newY;
@@ -281,7 +282,7 @@ class Enemy {
         this.spawnAnim.playing = false;
       }
     } else if (this.bounceAnim.playing) {
-      this.bounceAnim.t += deltaTime * 0.00045;
+      this.bounceAnim.t += deltaTime * 0.0004;
       let eased = Anim.elasticEaseOut(constrain(this.bounceAnim.t, 0, 1));
       let x = lerp(this.bounceAnim.x, this.dpSize, eased);
       let y = lerp(this.bounceAnim.y, this.dpSize, eased);
@@ -360,8 +361,8 @@ class Enemy {
   animBounce(sideHit = false){
     if (this.bounceAnim.t < 0.5) return;
 
-    this.bounceAnim.x = (sideHit) ? this.dpSize - (this.dpSize / 2.5) : this.dpSize + (this.dpSize / 2.5);
-    this.bounceAnim.y = (sideHit) ? this.dpSize + (this.dpSize / 2.5) : this.dpSize - (this.dpSize / 2.5);
+    this.bounceAnim.x = (sideHit) ? this.dpSize - (this.dpSize / 2.0) : this.dpSize + (this.dpSize / 2.0);
+    this.bounceAnim.y = (sideHit) ? this.dpSize + (this.dpSize / 2.0) : this.dpSize - (this.dpSize / 2.0);
     this.bounceAnim.t = 0.0;
     this.bounceAnim.playing = true;
   }

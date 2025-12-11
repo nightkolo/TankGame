@@ -14,8 +14,10 @@ class Game {
   static ENEMY_HURTBOX_SIZE_FACTOR = 1.22;
   
   static ENEMY_SPAWN_TIME = 1.0;
-  static TANK_BUDDY_LIFETIME = 8.0;
-  static POWERUP_LIFETIME = 8.0;
+  static TANK_BUDDY_LIFETIME = 10.0;
+  static POWERUP_LIFETIME = 10.0;
+
+  static MAX_HEARTS = 13;
   
   static CRIT_HIT_PROBABILITY = 10;
   static DEFAULT_ENEMY_SPEED = 1.35;
@@ -52,8 +54,9 @@ class Game {
     ["Tip:\nTry stacking powerups\n for cool synergies", 25],
     ["Tip:\nEnemies are predictable...\nLearn their patterns", 25],
     ["Tip:\nBullets that bounce off\nenemies have more hitpoints", 22],
-    ["Tip:\n15 is the maximum amount\nof health you can have", 22],
+    [`Tip:\n${Game.MAX_HEARTS} is the maximum amount\nof health you can have`, 22],
     ["Tip:\nSome enemies explode upon\ndeath, be careful", 22],
+    ["Tip:\nFloating hearts give you\nstronger bullets", 22],
     ["Tip:\nDon't eat my\nsandwich", 25],
     [`Tip:\nCritical Hits have a ${this.CRIT_HIT_PROBABILITY}% chance\n of occuring`, 22],
     [`Tip:\nCritical Hits and Item Pickups\nare two ways to gain Hearts`, 22],
