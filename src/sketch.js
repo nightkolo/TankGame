@@ -350,14 +350,14 @@ function newGame(){
   Game.currentEnemies.push(e1);
 }
 
-let bgIMG, icon, iconDazzle, iconCS, iconBuddy, iconInacc, panel, panel2, arrowIMG, fonts;
+let bgIMG, iconBomb, iconDazzle, iconCS, iconBuddy, iconInacc, panel, panel2, arrowIMG, fonts;
 
 function preload() {
   panel = loadImage('img/panel-01.svg');
   panel2 = loadImage('img/panel-02.svg');
   arrowIMG = loadImage('img/arrow-01.png');
 
-  icon = loadImage('img/power-up-icon-def.svg');
+  iconBomb = loadImage('img/item-icon-bomb.svg');
   iconDazzle = loadImage('img/item-icon-dazzle.svg');
   iconCS = loadImage('img/item-icon-counter-spike.svg');
   iconBuddy = loadImage('img/item-icon-tankbuddy.svg');
@@ -824,7 +824,7 @@ function draw() {
         } else if (name === Game.Items.TANK_BUDDY.name){
           image(iconBuddy, w, h);
         } else if (name === Game.Items.BOMB.name){
-          image(icon, w, h);
+          image(iconBomb, w, h);
         }
   
         strokeWeight(8);
