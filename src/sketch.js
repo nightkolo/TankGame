@@ -90,18 +90,18 @@ function hitEnemy(bullet, targetEnemy, playAud = true){
 
   // Audio
   if (playAud){
-    const sfxMap = { // Builds Map
-      [Game.EnemyTypes.SHOOTER]: enemyHit3SFXs,    // "shooter" → array of sounds
-      [Game.EnemyTypes.RABBITBALL]: enemyHit5SFXs,    // "bouncer" → array of sounds
-      [Game.EnemyTypes.REFLECTOR]: enemyHit1SFXs,  // "reflector" → array of sounds
-      [Game.EnemyTypes.EXPLODER]: enemyHit4SFXs,   // "exploder" → array of sounds
+    const sfxMap = { // Map
+      [Game.EnemyTypes.SHOOTER]: enemyHit3SFXs,
+      [Game.EnemyTypes.RABBITBALL]: enemyHit5SFXs,
+      [Game.EnemyTypes.REFLECTOR]: enemyHit1SFXs,
+      [Game.EnemyTypes.EXPLODER]: enemyHit4SFXs
     };
  
     // const value = primaryOption || fallbackOption;
     // If primaryOption is truthy, use it
-    // If primaryOption is falsy (null, undefined, 0, false, "", etc.), use fallbackOption
-    const sfxArray = sfxMap[targetEnemy.type] || [enemyHitSFX]; // Looking Up the Sound Array
-    const sfx = sfxArray[floor(random(sfxArray.length))]; // Picking a Random Sound
+    // If primaryOption is falsy (null, undefined, 0, false, """), use fallbackOption
+    const sfxArray = sfxMap[targetEnemy.type] || [enemyHitSFX];
+    const sfx = sfxArray[floor(random(sfxArray.length))];
 
     // -1 * ((((width - targetEnemy.x) / width) * 2.0) - 1.0)
     sfx.stereo(map(targetEnemy.x, 0, width, -1, 1, true))
@@ -289,8 +289,6 @@ function gotoNextWave() {
   if (floor((wave + 1) / 10.0) == (wave + 1) / 10.0) {
     next10wave1SFX.play(); 
     next10wave2SFX.play(); 
-  // } else if (p.lives < 2){
-  //   p.criticalHealthSFX.play();
   } else {
     nextwaveSFXs[floor(random()*nextwaveSFXs.length)].play();
   }

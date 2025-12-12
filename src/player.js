@@ -67,7 +67,6 @@ class Tank {
     this.itemFinishedSFXs[floor(random() * this.itemFinishedSFXs.length)].play();
 
     Game.removeObject(this.activePowerups, item);
-    print(this.activePowerups);
   }
   hit() {
     if (this.invincible || !this.alive) return;

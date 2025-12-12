@@ -142,11 +142,11 @@ class Enemy {
   spawnBullets() { // Called by sketch.js
     if (!this.canShoot && this.type !== Game.EnemyTypes.SHOOTER) return false;
     
-    const shootingSpdFactor = 1.7;
+    let shootingSpdFactor = 1.7;
     const factor = (Game.isSlowMode) ? shootingSpdFactor * 4.0 : shootingSpdFactor;
 
     if (millis() - this.#lastShotTime > factor * 1000) {
-      let aud = this.shootSFXs[floor(random() * this.shootSFXs.length)];
+      const aud = this.shootSFXs[floor(random() * this.shootSFXs.length)];
       aud.play()
 
       this.#lastShotTime = millis();
@@ -306,9 +306,7 @@ class Enemy {
     strokeWeight(5);
     stroke(0);
 
-    if (this.isBeingHit){
-      text(`${this.health}`, this.x, this.y - 20.0);
-    }
+    if (this.isBeingHit) text(`${this.health}`, this.x, this.y - 20.0);
 
     if (Game.Debug.showHitboxes){
       stroke(255, 0, 0);
@@ -333,7 +331,6 @@ class Enemy {
 
     // Critical hit detection
     if (random() < 1 / Game.CRIT_HIT_PROBABILITY && this.health === this.critHitPoint){
-      console.log("Critical Hit!");
       Game.critHitEvent(this.x, this.y);
 
       if (Game.currentPlayer.lives === 1) Game.currentPlayer.gainLives(1, false);
