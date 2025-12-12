@@ -41,7 +41,6 @@ const screenshakeAnim = { playing: false, dur: 0, strength: 10 };
 const bgAnim = { bgPulseStart: null, bgPulseDuration: 0, bgPulseFrom: null, bgPulseTo: null };
 const bgZoomAnim = { playing: false, t: 1.0, to: 0.0 };
 
-
 function handleEnemyBullets(bullet) {
   if (!bullet.alive) {
     Game.removeObject(enemyBullets, bullet);
@@ -131,10 +130,13 @@ function enemyDied(targetEnemy, bullet){
   Game.lastEnemyTypeHit = targetEnemy.type;
   Game.enemiesDefeated++;
 
-  animScreenShake(targetEnemy.points*2.5, targetEnemy.points*3.0);
-  if (lastEnemy) animBG(55, 55, 55, 0.5);
-  else animBG(215, 215, 215, 0.5);
-  animBGzoom(1.0 + (targetEnemy.getInitialHealth() / (lastEnemy ? 80.0 : 200.0)));
+  if (lastEnemy) {
+    animBG(55, 55, 55, 0.5);
+  } else { 
+    animScreenShake(targetEnemy.points*2.5, targetEnemy.points*3.0);
+    animBG(215, 215, 215, 0.5);
+  }
+  animBGzoom(1.0 + (targetEnemy.getInitialHealth() / (lastEnemy ? 100.0 : 240.0)));
 
   switch (targetEnemy.type) {
     case Game.EnemyTypes.EXPLODER:
@@ -287,14 +289,14 @@ function gotoNextWave() {
   if (floor((wave + 1) / 10.0) == (wave + 1) / 10.0) {
     next10wave1SFX.play(); 
     next10wave2SFX.play(); 
-  } else if (p.lives < 2){
-    p.criticalHealthSFX.play();
+  // } else if (p.lives < 2){
+  //   p.criticalHealthSFX.play();
   } else {
-    nextwaveSFX.play();
+    nextwaveSFXs[floor(random()*nextwaveSFXs.length)].play();
   }
   
   wave++;
-  animText();
+  animWaveText();
   
   Game.bestWave = (wave > Game.bestWave) ? wave : Game.bestWave;
   bgCol = Game.getWaveCol(wave);
@@ -339,7 +341,7 @@ function newGame(){
   wave = 0;
 
   Game.setGame();
-  animText();
+  animWaveText();
   bgCol = Game.getWaveCol(wave);
 
   p = new Tank();
@@ -446,7 +448,7 @@ function draw() {
   rectMode(CENTER);
 
   // Enemies defeated
-  if (Game.currentEnemies.length == 0 && !gameOver && gameStarted && !creatingEnemies) {
+  if (Game.currentEnemies.length === 0 && !gameOver && gameStarted && !creatingEnemies) {
     gotoNextWave();
   }
 
@@ -537,7 +539,7 @@ function draw() {
 
   // Handle Text
   push();
-  translate(width / 4.75, height / 1.1);
+  translate(width / 4.75,height / 1.1);
   stroke(50);
   rotate((PI / 28.0) * sin(millis() / ((Game.isSlowMode) ? 1440.0 : 360.0)));
 
@@ -545,7 +547,7 @@ function draw() {
   textSize(50);
   strokeWeight(8);
   if (waveAnim.playing) {
-    waveAnim.t += deltaTime * ((Game.isSlowMode) ? 0.0006 / 4 : 0.0006);
+    waveAnim.t += deltaTime * ((Game.isSlowMode) ? 0.00055 / 4 : 0.00055);
     const eased = Anim.elasticEaseOut(constrain(waveAnim.t, 0, 1));
     const x = lerp(1.5, 1, eased);
     const y = lerp(0.5, 1, eased);
@@ -566,7 +568,7 @@ function draw() {
     textStyle(BOLD);
 
     textLeading(40);
-    text("A Game by Night Kolo\nMade in p5.js", width / 2, 100);
+    text("A Demo by Night Kolo\nMade in p5.js", width / 2, 100);
     
     strokeWeight(7.5);
     stroke(50);
@@ -649,12 +651,11 @@ function draw() {
   stroke(30);
   fill(255, 255, 55);
   if (critHitAnim.playing) {
-    critHitAnim.t += deltaTime * (Game.isSlowMode ? 0.00045 / 4 : 0.00045);
+    critHitAnim.t += deltaTime * (Game.isSlowMode ? 0.0004 / 4 : 0.0004);
     const eased = Anim.elasticEaseOut(constrain(critHitAnim.t, 0, 1));
     const x = lerp(Game.critHitScaleX, 1, eased);
     const y = lerp(Game.critHitScaleY, 1, eased);
 
-    // TODO set text color to attacked Enemy color
     fill(255, 255, 55, 255 * (Math.min(1.0, 2.0 - (2.0 * critHitAnim.t))));
     stroke(30, 255 * (Math.min(1.0, 2.0 - (2.0 * critHitAnim.t))));
 
@@ -780,31 +781,30 @@ function draw() {
     rect(0,0,width*2.0,height*2.0);
     
     drawGui();
-    if (b.isReleased) newGame();
-
+    
     fill(255);
     stroke(20);
     textLeading(33);
     strokeWeight(10);
     textSize(60);
-    text("Tank is Dead", width/2, 200.0);
-
+    text(`Tank is ${Game.GO_MESSAGE}`, width/2, 200.0);
+    
     strokeWeight(5);
     textSize(25);
     text(`== Stats ==\nWave reached: ${wave}\nScore: ${score}\nEnemies defeated: ${Game.enemiesDefeated}`,width/2, 285.0);
-
+    
     let i = 0;
     if (currentItemStats.length > 0){
       text("Items collected:", width/2, 420.0);
-
+      
       currentItemStats.forEach((entry) => { 
         const name = entry[0];
         const amount = entry[1];
-  
+        
         const mult = 120.0;
         const w = (width / 2) + (mult * i) - ((currentItemStats.length - 1) * mult * 0.5);
         const h = height - 250.0;
-  
+        
         if (name === Game.Items.COUNTER_SPIKE.name){
           image(iconCS, w, h);
         } else if (name === Game.Items.INACCURACY.name){
@@ -816,13 +816,14 @@ function draw() {
         } else if (name === Game.Items.BOMB.name){
           image(iconBomb, w, h);
         }
-  
+        
         strokeWeight(8);
         textSize(45);
         text(`${amount}`, w + 40.0, h + 40.0);
         i++;
       })
     }
+    if (b.isReleased) newGame();
   }
 }
 
@@ -869,8 +870,8 @@ function animCritHit(){
   critHitAnim.playing = true;
 }
 
-function animText(){
-  if (waveAnim.t < 0.5) return;
+function animWaveText(){
+  // if (waveAnim.t < 0.5) return;
   waveAnim.t = 0;
   waveAnim.playing = true;
 }

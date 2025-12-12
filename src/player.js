@@ -166,7 +166,7 @@ class Tank {
     textSize(25.0);
     textAlign(CENTER);
 
-    if (this.lives == 15){
+    if (this.lives === Game.MAX_HEARTS){
       textLeading(21)
       text(`${this.lives}\nMax`, this.x, this.y - 54.0);
     } else {

@@ -6,12 +6,11 @@ class Enemy {
   #lastHitTime = 0.0;
   #col = [0, 0, 0, 0];
 
-  constructor({ x = 200, y = 200, health = 10, maxSpeed = Game.DEFAULT_ENEMY_SPEED, type = Game.EnemyTypes, followPlayer = true
-  } = {}) {
+  constructor({ x = 200, y = 200, health = 10, maxSpeed = Game.DEFAULT_ENEMY_SPEED, type = Game.EnemyTypes, followPlayer = true} = {}) {
     // Position
     this.x = x;
     this.y = y;
-    this.#initialY = y / 2.0;
+    this.#initialY = y;
     
     // Size
     this.size = this.getSize();
@@ -48,14 +47,12 @@ class Enemy {
       dirX: Math.sign(random() - 0.5)
     }
     
-    // Power-up mods
-    Game.isSlowMode = false;
-    
     // State
     this.canMove = false;
     this.canHurt = false;
     this.canShoot = false;
     this.isBeingHit = false;
+    this.followPlayer = followPlayer;
     
     // Animation
     this.bounceAnim = {
@@ -64,9 +61,6 @@ class Enemy {
     this.spawnAnim = {
       t: 1.0, playing: false
     }
-    
-    // Misc.
-    this.followPlayer = followPlayer;
     
     this.spawned();
   }
@@ -101,7 +95,7 @@ class Enemy {
     if (Game.isSlowMode) {
       this.#slowState = true;
     } else if (this.#slowState) {
-      this.y = this.#initialY;
+      this.y = this.#initialY / 2.0;
       this.rabbitball.accel = 0.0;
       this.canMove = true;
       this.canHurt = false;
@@ -116,18 +110,17 @@ class Enemy {
     let newY = this.y + deltaTime * this.rabbitball.accel * fallFactor * 0.06;
     const ground = height - (this.size / 2.0);
 
-    // Did we cross the ground this frame?
     if (newY > ground) {
-      newY = ground;              // clamp
-      this.rabbitball.accel *= -1; // invert velocity (proper bounce)
+      newY = ground;              
+      this.rabbitball.accel *= -1;
       animScreenShake();
-      // this.bounceSFX.play();
+      this.bounceSFX.play();
     }
 
     this.y = newY;
 }
   moveTowardPlayer() {
-    if (Game.currentPlayer == null || !this.followPlayer) return;
+    if (Game.currentPlayer === null || !this.followPlayer) return;
     
     let dx = Game.currentPlayer.x - this.x;
     let dy = Game.currentPlayer.y - this.y;
@@ -147,7 +140,7 @@ class Enemy {
     }
   }
   spawnBullets() { // Called by sketch.js
-    if (!this.canShoot && this.type != Game.EnemyTypes.SHOOTER) return false;
+    if (!this.canShoot && this.type !== Game.EnemyTypes.SHOOTER) return false;
     
     const shootingSpdFactor = 1.7;
     const factor = (Game.isSlowMode) ? shootingSpdFactor * 4.0 : shootingSpdFactor;
@@ -162,7 +155,7 @@ class Enemy {
     return false;
   }
   moveAwayItemCollected(x, y){ // Called by Item
-    if (this.type == Game.EnemyTypes.RABBITBALL) return;
+    if (this.type === Game.EnemyTypes.RABBITBALL) return;
     
     let dx = x - this.x;
     let dy = y - this.y;
@@ -282,7 +275,7 @@ class Enemy {
         this.spawnAnim.playing = false;
       }
     } else if (this.bounceAnim.playing) {
-      this.bounceAnim.t += deltaTime * 0.0004;
+      this.bounceAnim.t += deltaTime * (Game.isSlowMode ? 0.0004 / 4.0 : 0.0004);
       let eased = Anim.elasticEaseOut(constrain(this.bounceAnim.t, 0, 1));
       let x = lerp(this.bounceAnim.x, this.dpSize, eased);
       let y = lerp(this.bounceAnim.y, this.dpSize, eased);
@@ -327,7 +320,7 @@ class Enemy {
     }
   }
   hit(hitX = 0, hitY = 0, hitpoint = 1) {
-    this.#lastHitTime = millis(); // record when last hit occurred
+    this.#lastHitTime = millis();
     this.isBeingHit = true;
 
     this.#col[0] *= 0.65;
@@ -339,7 +332,7 @@ class Enemy {
     this.health -= hitpoint;
 
     // Critical hit detection
-    if (random() < 1 / Game.CRIT_HIT_PROBABILITY && this.health == this.critHitPoint){
+    if (random() < 1 / Game.CRIT_HIT_PROBABILITY && this.health === this.critHitPoint){
       console.log("Critical Hit!");
       Game.critHitEvent(this.x, this.y);
 
@@ -351,7 +344,7 @@ class Enemy {
     this.knockback(hitX, hitY);
   }
   knockback(hitX, hitY) {
-    if (this.type == Game.EnemyTypes.RABBITBALL) return;
+    if (this.type === Game.EnemyTypes.RABBITBALL) return;
     this.x += 6.0 * hitX;
     this.y += 6.0 * hitY;
   }
@@ -371,7 +364,7 @@ class Enemy {
     this.spawnAnim.playing = true;
   }
   getSize() {
-    if (this.type == Game.EnemyTypes.EXPLODER) {
+    if (this.type === Game.EnemyTypes.EXPLODER) {
       return 160.0 - this.health * 3.0;
     }
     return 80.0 + this.health * 5.0;

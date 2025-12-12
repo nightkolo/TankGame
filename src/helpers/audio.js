@@ -1,16 +1,17 @@
-const nextwaveSFX = new Howl({
-  src: ["audio/wave_complete_01.ogg"],
-  volume: 0.2,
-});
+const nextwaveSFXs = [
+  new Howl({src: ["audio/cabinet_complete_01.ogg"],volume: 0.2}),
+  new Howl({src: ["audio/cabinet_complete_02.ogg"],volume: 0.2}),
+  new Howl({src: ["audio/cabinet_complete_03.ogg"],volume: 0.2})
+];
 
 const next10wave1SFX = new Howl({
-  src: ["audio/wave_complete_02.wav"],
+  src: ["audio/cabinet_complete_04.ogg"],
   volume: 0.4,
 });
 
 const next10wave2SFX = new Howl({
-  src: ["audio/wave_complete_02.wav"],
-  volume: 0.2,
+  src: ["audio/wave_complete_01.wav"],
+  volume: 0.4,
 });
 
 const enemyDeadSFX = new Howl({

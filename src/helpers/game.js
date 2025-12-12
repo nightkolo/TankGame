@@ -17,13 +17,14 @@ class Game {
   static TANK_BUDDY_LIFETIME = 10.0;
   static POWERUP_LIFETIME = 10.0;
 
-  static MAX_HEARTS = 13;
+  static MAX_HEARTS = 10;
   
   static CRIT_HIT_PROBABILITY = 10;
   static DEFAULT_ENEMY_SPEED = 1.35;
   
   static GRAV = 9.8;
   static BUBBLE_MESSAGE = "";
+  static GO_MESSAGE = "";
 
   // Object refs
   static currentPlayer;
@@ -37,6 +38,9 @@ class Game {
   static itemStats;
   static itemTimes;
   static noOfMsgs = 22;
+  static randomGOMsgs = [
+    "Dead", "ded", "RIP", "Overwhelmed", "Unalive", "Murdered", "Over", "Owned"
+  ];
   static randomMsgs = [
     ["Shoot me", 35],
     ["Why so round?", 30],
@@ -58,7 +62,7 @@ class Game {
     ["Tip:\nSome enemies explode upon\ndeath, be careful", 22],
     ["Tip:\nFloating hearts give you\nstronger bullets", 22],
     ["Tip:\nDon't eat my\nsandwich", 25],
-    [`Tip:\nCritical Hits have a ${this.CRIT_HIT_PROBABILITY}% chance\n of occuring`, 22],
+    [`Tip:\nCritical Hits have a ${this.CRIT_HIT_PROBABILITY}% chance\n of occurring`, 22],
     [`Tip:\nCritical Hits and Item Pickups\nare two ways to gain Hearts`, 22],
     ["Tip:\nSometimes standing still\nhelps", 25],
     ["Tip:\nTake a break", 28],
@@ -74,7 +78,8 @@ class Game {
     clearInterval(dazzleInterval);
     clearInterval(CSinterval);
 
-    this.BUBBLE_MESSAGE = this.randomMsgs[floor( random() * this.randomMsgs.length )];
+    this.BUBBLE_MESSAGE = this.randomMsgs[floor(random() * this.randomMsgs.length)];
+    this.GO_MESSAGE = this.randomGOMsgs[floor(random()*this.randomGOMsgs.length)];
     this.itemTimes = new Map([
       [this.Items.COUNTER_SPIKE.name, 0.0],
       [this.Items.INACCURACY.name, 0.0],
